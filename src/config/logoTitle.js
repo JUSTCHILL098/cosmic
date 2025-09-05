@@ -1,3 +1,3 @@
-const logoTitle="weebit"
+const logoTitle="WeebIt"
 
 export default logoTitle;
