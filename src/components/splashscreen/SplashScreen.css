@@ -17,31 +17,40 @@ body, html {
 }
 
 /* ==============================
-   Splash Video & Overlay
+   Splash Container & Video
 ============================== */
-.splash-video {
-  position: fixed;
-  top: 50%;
-  left: 50%;
+.splash-container {
+  position: relative;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: translate(-50%, -50%);
-  z-index: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 
-.splash-overlay {
-  position: fixed;
+.splash-video {
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4); /* lighter overlay so video shows more */
+  object-fit: cover;
+  z-index: 0;
+}
+
+.splash-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
   z-index: 1;
 }
 
 /* ==============================
-   Content Wrapper
+   Content Wrapper with Soft Blue Blur
 ============================== */
 .content-wrapper {
   position: relative;
@@ -50,13 +59,12 @@ body, html {
   max-width: 800px;
   display: flex;
   flex-direction: column;
-  align-items: center; /* horizontally centered */
-  justify-content: flex-start;
+  align-items: center;
   text-align: center;
   padding: 80px 20px;
 }
 
-/* Optional background for content */
+/* Optional container background for blur effect */
 .content-wrapper-bg {
   width: 100%;
   display: flex;
@@ -65,12 +73,12 @@ body, html {
   text-align: center;
   padding: 30px 20px;
   border-radius: 12px;
-  background: rgba(0, 102, 204, 0.05); /* very subtle blue */
-  backdrop-filter: blur(4px);
+  background: rgba(255,255,255,0.05); /* mostly transparent */
+  backdrop-filter: blur(8px) saturate(120%) hue-rotate(200deg); /* subtle blue blur */
 }
 
 .content-wrapper-bg * {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255,255,255,0.85); /* slightly translucent text */
 }
 
 /* ==============================
@@ -98,21 +106,22 @@ body, html {
 .search-input {
   width: 100%;
   padding: 14px 48px 14px 20px;
-  background: rgba(0, 102, 204, 0.05); /* subtle blue */
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255,255,255,0.05); /* subtle blue tint */
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255,255,255,0.9);
   font-size: 16px;
   outline: none;
   transition: border-color 0.2s;
+  backdrop-filter: blur(6px) saturate(120%) hue-rotate(200deg);
 }
 
 .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255,255,255,0.6);
 }
 
 .search-input:focus {
-  border-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255,255,255,0.3);
 }
 
 .search-button {
@@ -122,7 +131,7 @@ body, html {
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255,255,255,0.6);
   font-size: 18px;
   cursor: pointer;
   transition: color 0.2s;
@@ -133,26 +142,26 @@ body, html {
 }
 
 /* ==============================
-   Enter Button
+   Enter Button Fully Translucent Soft Blue
 ============================== */
 .enter-button {
-  background: rgba(0, 102, 204, 0.05); /* very subtle blue */
-  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255,255,255,0.05); /* almost fully transparent */
+  color: rgba(255,255,255,0.9);
   padding: 14px 28px;
   border-radius: 8px;
   text-decoration: none;
   font-weight: 500;
   margin: 8px 0 60px;
   transition: all 0.2s ease;
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px) saturate(120%) hue-rotate(200deg);
+  border: 1px solid rgba(255,255,255,0.1);
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .enter-button:hover {
-  background: rgba(0, 102, 204, 0.1);
+  background: rgba(255,255,255,0.08); /* slightly stronger on hover */
 }
 
 .enter-button .angle-icon {
@@ -168,7 +177,7 @@ body, html {
 }
 
 /* ==============================
-   FAQ Section with Typing + Blinking Caret
+   FAQ Section with Typing + Blinking Caret + Soft Glow
 ============================== */
 .faq-section {
   width: 100%;
@@ -179,11 +188,11 @@ body, html {
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 40px;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255,255,255,0.85);
   white-space: nowrap;
   overflow: hidden;
-  border-right: 2px solid rgba(0, 102, 204, 0.2); /* very subtle caret */
-  text-shadow: 0 0 2px rgba(0, 102, 204, 0.1); /* soft minimal glow */
+  border-right: 2px solid rgba(173,216,230,0.3); /* subtle blinking caret */
+  text-shadow: 0 0 4px rgba(0,102,204,0.15); /* tiny blue glow */
   width: 100%;
   animation: typing 2.5s steps(30, end) forwards, blink 0.8s step-end infinite;
 }
@@ -194,7 +203,7 @@ body, html {
 }
 
 @keyframes blink {
-  0%, 50%, 100% { border-color: rgba(0, 102, 204, 0.2); }
+  0%, 50%, 100% { border-color: rgba(173,216,230,0.3); }
   25%, 75% { border-color: transparent; }
 }
 
@@ -205,10 +214,11 @@ body, html {
 }
 
 .faq-item {
-  background: rgba(0, 102, 204, 0.05); /* subtle blue */
+  background: rgba(255,255,255,0.05); /* subtle blue tint */
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(6px) saturate(120%) hue-rotate(200deg);
 }
 
 .faq-question {
@@ -219,30 +229,30 @@ body, html {
   align-items: center;
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255,255,255,0.85);
   font-size: 17px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .faq-question:hover {
-  background: rgba(0, 102, 204, 0.08);
+  background: rgba(255,255,255,0.08);
 }
 
 .faq-toggle {
   font-size: 16px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255,255,255,0.6);
   transition: all 0.2s ease;
 }
 
 .faq-toggle.rotate {
   transform: rotate(180deg);
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255,255,255,0.85);
 }
 
 .faq-answer {
   padding: 0 24px 18px;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255,255,255,0.8);
   font-size: 15px;
   line-height: 1.6;
 }
