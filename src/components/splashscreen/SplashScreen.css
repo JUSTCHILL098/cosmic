@@ -21,15 +21,28 @@ html {
   min-height: 100vh;
   width: 100%;
   position: fixed;
-  background: url('/splash.jpg') center center / cover no-repeat; /* cover removes grey strip */
+  background: url('/splash.jpg') center center no-repeat;
+  background-size: cover;
   display: flex;
-  justify-content: center;
+  justify-content: center;  /* centers horizontally */
   align-items: flex-start;
-  padding: 0 30px;
   overflow: auto;
   margin: 0;
   left: 0;
   top: 0;
+  padding: 0; /* removed padding that caused shift */
+}
+
+@media (max-width: 768px) {
+  .splash-container {
+    padding: 0 15px; /* only add side padding for smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .splash-container {
+    padding: 0 10px;
+  }
 }
 
 .splash-overlay {
@@ -38,7 +51,7 @@ html {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.65); /* even dark overlay */
+  background: rgba(0, 0, 0, 0.7);
   z-index: 1;
 }
 
@@ -74,22 +87,21 @@ html {
 .search-input {
   width: 100%;
   padding: 14px 48px 14px 20px;
-  background: rgba(255, 255, 255, 0.15); /* translucent glass look */
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(17, 17, 17, 0.55); /* made more translucent */
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   color: white;
   font-size: 16px;
   outline: none;
   transition: border-color 0.2s;
-  backdrop-filter: blur(18px);
 }
 
 .search-input:focus {
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .search-button {
@@ -99,7 +111,7 @@ html {
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   padding: 0;
   font-size: 18px;
@@ -112,17 +124,17 @@ html {
 
 /* Enter button */
 .enter-button {
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
+  background: rgba(255, 255, 255, 0.9);
+  color: black;
   padding: 14px 28px;
   border-radius: 8px;
   text-decoration: none;
   font-weight: 500;
   margin: 8px 0 60px;
   transition: all 0.2s ease;
-  backdrop-filter: blur(18px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -141,9 +153,9 @@ html {
 }
 
 .enter-button:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: white;
   transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
 }
 
 /* FAQ Section */
@@ -167,11 +179,10 @@ html {
 }
 
 .faq-item {
-  background: rgba(26, 26, 26, 0.35); /* translucent */
-  backdrop-filter: blur(18px);
+  background: rgba(26, 26, 26, 0.55); /* translucent */
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .faq-question {
@@ -190,12 +201,12 @@ html {
 }
 
 .faq-question:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(37, 37, 37, 0.55);
 }
 
 .faq-toggle {
   font-size: 16px;
-  color: #bbb;
+  color: #999;
   transition: all 0.2s ease;
 }
 
@@ -206,7 +217,7 @@ html {
 
 .faq-answer {
   padding: 0 24px 18px;
-  color: #ddd;
+  color: #bbb;
   line-height: 1.6;
   font-size: 15px;
 }
@@ -240,10 +251,6 @@ html {
   .faq-title {
     font-size: 24px;
     margin-bottom: 24px;
-  }
-
-  .splash-container {
-    padding: 0 15px;
   }
 }
 
@@ -279,10 +286,6 @@ html {
   .faq-answer {
     padding: 0 14px 14px;
     font-size: 14px;
-  }
-
-  .splash-container {
-    padding: 0 10px;
   }
 }
 
