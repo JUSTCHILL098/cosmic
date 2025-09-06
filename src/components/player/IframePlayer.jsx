@@ -10,8 +10,18 @@ export default function IframePlayer({
   episodeNum,
   episodes,
   playNext,
-  autoNext,
+  autoNext, 
+  aniid,
 }) {
+  const baseURL =
+    serverName.toLowerCase() === "hd-1"
+      ? import.meta.env.VITE_BASE_IFRAME_URL
+      : serverName.toLowerCase() === "hd-4"
+      ? import.meta.env.VITE_BASE_IFRAME_URL_2
+      : serverName.toLowerCase() === "nest"
+      ? import.meta.env.VITE_BASE_IFRAME_URL_3
+      : undefined; 
+
   const [loading, setLoading] = useState(true);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeSrc, setIframeSrc] = useState("");
@@ -21,21 +31,18 @@ export default function IframePlayer({
     )
   );
 
-  const urlBuilders = {
-    "hd-1": () => `${import.meta.env.VITE_BASE_IFRAME_URL}/${episodeId}/${servertype}`,
-    "hd-2": () => `https://vidnest.fun/anime/${animeInfo?.id}/${episodeNum}/${servertype}`,
-    "hd-3": () => `https://vidnest.fun/animepahe/${animeInfo?.id}/${episodeNum}/${servertype}`,
-    // ✅ vidwish correct base:
-    "hd-4": () => `${import.meta.env.VITE_BASE_IFRAME_URL_2}/${episodeId}/${servertype}`,
-  };
-
   useEffect(() => {
-    setLoading(true);
-    setIframeLoaded(false);
-    const url = urlBuilders[serverName?.toLowerCase()]?.();
-    setIframeSrc(url || "");
+    const loadIframeUrl = async () => {
+      setLoading(true);
+      setIframeLoaded(false);
+      setIframeSrc("");
+
+      setIframeSrc(serverName.toLowerCase() === "nest" ? `${baseURL}/${aniid}/${episodeNum}/hindi` : `${baseURL}/${episodeId}/${servertype}`);
+    };
+
+    loadIframeUrl();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [episodeId, servertype, serverName, animeInfo, episodeNum]);
+  }, [episodeId, servertype, serverName, animeInfo]);
 
   useEffect(() => {
     if (episodes?.length > 0) {
@@ -48,11 +55,11 @@ export default function IframePlayer({
 
   useEffect(() => {
     const handleMessage = (event) => {
-      const { currentTime, duration } = event.data || {};
+      const { currentTime, duration } = event.data;
       if (typeof currentTime === "number" && typeof duration === "number") {
         if (
           currentTime >= duration &&
-          currentEpisodeIndex < (episodes?.length ?? 0) - 1 &&
+          currentEpisodeIndex < episodes?.length - 1 &&
           autoNext
         ) {
           playNext(episodes[currentEpisodeIndex + 1].id.match(/ep=(\d+)/)?.[1]);
@@ -60,7 +67,9 @@ export default function IframePlayer({
       }
     };
     window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
   }, [autoNext, currentEpisodeIndex, episodes, playNext]);
 
   useEffect(() => {
@@ -79,9 +88,14 @@ export default function IframePlayer({
         japanese_title: animeInfo?.japanese_title,
       };
       if (!newEntry.data_id) return;
-      const i = continueWatching.findIndex((x) => x.data_id === newEntry.data_id);
-      if (i !== -1) continueWatching[i] = newEntry;
-      else continueWatching.push(newEntry);
+      const existingIndex = continueWatching.findIndex(
+        (item) => item.data_id === newEntry.data_id
+      );
+      if (existingIndex !== -1) {
+        continueWatching[existingIndex] = newEntry;
+      } else {
+        continueWatching.push(newEntry);
+      }
       localStorage.setItem("continueWatching", JSON.stringify(continueWatching));
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,9 +103,12 @@ export default function IframePlayer({
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      <div className={`absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 z-10 transition-opacity duration-500 ${
-        loading ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-      }`}>
+      {/* Loader Overlay */}
+      <div
+        className={`absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 z-10 transition-opacity duration-500 ${
+          loading ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      >
         <BouncingLoader />
       </div>
 
@@ -99,12 +116,14 @@ export default function IframePlayer({
         key={`${episodeId}-${servertype}-${serverName}-${iframeSrc}`}
         src={iframeSrc}
         allowFullScreen
-        className={`w-full h-full transition-opacity duration-500 ${iframeLoaded ? "opacity-100" : "opacity-0"}`}
+        className={`w-full h-full transition-opacity duration-500 ${
+          iframeLoaded ? "opacity-100" : "opacity-0"
+        }`}
         onLoad={() => {
           setIframeLoaded(true);
           setTimeout(() => setLoading(false), 1000);
         }}
-      />
+      ></iframe>
     </div>
   );
 }
