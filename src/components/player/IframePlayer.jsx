@@ -12,13 +12,6 @@ export default function IframePlayer({
   playNext,
   autoNext,
 }) {
-  const baseURL =
-    serverName.toLowerCase() === "hd-1"
-      ? import.meta.env.VITE_BASE_IFRAME_URL
-      : serverName.toLowerCase() === "hd-4"
-      ? import.meta.env.VITE_BASE_IFRAME_URL_2
-      : undefined; 
-
   const [loading, setLoading] = useState(true);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeSrc, setIframeSrc] = useState("");
@@ -28,16 +21,32 @@ export default function IframePlayer({
     )
   );
 
+  // Build iframe URL depending on serverName
+  const buildIframeUrl = () => {
+    const server = serverName?.toLowerCase();
+
+    if (server === "hd-1") {
+      return `${import.meta.env.VITE_BASE_IFRAME_URL}/${episodeId}/${servertype}`;
+    }
+    if (server === "hd-2") {
+      return `https://vidnest.fun/anime/${animeInfo?.id}/${episodeNum}/${servertype}`;
+    }
+    if (server === "hd-3") {
+      return `https://vidnest.fun/animepahe/${animeInfo?.id}/${episodeNum}/${servertype}`;
+    }
+    if (server === "hd-4") {
+      return `${import.meta.env.VITE_BASE_IFRAME_URL_2}/${episodeId}/${servertype}`;
+    }
+    return undefined;
+  };
+
   useEffect(() => {
-    const loadIframeUrl = async () => {
-      setLoading(true);
-      setIframeLoaded(false);
-      setIframeSrc("");
+    setLoading(true);
+    setIframeLoaded(false);
+    setIframeSrc("");
 
-      setIframeSrc(`${baseURL}/${episodeId}/${servertype}`);
-    };
-
-    loadIframeUrl();
+    const url = buildIframeUrl();
+    if (url) setIframeSrc(url);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [episodeId, servertype, serverName, animeInfo]);
 
@@ -59,7 +68,9 @@ export default function IframePlayer({
           currentEpisodeIndex < episodes?.length - 1 &&
           autoNext
         ) {
-          playNext(episodes[currentEpisodeIndex + 1].id.match(/ep=(\d+)/)?.[1]);
+          playNext(
+            episodes[currentEpisodeIndex + 1].id.match(/ep=(\d+)/)?.[1]
+          );
         }
       }
     };
@@ -73,7 +84,8 @@ export default function IframePlayer({
     setLoading(true);
     setIframeLoaded(false);
     return () => {
-      const continueWatching = JSON.parse(localStorage.getItem("continueWatching")) || [];
+      const continueWatching =
+        JSON.parse(localStorage.getItem("continueWatching")) || [];
       const newEntry = {
         id: animeInfo?.id,
         data_id: animeInfo?.data_id,
@@ -93,7 +105,10 @@ export default function IframePlayer({
       } else {
         continueWatching.push(newEntry);
       }
-      localStorage.setItem("continueWatching", JSON.stringify(continueWatching));
+      localStorage.setItem(
+        "continueWatching",
+        JSON.stringify(continueWatching)
+      );
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [episodeId, servertype]);
@@ -103,7 +118,9 @@ export default function IframePlayer({
       {/* Loader Overlay */}
       <div
         className={`absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 z-10 transition-opacity duration-500 ${
-          loading ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          loading
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
       >
         <BouncingLoader />
