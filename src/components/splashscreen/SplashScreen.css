@@ -20,6 +20,7 @@ body, html {
   align-items: center;
   flex-direction: column;
   overflow-y: auto;
+  text-align: center; /* makes child elements center aligned */
 }
 
 /* Background video */
@@ -54,6 +55,7 @@ body, html {
   flex-direction: column;
   align-items: center;
   padding: 40px 20px;
+  margin: 0 auto; /* ensures true centering */
 }
 
 /* Logo */
@@ -77,17 +79,19 @@ body, html {
 .search-input {
   width: 100%;
   padding: 14px 48px 14px 20px;
-  background: rgba(17, 17, 17, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08); /* translucent */
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
   color: white;
   font-size: 16px;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, background 0.2s;
 }
 
 .search-input:focus {
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .search-input::placeholder {
@@ -113,18 +117,19 @@ body, html {
 
 /* Enter button */
 .enter-button {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.08); /* translucent */
   color: white;
   padding: 14px 28px;
-  border-radius: 8px;
+  border-radius: 10px;
   text-decoration: none;
   font-weight: 500;
   margin: 8px 0 60px;
   transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   display: flex;
   align-items: center;
   gap: 8px;
+  backdrop-filter: blur(10px);
 }
 
 .enter-button .angle-icon {
@@ -140,7 +145,7 @@ body, html {
 }
 
 .enter-button:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
   transform: translateY(-1px);
 }
 
@@ -161,14 +166,15 @@ body, html {
 .faq-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .faq-item {
-  background: rgba(26, 26, 26, 0.8);
+  background: rgba(26, 26, 26, 0.55); /* translucent */
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid #333;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
 }
 
 .faq-question {
@@ -187,12 +193,12 @@ body, html {
 }
 
 .faq-question:hover {
-  background: #252525;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .faq-toggle {
   font-size: 16px;
-  color: #999;
+  color: #ccc;
   transition: all 0.2s ease;
 }
 
@@ -203,7 +209,7 @@ body, html {
 
 .faq-answer {
   padding: 0 24px 18px;
-  color: #999;
+  color: #ddd;
   line-height: 1.6;
   font-size: 15px;
 }
