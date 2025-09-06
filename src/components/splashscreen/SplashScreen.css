@@ -50,7 +50,7 @@ body, html {
 }
 
 /* ==============================
-   Content Wrapper
+   Content Wrapper with Blue Translucent Background
 ============================== */
 .content-wrapper {
   position: relative;
@@ -60,8 +60,23 @@ body, html {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 80px 20px;
   text-align: center;
+}
+
+.content-wrapper-bg {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 30px 20px;
+  border-radius: 12px;
+  background: rgba(0,102,204,0.4); /* blue-tinted translucent background */
+  backdrop-filter: blur(8px);
+}
+
+.content-wrapper-bg * {
+  color: rgba(255,255,255,0.85); /* slightly translucent text */
 }
 
 /* ==============================
@@ -89,17 +104,17 @@ body, html {
 .search-input {
   width: 100%;
   padding: 14px 48px 14px 20px;
-  background: rgba(17,17,17,0.55);
-  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(0,102,204,0.4); /* blue tint */
+  border: 1px solid rgba(255,255,255,0.2);
   border-radius: 8px;
-  color: white;
+  color: rgba(255,255,255,0.85);
   font-size: 16px;
   outline: none;
   transition: border-color 0.2s;
 }
 
 .search-input::placeholder {
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.6);
 }
 
 .search-input:focus {
@@ -113,7 +128,7 @@ body, html {
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.6);
   font-size: 18px;
   cursor: pointer;
   transition: color 0.2s;
@@ -124,23 +139,26 @@ body, html {
 }
 
 /* ==============================
-   Enter Button
+   Enter Button Fully Translucent
 ============================== */
 .enter-button {
-  background: rgba(255,255,255,0.9);
-  color: black;
+  background: rgba(0,102,204,0.5); /* fully translucent blue tint */
+  color: rgba(255,255,255,0.85);
   padding: 14px 28px;
   border-radius: 8px;
   text-decoration: none;
   font-weight: 500;
   margin: 8px 0 60px;
   transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.15);
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.enter-button:hover {
+  background: rgba(0,102,204,0.7);
 }
 
 .enter-button .angle-icon {
@@ -150,51 +168,47 @@ body, html {
   opacity: 0.8;
 }
 
-.enter-button:hover {
-  background: white;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(0,0,0,0.15);
-}
-
 .enter-button:hover .angle-icon {
   transform: translateX(4px);
   opacity: 1;
 }
 
 /* ==============================
-   FAQ Section with Typing Animation
+   FAQ Section with Typing + Blinking Caret + Glow
 ============================== */
 .faq-section {
   width: 100%;
   max-width: 700px;
 }
 
-/* FAQ Title with typing and glow effect */
 .faq-title {
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 40px;
-  color: rgba(173,216,230,0.8); /* soft blue tint, 80% opacity */
-  border-right: 2px solid rgba(173,216,230,0.8);
+  color: rgba(255,255,255,0.85);
   white-space: nowrap;
   overflow: hidden;
-  width: 0;
-  text-shadow: 0 0 6px rgba(173,216,230,0.5); /* subtle glow */
-  animation: typing 4s steps(30) infinite alternate;
+  border-right: 2px solid rgba(173,216,230,0.8); /* blinking caret */
+  text-shadow: 0 0 8px rgba(0,102,204,0.6); /* subtle blue glow */
+  width: 100%;
+  animation: typing 2.5s steps(30, end) forwards, blink 0.8s step-end infinite;
 }
 
 @keyframes typing {
-  0% {
+  from {
     width: 0;
-    opacity: 0.2;
   }
-  50% {
+  to {
     width: 100%;
-    opacity: 1;
   }
-  100% {
-    width: 0;
-    opacity: 0.2;
+}
+
+@keyframes blink {
+  0%, 50%, 100% {
+    border-color: rgba(173,216,230,0.8);
+  }
+  25%, 75% {
+    border-color: transparent;
   }
 }
 
@@ -205,10 +219,10 @@ body, html {
 }
 
 .faq-item {
-  background: rgba(26,26,26,0.55);
+  background: rgba(0,102,204,0.4); /* blue translucent background */
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
 }
 
 .faq-question {
@@ -219,30 +233,30 @@ body, html {
   align-items: center;
   background: none;
   border: none;
-  color: white;
+  color: rgba(255,255,255,0.85);
   font-size: 17px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .faq-question:hover {
-  background: rgba(37,37,37,0.55);
+  background: rgba(0,102,204,0.5);
 }
 
 .faq-toggle {
   font-size: 16px;
-  color: #999;
+  color: rgba(255,255,255,0.6);
   transition: all 0.2s ease;
 }
 
 .faq-toggle.rotate {
   transform: rotate(180deg);
-  color: white;
+  color: rgba(255,255,255,0.85);
 }
 
 .faq-answer {
   padding: 0 24px 18px;
-  color: #bbb;
+  color: rgba(255,255,255,0.8);
   font-size: 15px;
   line-height: 1.6;
 }
