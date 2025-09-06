@@ -20,7 +20,7 @@ body, html {
    Splash Video & Overlay
 ============================== */
 .splash-video {
-  position: fixed; /* video stays fixed */
+  position: fixed;
   top: 50%;
   left: 50%;
   width: 100%;
@@ -36,7 +36,7 @@ body, html {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* slightly lighter dark overlay */
+  background: rgba(0, 0, 0, 0.4); /* lighter overlay so video shows more */
   z-index: 1;
 }
 
@@ -50,12 +50,13 @@ body, html {
   max-width: 800px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: center; /* horizontally centered */
+  justify-content: flex-start;
   text-align: center;
   padding: 80px 20px;
 }
 
-/* Optional content background with subtle blue */
+/* Optional background for content */
 .content-wrapper-bg {
   width: 100%;
   display: flex;
@@ -64,12 +65,12 @@ body, html {
   text-align: center;
   padding: 30px 20px;
   border-radius: 12px;
-  background: rgba(0, 102, 204, 0.08); /* very subtle light blue */
-  backdrop-filter: blur(6px);
+  background: rgba(0, 102, 204, 0.05); /* very subtle blue */
+  backdrop-filter: blur(4px);
 }
 
 .content-wrapper-bg * {
-  color: rgba(255, 255, 255, 0.85); /* slightly translucent text */
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* ==============================
@@ -97,8 +98,8 @@ body, html {
 .search-input {
   width: 100%;
   padding: 14px 48px 14px 20px;
-  background: rgba(0, 102, 204, 0.08); /* subtle light blue */
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 102, 204, 0.05); /* subtle blue */
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   color: rgba(255, 255, 255, 0.9);
   font-size: 16px;
@@ -111,7 +112,7 @@ body, html {
 }
 
 .search-input:focus {
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .search-button {
@@ -135,23 +136,23 @@ body, html {
    Enter Button
 ============================== */
 .enter-button {
-  background: rgba(0, 102, 204, 0.08); /* subtle light blue */
-  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 102, 204, 0.05); /* very subtle blue */
+  color: rgba(255, 255, 255, 0.85);
   padding: 14px 28px;
   border-radius: 8px;
   text-decoration: none;
   font-weight: 500;
   margin: 8px 0 60px;
   transition: all 0.2s ease;
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .enter-button:hover {
-  background: rgba(0, 102, 204, 0.15);
+  background: rgba(0, 102, 204, 0.1);
 }
 
 .enter-button .angle-icon {
@@ -181,8 +182,8 @@ body, html {
   color: rgba(255, 255, 255, 0.85);
   white-space: nowrap;
   overflow: hidden;
-  border-right: 2px solid rgba(0, 102, 204, 0.3); /* subtle blue caret */
-  text-shadow: 0 0 4px rgba(0, 102, 204, 0.2); /* soft glow */
+  border-right: 2px solid rgba(0, 102, 204, 0.2); /* very subtle caret */
+  text-shadow: 0 0 2px rgba(0, 102, 204, 0.1); /* soft minimal glow */
   width: 100%;
   animation: typing 2.5s steps(30, end) forwards, blink 0.8s step-end infinite;
 }
@@ -193,7 +194,7 @@ body, html {
 }
 
 @keyframes blink {
-  0%, 50%, 100% { border-color: rgba(0, 102, 204, 0.3); }
+  0%, 50%, 100% { border-color: rgba(0, 102, 204, 0.2); }
   25%, 75% { border-color: transparent; }
 }
 
@@ -204,7 +205,7 @@ body, html {
 }
 
 .faq-item {
-  background: rgba(0, 102, 204, 0.08); /* subtle blue */
+  background: rgba(0, 102, 204, 0.05); /* subtle blue */
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -225,7 +226,7 @@ body, html {
 }
 
 .faq-question:hover {
-  background: rgba(0, 102, 204, 0.15); /* subtle hover effect */
+  background: rgba(0, 102, 204, 0.08);
 }
 
 .faq-toggle {
