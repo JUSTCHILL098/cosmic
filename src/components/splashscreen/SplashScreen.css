@@ -50,7 +50,7 @@ body, html {
 }
 
 /* ==============================
-   Content Wrapper with Blue Translucent Background
+   Content Wrapper with Soft Blue
 ============================== */
 .content-wrapper {
   position: relative;
@@ -71,8 +71,8 @@ body, html {
   text-align: center;
   padding: 30px 20px;
   border-radius: 12px;
-  background: rgba(0,102,204,0.4); /* blue-tinted translucent background */
-  backdrop-filter: blur(8px);
+  background: rgba(0,102,204,0.15); /* subtle light blue */
+  backdrop-filter: blur(6px);
 }
 
 .content-wrapper-bg * {
@@ -104,10 +104,10 @@ body, html {
 .search-input {
   width: 100%;
   padding: 14px 48px 14px 20px;
-  background: rgba(0,102,204,0.4); /* blue tint */
-  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(0,102,204,0.15); /* light blue tint */
+  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 8px;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255,255,255,0.9);
   font-size: 16px;
   outline: none;
   transition: border-color 0.2s;
@@ -139,11 +139,11 @@ body, html {
 }
 
 /* ==============================
-   Enter Button Fully Translucent
+   Enter Button Fully Subtle
 ============================== */
 .enter-button {
-  background: rgba(0,102,204,0.5); /* fully translucent blue tint */
-  color: rgba(255,255,255,0.85);
+  background: rgba(0,102,204,0.15); /* subtle blue tint */
+  color: rgba(255,255,255,0.9);
   padding: 14px 28px;
   border-radius: 8px;
   text-decoration: none;
@@ -158,7 +158,7 @@ body, html {
 }
 
 .enter-button:hover {
-  background: rgba(0,102,204,0.7);
+  background: rgba(0,102,204,0.25);
 }
 
 .enter-button .angle-icon {
@@ -188,28 +188,20 @@ body, html {
   color: rgba(255,255,255,0.85);
   white-space: nowrap;
   overflow: hidden;
-  border-right: 2px solid rgba(173,216,230,0.8); /* blinking caret */
-  text-shadow: 0 0 8px rgba(0,102,204,0.6); /* subtle blue glow */
+  border-right: 2px solid rgba(173,216,230,0.5); /* blinking caret */
+  text-shadow: 0 0 6px rgba(0,102,204,0.3); /* subtle glow */
   width: 100%;
   animation: typing 2.5s steps(30, end) forwards, blink 0.8s step-end infinite;
 }
 
 @keyframes typing {
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
-  }
+  from { width: 0; }
+  to { width: 100%; }
 }
 
 @keyframes blink {
-  0%, 50%, 100% {
-    border-color: rgba(173,216,230,0.8);
-  }
-  25%, 75% {
-    border-color: transparent;
-  }
+  0%, 50%, 100% { border-color: rgba(173,216,230,0.5); }
+  25%, 75% { border-color: transparent; }
 }
 
 .faq-list {
@@ -219,10 +211,10 @@ body, html {
 }
 
 .faq-item {
-  background: rgba(0,102,204,0.4); /* blue translucent background */
+  background: rgba(0,102,204,0.15); /* subtle blue */
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .faq-question {
@@ -240,7 +232,7 @@ body, html {
 }
 
 .faq-question:hover {
-  background: rgba(0,102,204,0.5);
+  background: rgba(0,102,204,0.2); /* slightly stronger on hover */
 }
 
 .faq-toggle {
