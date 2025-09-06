@@ -1,72 +1,81 @@
-/* Base styles */
-body {
+/* ==============================
+   Base Styles
+============================== */
+* {
+  box-sizing: border-box;
+}
+
+body, html {
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  width: 100%;
+  height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background-color: #0a0a0a;
   color: white;
-}
-
-html {
-  margin: 0;
-  padding: 0;
   overflow-x: hidden;
-  height: 100%;
-  width: 100%;
 }
 
-/* Container and background */
+/* ==============================
+   Splash Container & Video
+============================== */
 .splash-container {
-  min-height: 100vh;
+  position: relative;
   width: 100%;
-  position: fixed;
-  background: url('/splash.jpg') center center no-repeat;
-  background-size: cover;
+  height: 100vh;
   display: flex;
-  justify-content: center;  /* centers horizontally */
-  align-items: flex-start;
-  overflow: auto;
-  margin: 0;
-  left: 0;
+  justify-content: center;  /* horizontal center */
+  align-items: center;      /* vertical center */
+  overflow: hidden;
+}
+
+.splash-video {
+  position: absolute;
   top: 0;
-  padding: 0; /* removed padding that caused shift */
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
 }
 
-@media (max-width: 768px) {
-  .splash-container {
-    padding: 0 15px; /* only add side padding for smaller screens */
-  }
-}
-
-@media (max-width: 480px) {
-  .splash-container {
-    padding: 0 10px;
-  }
-}
-
+/* Overlay to darken the video */
 .splash-overlay {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6); /* dark translucent overlay */
   z-index: 1;
 }
 
+/* ==============================
+   Content Wrapper (all text/buttons)
+============================== */
 .content-wrapper {
   position: relative;
-  z-index: 2;
+  z-index: 2; /* sits above video & overlay */
   width: 100%;
   max-width: 800px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 140px;
+  padding: 80px 20px;
+  text-align: center;
 }
 
-/* Logo */
+/* Optional translucent background for all content */
+.content-wrapper-bg {
+  background: rgba(0,0,0,0.4);
+  border-radius: 12px;
+  padding: 30px 20px;
+  width: 100%;
+}
+
+/* ==============================
+   Logo
+============================== */
 .logo-container {
   margin-bottom: 30px;
 }
@@ -76,19 +85,21 @@ html {
   width: auto;
 }
 
-/* Search */
+/* ==============================
+   Search Box
+============================== */
 .search-container {
+  position: relative;
   width: 100%;
   max-width: 500px;
-  position: relative;
   margin-bottom: 24px;
 }
 
 .search-input {
   width: 100%;
   padding: 14px 48px 14px 20px;
-  background: rgba(17, 17, 17, 0.55); /* made more translucent */
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(17,17,17,0.55); /* translucent */
+  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 8px;
   color: white;
   font-size: 16px;
@@ -96,12 +107,12 @@ html {
   transition: border-color 0.2s;
 }
 
-.search-input:focus {
-  border-color: rgba(255, 255, 255, 0.3);
+.search-input::placeholder {
+  color: rgba(255,255,255,0.5);
 }
 
-.search-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+.search-input:focus {
+  border-color: rgba(255,255,255,0.3);
 }
 
 .search-button {
@@ -111,10 +122,9 @@ html {
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.5);
-  cursor: pointer;
-  padding: 0;
+  color: rgba(255,255,255,0.5);
   font-size: 18px;
+  cursor: pointer;
   transition: color 0.2s;
 }
 
@@ -122,9 +132,11 @@ html {
   color: white;
 }
 
-/* Enter button */
+/* ==============================
+   Enter Button
+============================== */
 .enter-button {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255,255,255,0.9);
   color: black;
   padding: 14px 28px;
   border-radius: 8px;
@@ -133,8 +145,8 @@ html {
   margin: 8px 0 60px;
   transition: all 0.2s ease;
   backdrop-filter: blur(8px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  border: 1px solid rgba(255,255,255,0.1);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -147,18 +159,20 @@ html {
   opacity: 0.8;
 }
 
+.enter-button:hover {
+  background: white;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+}
+
 .enter-button:hover .angle-icon {
   transform: translateX(4px);
   opacity: 1;
 }
 
-.enter-button:hover {
-  background: white;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
-}
-
-/* FAQ Section */
+/* ==============================
+   FAQ Section
+============================== */
 .faq-section {
   width: 100%;
   max-width: 700px;
@@ -167,9 +181,7 @@ html {
 .faq-title {
   font-size: 32px;
   font-weight: 700;
-  text-align: center;
   margin-bottom: 40px;
-  color: white;
 }
 
 .faq-list {
@@ -179,10 +191,10 @@ html {
 }
 
 .faq-item {
-  background: rgba(26, 26, 26, 0.55); /* translucent */
+  background: rgba(26,26,26,0.55);
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .faq-question {
@@ -195,13 +207,12 @@ html {
   border: none;
   color: white;
   font-size: 17px;
-  text-align: left;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .faq-question:hover {
-  background: rgba(37, 37, 37, 0.55);
+  background: rgba(37,37,37,0.55);
 }
 
 .faq-toggle {
@@ -218,25 +229,16 @@ html {
 .faq-answer {
   padding: 0 24px 18px;
   color: #bbb;
-  line-height: 1.6;
   font-size: 15px;
+  line-height: 1.6;
 }
 
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-  .content-wrapper {
-    padding-top: 120px;
-    max-width: 700px;
-  }
-}
-
+/* ==============================
+   Responsive Adjustments
+============================== */
 @media (max-width: 768px) {
   .content-wrapper {
-    padding: 100px 20px 0;
-  }
-
-  .logo-container {
-    margin-top: 40px;
+    padding: 60px 15px;
   }
 
   .logo {
@@ -256,11 +258,7 @@ html {
 
 @media (max-width: 480px) {
   .content-wrapper {
-    padding: 60px 15px 0;
-  }
-
-  .logo-container {
-    margin-top: 50px;
+    padding: 40px 10px;
   }
 
   .logo {
@@ -268,14 +266,14 @@ html {
   }
 
   .search-input {
-    padding: 12px 36px 12px 14px;
+    padding: 10px 36px 10px 14px;
     font-size: 14px;
   }
 
   .enter-button {
     padding: 10px 20px;
     font-size: 14px;
-    margin: 8px 0 40px;
+    margin-bottom: 40px;
   }
 
   .faq-question {
@@ -286,35 +284,5 @@ html {
   .faq-answer {
     padding: 0 14px 14px;
     font-size: 14px;
-  }
-}
-
-@media (max-width: 360px) {
-  .content-wrapper {
-    padding: 40px 10px 0;
-  }
-
-  .logo-container {
-    margin-top: 60px;
-  }
-
-  .logo {
-    height: 50px;
-  }
-
-  .search-input {
-    padding: 10px 32px 10px 12px;
-    font-size: 13px;
-  }
-
-  .enter-button {
-    padding: 8px 16px;
-    font-size: 13px;
-    margin: 8px 0 30px;
-  }
-
-  .faq-title {
-    font-size: 20px;
-    margin-bottom: 20px;
   }
 }
