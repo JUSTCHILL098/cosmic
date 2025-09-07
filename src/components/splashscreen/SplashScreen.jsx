@@ -58,7 +58,6 @@ function SplashScreen() {
       <div className="splash-overlay"></div>
 
       <div className="content-wrapper">
-        {/* Logo */}
         <div className="logo-container">
           <img src="/logo.png" alt={logoTitle} className="logo" />
         </div>
