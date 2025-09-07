@@ -30,12 +30,12 @@ body, html {
 }
 
 .splash-video {
-  position: fixed; /* ✅ keeps video fixed on PC screens */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* no black bars */
+  object-fit: cover;
   z-index: 0;
 }
 
@@ -45,12 +45,12 @@ body, html {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.45); /* dark overlay */
+  background: rgba(0,0,0,0.45);
   z-index: 1;
 }
 
 /* ==============================
-   Content Wrapper with Glass Blur
+   Content Wrapper (Glass Effect)
 ============================== */
 .content-wrapper {
   position: relative;
@@ -72,7 +72,7 @@ body, html {
   text-align: center;
   padding: 30px 20px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.08); /* frosted glass */
+  background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(12px) saturate(140%);
   -webkit-backdrop-filter: blur(12px) saturate(140%);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -107,7 +107,7 @@ body, html {
 .search-input {
   width: 100%;
   padding: 14px 48px 14px 20px;
-  background: rgba(173, 216, 230, 0.15); /* light blue tint */
+  background: rgba(173, 216, 230, 0.12); /* light blue tint */
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 10px;
   color: rgba(255,255,255,0.95);
@@ -122,7 +122,7 @@ body, html {
 }
 
 .search-input:focus {
-  border-color: rgba(173,216,230,0.5);
+  border-color: rgba(173,216,230,0.4);
 }
 
 .search-button {
@@ -139,14 +139,14 @@ body, html {
 }
 
 .search-button:hover {
-  color: #add8e6; /* light blue */
+  color: #add8e6;
 }
 
 /* ==============================
    Enter Button
 ============================== */
 .enter-button {
-  background: rgba(173, 216, 230, 0.15); /* translucent light blue */
+  background: rgba(173, 216, 230, 0.12);
   color: rgba(255,255,255,0.95);
   padding: 14px 28px;
   border-radius: 10px;
@@ -162,8 +162,8 @@ body, html {
 }
 
 .enter-button:hover {
-  background: rgba(173, 216, 230, 0.25);
-  box-shadow: 0 0 12px rgba(173,216,230,0.3);
+  background: rgba(173, 216, 230, 0.22);
+  box-shadow: 0 0 10px rgba(173,216,230,0.25);
 }
 
 .enter-button .angle-icon {
@@ -179,7 +179,7 @@ body, html {
 }
 
 /* ==============================
-   FAQ Section with Typing + Glow
+   FAQ Section (Soft Glow Typing)
 ============================== */
 .faq-section {
   width: 100%;
@@ -190,11 +190,11 @@ body, html {
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 40px;
-  color: #add8e6; /* light blue text */
+  color: #add8e6;
   white-space: nowrap;
   overflow: hidden;
-  border-right: 2px solid #add8e6; /* blinking caret */
-  text-shadow: 0 0 12px rgba(173,216,230,0.8); /* glow */
+  border-right: 2px solid #add8e6;
+  text-shadow: 0 0 6px rgba(173,216,230,0.5), 0 0 12px rgba(173,216,230,0.2); /* ✅ soft glow */
   animation: typing 2.5s steps(30, end) forwards, blink 0.8s step-end infinite;
 }
 
@@ -215,7 +215,7 @@ body, html {
 }
 
 .faq-item {
-  background: rgba(173, 216, 230, 0.12); /* light blue frosted */
+  background: rgba(173, 216, 230, 0.1);
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.15);
@@ -237,7 +237,7 @@ body, html {
 }
 
 .faq-question:hover {
-  background: rgba(173,216,230,0.18);
+  background: rgba(173,216,230,0.16);
 }
 
 .faq-toggle {
@@ -259,7 +259,7 @@ body, html {
 }
 
 /* ==============================
-   Responsive Adjustments
+   Responsive
 ============================== */
 @media (max-width: 768px) {
   .content-wrapper {
