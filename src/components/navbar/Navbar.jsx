@@ -6,7 +6,9 @@ import {
   faMagnifyingGlass,
   faXmark,
   faFilm,
+  faFire,
 } from "@fortawesome/free-solid-svg-icons";
+import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { Link, useLocation } from "react-router-dom";
 import Sidebar from "../sidebar/Sidebar";
@@ -72,6 +74,17 @@ function Navbar() {
               <Link to="/home" className="flex items-center">
                 <img src="/logo.png" alt="JustAnime Logo" className="h-9 w-auto" />
               </Link>
+
+              {/* Telegram Button */}
+              <a
+                href="https://t.me/YourTelegramLink"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-[#229ED9] rounded-lg transition-colors flex items-center justify-center"
+                title="Join us on Telegram"
+              >
+                <FontAwesomeIcon icon={faTelegram} className="text-lg" />
+              </a>
             </div>
           </div>
 
@@ -79,7 +92,18 @@ function Navbar() {
           <div className="flex-1 flex justify-center items-center max-w-none mx-8 hidden md:flex">
             <div className="flex items-center gap-2 w-[600px]">
               <WebSearch />
-              
+
+              {/* Discord Button */}
+              <a
+                href="https://discord.gg/YourDiscordInvite"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-[#5865F2] rounded-lg transition-colors flex items-center justify-center"
+                title="Join us on Discord"
+              >
+                <FontAwesomeIcon icon={faDiscord} className="text-lg" />
+              </a>
+
               {/* Random Button */}
               <Link
                 to={location.pathname === "/random" ? "#" : "/random"}
@@ -97,6 +121,15 @@ function Navbar() {
                 title="Movies"
               >
                 <FontAwesomeIcon icon={faFilm} className="text-lg" />
+              </Link>
+
+              {/* Popular Button */}
+              <Link
+                to="/popular"
+                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-orange-500 rounded-lg transition-colors flex items-center justify-center"
+                title="Popular Anime"
+              >
+                <FontAwesomeIcon icon={faFire} className="text-lg" />
               </Link>
             </div>
           </div>
