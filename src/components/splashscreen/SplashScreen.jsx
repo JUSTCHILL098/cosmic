@@ -1,9 +1,15 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./SplashScreen.css";
 import logoTitle from "@/src/config/logoTitle";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass, faChevronDown, faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import {
+  faMagnifyingGlass,
+  faChevronDown,
+  faAngleRight,
+  faVolumeHigh,
+  faVolumeXmark
+} from "@fortawesome/free-solid-svg-icons";
 
 const FAQ_ITEMS = [
   {
@@ -27,6 +33,8 @@ function SplashScreen() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef(null);
 
   const handleSearchSubmit = useCallback(() => {
     const trimmedSearch = search.trim();
@@ -48,16 +56,37 @@ function SplashScreen() {
     setExpandedFaq(expandedFaq === index ? null : index);
   };
 
+  const toggleAudio = () => {
+    const video = videoRef.current;
+    if (video) {
+      video.muted = !video.muted;
+      setIsMuted(video.muted);
+    }
+  };
+
   return (
     <div className="splash-container">
       {/* Video Background */}
-      <video autoPlay loop muted playsInline className="splash-video">
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted={isMuted}
+        playsInline
+        className="splash-video"
+      >
         <source src="https://files.catbox.moe/kfq8pz.mp4" type="video/mp4" />
       </video>
 
       <div className="splash-overlay"></div>
 
-      <div className="content-wrapper">
+      {/* Audio Button */}
+      <button className="audio-toggle" onClick={toggleAudio}>
+        <FontAwesomeIcon icon={isMuted ? faVolumeXmark : faVolumeHigh} />
+      </button>
+
+      <div className="content-wrapper content-wrapper-bg">
+        {/* Logo */}
         <div className="logo-container">
           <img src="/logo.png" alt={logoTitle} className="logo" />
         </div>
