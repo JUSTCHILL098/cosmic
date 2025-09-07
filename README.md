@@ -4,7 +4,7 @@
       <img alt="JustAnime" src="https://github.com/tejaspanchall/JustAnime/blob/main/public/footer.png" width="220"/>
     </a>
   </div>
-    <h3 align="center">JustAnime - Clean & ad free anime streaming</h3>
+    <h3 align="center">KAITO - Clean & ad free anime streaming</h3>
     <p align="center">
   <a href="https://github.com/tejaspanchall/JustAnime">
       <img src="https://img.shields.io/github/stars/tejaspanchall/JustAnime" alt="Github Stars">
@@ -16,7 +16,7 @@
 </p>
 </p>
 <p align="center">
-    <a href="https://justanime.to">JustAnime</a> is an open-source anime streaming service that uses <a href="https://github.com/itzzzme/anime-api">ANIME</a> API, built using ReactJS with javascript and Tailwind CSS. It lets you easily find any anime with intuitive search & suggestion feature and stream without any ads.
+    <a href="https://weeb-zeta.vercel.app/">KAITO</a> is an open-source anime streaming service that uses <a href="https://github.com/itzzzme/anime-api">ANIME</a> API, built using ReactJS with javascript and Tailwind CSS. It lets you easily find any anime with intuitive search & suggestion feature and stream without any ads.
  </p>
 
 <details>
