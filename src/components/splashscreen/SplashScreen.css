@@ -35,7 +35,7 @@ body, html {
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* keeps video full screen, no black bars */
   z-index: 0;
 }
 
@@ -45,7 +45,7 @@ body, html {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.5); /* slightly lighter than before */
   z-index: 1;
 }
 
@@ -64,7 +64,6 @@ body, html {
   padding: 80px 20px;
 }
 
-/* Optional container background for blur effect */
 .content-wrapper-bg {
   width: 100%;
   display: flex;
@@ -73,12 +72,12 @@ body, html {
   text-align: center;
   padding: 30px 20px;
   border-radius: 12px;
-  background: rgba(255,255,255,0.05); /* mostly transparent */
-  backdrop-filter: blur(8px) saturate(120%) hue-rotate(200deg); /* subtle blue blur */
+  background: rgba(0, 102, 204, 0.08); /* subtle blue tint */
+  backdrop-filter: blur(8px); /* frosted glass effect */
 }
 
 .content-wrapper-bg * {
-  color: rgba(255,255,255,0.85); /* slightly translucent text */
+  color: rgba(255,255,255,0.85);
 }
 
 /* ==============================
@@ -106,14 +105,14 @@ body, html {
 .search-input {
   width: 100%;
   padding: 14px 48px 14px 20px;
-  background: rgba(255,255,255,0.05); /* subtle blue tint */
+  background: rgba(0, 102, 204, 0.08); /* faint blue */
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
   color: rgba(255,255,255,0.9);
   font-size: 16px;
   outline: none;
   transition: border-color 0.2s;
-  backdrop-filter: blur(6px) saturate(120%) hue-rotate(200deg);
+  backdrop-filter: blur(6px);
 }
 
 .search-input::placeholder {
@@ -142,10 +141,10 @@ body, html {
 }
 
 /* ==============================
-   Enter Button Fully Translucent Soft Blue
+   Enter Button
 ============================== */
 .enter-button {
-  background: rgba(255,255,255,0.05); /* almost fully transparent */
+  background: rgba(0, 102, 204, 0.08); /* subtle blue */
   color: rgba(255,255,255,0.9);
   padding: 14px 28px;
   border-radius: 8px;
@@ -153,7 +152,7 @@ body, html {
   font-weight: 500;
   margin: 8px 0 60px;
   transition: all 0.2s ease;
-  backdrop-filter: blur(8px) saturate(120%) hue-rotate(200deg);
+  backdrop-filter: blur(8px);
   border: 1px solid rgba(255,255,255,0.1);
   display: flex;
   align-items: center;
@@ -161,7 +160,7 @@ body, html {
 }
 
 .enter-button:hover {
-  background: rgba(255,255,255,0.08); /* slightly stronger on hover */
+  background: rgba(0, 102, 204, 0.12);
 }
 
 .enter-button .angle-icon {
@@ -177,7 +176,7 @@ body, html {
 }
 
 /* ==============================
-   FAQ Section with Typing + Blinking Caret + Soft Glow
+   FAQ Section with Typing + Blinking Caret
 ============================== */
 .faq-section {
   width: 100%;
@@ -191,8 +190,8 @@ body, html {
   color: rgba(255,255,255,0.85);
   white-space: nowrap;
   overflow: hidden;
-  border-right: 2px solid rgba(173,216,230,0.3); /* subtle blinking caret */
-  text-shadow: 0 0 4px rgba(0,102,204,0.15); /* tiny blue glow */
+  border-right: 2px solid rgba(173,216,230,0.3);
+  text-shadow: 0 0 4px rgba(0,102,204,0.15);
   width: 100%;
   animation: typing 2.5s steps(30, end) forwards, blink 0.8s step-end infinite;
 }
@@ -214,11 +213,11 @@ body, html {
 }
 
 .faq-item {
-  background: rgba(255,255,255,0.05); /* subtle blue tint */
+  background: rgba(0, 102, 204, 0.08); /* faint blue */
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.1);
-  backdrop-filter: blur(6px) saturate(120%) hue-rotate(200deg);
+  backdrop-filter: blur(6px);
 }
 
 .faq-question {
