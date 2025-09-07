@@ -50,6 +50,31 @@ body, html {
 }
 
 /* ==============================
+   Audio Toggle Button
+============================== */
+.audio-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 3;
+  background: rgba(173, 216, 230, 0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+}
+
+.audio-toggle:hover {
+  background: rgba(173, 216, 230, 0.25);
+  box-shadow: 0 0 8px rgba(173,216,230,0.35);
+  transform: scale(1.05);
+}
+
+/* ==============================
    Content Wrapper (Glass Effect)
 ============================== */
 .content-wrapper {
