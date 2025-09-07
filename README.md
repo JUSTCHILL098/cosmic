@@ -1,7 +1,7 @@
 <p align="center">
   <div align="center">
     <a href="https://justanime.to">
-      <img alt="JustAnime" src="https://github.com/tejaspanchall/JustAnime/blob/main/public/footer.png" width="220"/>
+      <img alt="JustAnime" src="https://github.com/JUSTCHILL098/weeb/blob/main/public/footer.png" width="220"/>
     </a>
   </div>
     <h3 align="center">KAITO - Clean & ad free anime streaming</h3>
