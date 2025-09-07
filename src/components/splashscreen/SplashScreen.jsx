@@ -52,7 +52,7 @@ function SplashScreen() {
     <div className="splash-container">
       {/* Video Background */}
       <video autoPlay loop muted playsInline className="splash-video">
-        <source src="/bg-video.mp4" type="video/mp4" />
+        <source src="https://files.catbox.moe/kfq8pz.mp4" type="video/mp4" />
       </video>
 
       <div className="splash-overlay"></div>
