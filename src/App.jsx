@@ -1,5 +1,4 @@
 import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -20,20 +19,15 @@ import SplashScreen from "./components/splashscreen/SplashScreen";
 import Terms from "./pages/terms/Terms";
 import DMCA from "./pages/dmca/DMCA";
 import Contact from "./pages/contact/Contact";
+import ScrollToTop from "./components/ScrollToTop/ScrollToTop"; // ✅ correct path
 
 function App() {
   const location = useLocation();
-
-  // ✅ Scroll to top when pathname changes
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
-
-  // ✅ Detect if current route is the splash screen
   const isSplashScreen = location.pathname === "/";
 
   return (
     <HomeInfoProvider>
+      <ScrollToTop /> {/* always scrolls to top on route change */}
       <div className="app-container px-4 lg:px-10">
         <main className="content max-w-[2048px] mx-auto w-full">
           {!isSplashScreen && <Navbar />}
@@ -49,18 +43,16 @@ function App() {
             <Route path="/dmca" element={<DMCA />} />
             <Route path="/contact" element={<Contact />} />
 
-            {/* ✅ Category routes */}
+            {/* Category routes */}
             {categoryRoutes.map((path) => (
               <Route
                 key={path}
                 path={`/${path}`}
-                element={
-                  <Category path={path} label={path.split("-").join(" ")} />
-                }
+                element={<Category path={path} label={path.split("-").join(" ")} />}
               />
             ))}
 
-            {/* ✅ A to Z routes */}
+            {/* A to Z routes */}
             {azRoute.map((path) => (
               <Route key={path} path={`/${path}`} element={<AtoZ path={path} />} />
             ))}
@@ -68,7 +60,7 @@ function App() {
             <Route path="/producer/:id" element={<Producer />} />
             <Route path="/search" element={<Search />} />
 
-            {/* ✅ Catch-all 404 */}
+            {/* Catch-all 404 */}
             <Route path="*" element={<Error error="404" />} />
           </Routes>
           {!isSplashScreen && <Footer />}
