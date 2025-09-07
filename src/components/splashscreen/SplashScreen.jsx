@@ -75,7 +75,7 @@ function SplashScreen() {
         playsInline
         className="splash-video"
       >
-        <source src="https://i.horizon.pics/uWRoYsfPOK" type="video/mp4" />
+        <source src="https://files.catbox.moe/kfq8pz.mp4" type="video/mp4" />
       </video>
 
       <div className="splash-overlay"></div>
