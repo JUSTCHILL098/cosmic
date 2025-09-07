@@ -1,4 +1,4 @@
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faFlim } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Suggestion from "../suggestion/Suggestion";
 import useSearch from "@/src/hooks/useSearch";
