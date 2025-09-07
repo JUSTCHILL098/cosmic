@@ -24,7 +24,7 @@ function Banner({ item, index }) {
       {/* Content */}
       <div className="absolute flex flex-col left-0 bottom-[40px] w-[55%] z-[2] max-[1390px]:w-[45%] max-[1390px]:bottom-[40px] max-[1300px]:w-[600px] max-[1120px]:w-[60%] max-md:w-[90%] max-md:bottom-[20px] max-[300px]:w-full">
         {/* Spotlight number */}
-        <p className="text-[#00ffe1] font-semibold text-[20px] w-fit max-[1300px]:text-[15px]">
+        <p className="text-[#8ecc81] font-semibold text-[20px] w-fit max-[1300px]:text-[15px]">
           #{index + 1} Spotlight
         </p>
 
