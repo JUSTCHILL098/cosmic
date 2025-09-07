@@ -30,28 +30,27 @@ body, html {
 }
 
 .splash-video {
-  position: absolute;
+  position: fixed; /* ✅ keeps video fixed on PC screens */
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;   /* fills screen */
-  object-position: center; /* keeps center visible on mobile */
+  object-fit: cover; /* no black bars */
   z-index: 0;
 }
 
 .splash-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.35); /* lighter overlay so video shows */
+  background: rgba(0,0,0,0.45); /* dark overlay */
   z-index: 1;
 }
 
 /* ==============================
-   Content Wrapper with Light Blue Tint
+   Content Wrapper with Glass Blur
 ============================== */
 .content-wrapper {
   position: relative;
@@ -73,8 +72,10 @@ body, html {
   text-align: center;
   padding: 30px 20px;
   border-radius: 12px;
-  background: rgba(135, 206, 250, 0.15); /* light blue tint */
-  backdrop-filter: blur(10px); /* frosted glass */
+  background: rgba(255, 255, 255, 0.08); /* frosted glass */
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .content-wrapper-bg * {
@@ -106,22 +107,22 @@ body, html {
 .search-input {
   width: 100%;
   padding: 14px 48px 14px 20px;
-  background: rgba(135, 206, 250, 0.25); /* stronger light blue tint */
+  background: rgba(173, 216, 230, 0.15); /* light blue tint */
   border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 8px;
+  border-radius: 10px;
   color: rgba(255,255,255,0.95);
   font-size: 16px;
   outline: none;
   transition: border-color 0.2s;
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(10px);
 }
 
 .search-input::placeholder {
-  color: rgba(255,255,255,0.75);
+  color: rgba(255,255,255,0.65);
 }
 
 .search-input:focus {
-  border-color: rgba(135,206,250,0.6);
+  border-color: rgba(173,216,230,0.5);
 }
 
 .search-button {
@@ -131,28 +132,28 @@ body, html {
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: rgba(255,255,255,0.8);
+  color: rgba(255,255,255,0.7);
   font-size: 18px;
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .search-button:hover {
-  color: white;
+  color: #add8e6; /* light blue */
 }
 
 /* ==============================
    Enter Button
 ============================== */
 .enter-button {
-  background: rgba(135, 206, 250, 0.25); /* same tint */
+  background: rgba(173, 216, 230, 0.15); /* translucent light blue */
   color: rgba(255,255,255,0.95);
   padding: 14px 28px;
-  border-radius: 8px;
+  border-radius: 10px;
   text-decoration: none;
   font-weight: 500;
-  margin: 8px 0 60px;
-  transition: all 0.2s ease;
+  margin: 12px 0 60px;
+  transition: all 0.25s ease;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255,255,255,0.2);
   display: flex;
@@ -161,7 +162,8 @@ body, html {
 }
 
 .enter-button:hover {
-  background: rgba(135, 206, 250, 0.35);
+  background: rgba(173, 216, 230, 0.25);
+  box-shadow: 0 0 12px rgba(173,216,230,0.3);
 }
 
 .enter-button .angle-icon {
@@ -188,12 +190,11 @@ body, html {
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 40px;
-  color: rgba(135, 206, 250, 0.95); /* light blue text */
-  text-shadow: 0 0 6px rgba(135, 206, 250, 0.4); /* glow */
+  color: #add8e6; /* light blue text */
   white-space: nowrap;
   overflow: hidden;
-  border-right: 2px solid rgba(135,206,250,0.6);
-  width: 100%;
+  border-right: 2px solid #add8e6; /* blinking caret */
+  text-shadow: 0 0 12px rgba(173,216,230,0.8); /* glow */
   animation: typing 2.5s steps(30, end) forwards, blink 0.8s step-end infinite;
 }
 
@@ -203,7 +204,7 @@ body, html {
 }
 
 @keyframes blink {
-  0%, 50%, 100% { border-color: rgba(135,206,250,0.6); }
+  0%, 50%, 100% { border-color: #add8e6; }
   25%, 75% { border-color: transparent; }
 }
 
@@ -214,16 +215,11 @@ body, html {
 }
 
 .faq-item {
-  background: rgba(135, 206, 250, 0.15); /* same tint */
+  background: rgba(173, 216, 230, 0.12); /* light blue frosted */
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.15);
   backdrop-filter: blur(8px);
-  transition: box-shadow 0.2s ease;
-}
-
-.faq-item:hover {
-  box-shadow: 0 0 10px rgba(135, 206, 250, 0.3); /* soft blue glow */
 }
 
 .faq-question {
@@ -241,7 +237,7 @@ body, html {
 }
 
 .faq-question:hover {
-  background: rgba(135, 206, 250, 0.1);
+  background: rgba(173,216,230,0.18);
 }
 
 .faq-toggle {
@@ -252,7 +248,7 @@ body, html {
 
 .faq-toggle.rotate {
   transform: rotate(180deg);
-  color: rgba(255,255,255,0.95);
+  color: #add8e6;
 }
 
 .faq-answer {
