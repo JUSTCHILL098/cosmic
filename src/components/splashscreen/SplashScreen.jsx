@@ -85,7 +85,7 @@ function SplashScreen() {
         <FontAwesomeIcon icon={isMuted ? faVolumeXmark : faVolumeHigh} />
       </button>
 
-      <div className="content-wrapper content-wrapper-bg">
+      <div className="content-wrapper">
         {/* Logo */}
         <div className="logo-container">
           <img src="/logo.png" alt={logoTitle} className="logo" />
