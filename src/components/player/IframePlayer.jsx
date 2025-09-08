@@ -10,18 +10,8 @@ export default function IframePlayer({
   episodeNum,
   episodes,
   playNext,
-  autoNext, 
-  aniid,
+  autoNext,
 }) {
-  const baseURL =
-    serverName.toLowerCase() === "hd-1"
-      ? import.meta.env.VITE_BASE_IFRAME_URL
-      : serverName.toLowerCase() === "hd-4"
-      ? import.meta.env.VITE_BASE_IFRAME_URL_2
-      : serverName.toLowerCase() === "nest"
-      ? import.meta.env.VITE_BASE_IFRAME_URL_3
-      : undefined; 
-
   const [loading, setLoading] = useState(true);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeSrc, setIframeSrc] = useState("");
@@ -31,19 +21,44 @@ export default function IframePlayer({
     )
   );
 
+  // 🔹 Server → URL mapping
+  const getBaseUrl = (serverName, animeInfo, episodeNum, servertype) => {
+    const anilistId = animeInfo?.id;
+
+    switch (serverName.toLowerCase()) {
+      case "hd-1":
+        // MEGAPLAY
+        return `https://megaplay.buzz/embed/${anilistId}/${episodeNum}/${servertype}`;
+
+      case "hd-2":
+        // VIDNEST
+        return `https://vidnest.fun/animepahe/${anilistId}/${episodeNum}/${servertype}`;
+
+      case "hd-3":
+        // VIDEASY
+        return `https://slay-knight.xyz/player/${anilistId}/${episodeNum}/${servertype}?autoplay=true`;
+
+      case "hd-4":
+        // VIDWISH
+        return `https://vidwish.live/embed/${anilistId}/${episodeNum}/${servertype}`;
+
+      default:
+        return undefined;
+    }
+  };
+
+  // 🔹 Update iframe when server/episode changes
   useEffect(() => {
-    const loadIframeUrl = async () => {
-      setLoading(true);
-      setIframeLoaded(false);
-      setIframeSrc("");
+    setLoading(true);
+    setIframeLoaded(false);
+    setIframeSrc("");
 
-      setIframeSrc(serverName.toLowerCase() === "nest" ? `${baseURL}/${aniid}/${episodeNum}/hindi` : `${baseURL}/${episodeId}/${servertype}`);
-    };
-
-    loadIframeUrl();
+    const url = getBaseUrl(serverName, animeInfo, episodeNum, servertype);
+    setIframeSrc(url);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [episodeId, servertype, serverName, animeInfo]);
+  }, [episodeId, servertype, serverName, animeInfo, episodeNum]);
 
+  // 🔹 Update episode index
   useEffect(() => {
     if (episodes?.length > 0) {
       const newIndex = episodes.findIndex(
@@ -53,6 +68,7 @@ export default function IframePlayer({
     }
   }, [episodeId, episodes]);
 
+  // 🔹 Auto-next on finish
   useEffect(() => {
     const handleMessage = (event) => {
       const { currentTime, duration } = event.data;
@@ -72,11 +88,13 @@ export default function IframePlayer({
     };
   }, [autoNext, currentEpisodeIndex, episodes, playNext]);
 
+  // 🔹 Save continue watching
   useEffect(() => {
     setLoading(true);
     setIframeLoaded(false);
     return () => {
-      const continueWatching = JSON.parse(localStorage.getItem("continueWatching")) || [];
+      const continueWatching =
+        JSON.parse(localStorage.getItem("continueWatching")) || [];
       const newEntry = {
         id: animeInfo?.id,
         data_id: animeInfo?.data_id,
@@ -106,7 +124,9 @@ export default function IframePlayer({
       {/* Loader Overlay */}
       <div
         className={`absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 z-10 transition-opacity duration-500 ${
-          loading ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          loading
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
       >
         <BouncingLoader />
