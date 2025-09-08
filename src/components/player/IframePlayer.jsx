@@ -1,3 +1,4 @@
+
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import BouncingLoader from "../ui/bouncingloader/Bouncingloader";
@@ -5,69 +6,46 @@ import BouncingLoader from "../ui/bouncingloader/Bouncingloader";
 export default function IframePlayer({
   episodeId,
   serverName,
-  servertype = "sub",
-  animeInfo = {},
+  servertype,
+  animeInfo,
   episodeNum,
   episodes,
   playNext,
   autoNext,
 }) {
+  const baseURL =
+    serverName.toLowerCase() === "hd-1"
+      ? import.meta.env.VITE_BASE_IFRAME_URL
+      : serverName.toLowerCase() === "hd-4"
+      ? import.meta.env.VITE_BASE_IFRAME_URL_2
+      : undefined; 
+
   const [loading, setLoading] = useState(true);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeSrc, setIframeSrc] = useState("");
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(
     episodes?.findIndex(
-      (ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId
+      (episode) => episode.id.match(/ep=(\d+)/)?.[1] === episodeId
     )
   );
 
-  const getEpisodeNumber = () => {
-    if (episodeNum) return String(episodeNum);
-    if (!episodeId) return "";
-    const match = String(episodeId).match(/ep=(\d+)/);
-    if (match) return match[1];
-    if (/^\d+$/.test(String(episodeId))) return String(episodeId);
-    return "";
-  };
-
-  const buildIframeUrl = (server, epNum, info, type) => {
-    const dataId = info?.data_id;
-    const anilistId = info?.anilistId;
-    const ep = String(epNum || "");
-
-    switch (server.toLowerCase()) {
-      case "hd-1": // MEGAPLAY
-        if (dataId && ep) return `https://megaplay.buzz/stream/${dataId}-${ep}`;
-        break;
-      case "hd-2": // VIDNEST
-        if (anilistId && ep) return `https://vidnest.fun/animepahe/${anilistId}/${ep}/${type}`;
-        break;
-      case "hd-3": // VIDEASY
-        if (anilistId && ep) return `https://slay-knight.xyz/player/${anilistId}/${ep}/${type}?autoplay=true`;
-        break;
-      case "hd-4": // VIDWISH
-        if (dataId && ep) return `https://vidwish.live/stream/${dataId}-${ep}`;
-        break;
-      default:
-        return "";
-    }
-    return "";
-  };
-
   useEffect(() => {
-    const epNum = getEpisodeNumber();
-    const url = buildIframeUrl(serverName, epNum, animeInfo, servertype);
+    const loadIframeUrl = async () => {
+      setLoading(true);
+      setIframeLoaded(false);
+      setIframeSrc("");
 
-    console.log("Iframe URL:", url); // debug
-    setLoading(true);
-    setIframeLoaded(false);
-    setIframeSrc(url);
+      setIframeSrc(`${baseURL}/${episodeId}/${servertype}`);
+    };
+
+    loadIframeUrl();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [episodeId, servertype, serverName, animeInfo]);
 
   useEffect(() => {
     if (episodes?.length > 0) {
       const newIndex = episodes.findIndex(
-        (ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId
+        (episode) => episode.id.match(/ep=(\d+)/)?.[1] === episodeId
       );
       setCurrentEpisodeIndex(newIndex);
     }
@@ -87,15 +65,16 @@ export default function IframePlayer({
       }
     };
     window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
   }, [autoNext, currentEpisodeIndex, episodes, playNext]);
 
   useEffect(() => {
     setLoading(true);
     setIframeLoaded(false);
     return () => {
-      const continueWatching =
-        JSON.parse(localStorage.getItem("continueWatching")) || [];
+      const continueWatching = JSON.parse(localStorage.getItem("continueWatching")) || [];
       const newEntry = {
         id: animeInfo?.id,
         data_id: animeInfo?.data_id,
@@ -117,6 +96,7 @@ export default function IframePlayer({
       }
       localStorage.setItem("continueWatching", JSON.stringify(continueWatching));
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [episodeId, servertype]);
 
   return (
@@ -124,9 +104,7 @@ export default function IframePlayer({
       {/* Loader Overlay */}
       <div
         className={`absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 z-10 transition-opacity duration-500 ${
-          loading
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+          loading ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
         <BouncingLoader />
