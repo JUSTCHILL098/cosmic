@@ -132,7 +132,7 @@ function Qtip({ id }) {
                   <Link
                     to={`/genre/${genre}`}
                     key={index}
-                    className="text-[13px] hover:text-[#FFFFFF]"
+                    className="text-[13px] hover:text-[#00ffe1]"
                   >
                     <span>
                       {genre}
@@ -145,7 +145,7 @@ function Qtip({ id }) {
           </div>
           <Link
             to={qtip.watchLink}
-            className="w-[80%] flex mt-4 justify-center items-center gap-x-2 bg-[#FFFFFF] py-[9px] rounded-3xl"
+            className="w-[80%] flex mt-4 justify-center items-center gap-x-2 bg-[#00ffe1] py-[9px] rounded-3xl"
           >
             <FontAwesomeIcon icon={faPlay} className="text-[14px] text-black" />
             <p className="text-[14px] font-semibold text-black">Watch Now</p>
