@@ -152,7 +152,7 @@ const Schedule = () => {
                     onClick={() => toggleActive(index)}
                     className={`h-[60px] flex flex-col justify-center items-center w-full text-center rounded-lg cursor-pointer transition-all duration-200 ${
                       currentActiveIndex === index
-                        ? "bg-white text-black"
+                        ? "bg-[#00ffe1] text-black"
                         : "bg-zinc-800 text-white hover:bg-zinc-700"
                     }`}
                   >
@@ -162,7 +162,7 @@ const Schedule = () => {
                     <div
                       className={`text-[13px] max-[400px]:text-[11px] ${
                         currentActiveIndex === index
-                          ? "text-zinc-800"
+                          ? "text-black"
                           : "text-zinc-400"
                       } max-[350px]:text-[10px]`}
                     >
@@ -213,7 +213,7 @@ const Schedule = () => {
                   {item.title || "N/A"}
                 </h3>
               </div>
-              <div className="flex items-center gap-x-2 py-1 px-3 rounded-md bg-zinc-800 group-hover:bg-white transition-all duration-200">
+              <div className="flex items-center gap-x-2 py-1 px-3 rounded-md bg-zinc-800 group-hover:bg-[#00ffe1] transition-all duration-200">
                 <FontAwesomeIcon
                   icon={faPlay}
                   className="mt-[1px] text-[10px] max-[320px]:text-[8px] text-zinc-400 group-hover:text-black"
@@ -227,7 +227,7 @@ const Schedule = () => {
           {scheduleData.length > 7 && (
             <button
               onClick={toggleShowAll}
-              className="text-zinc-400 py-3 hover:text-white font-medium transition-all duration-200 max-sm:text-[13px]"
+              className="text-zinc-400 py-3 hover:text-[#00ffe1] font-medium transition-all duration-200 max-sm:text-[13px]"
             >
               {showAll ? "Show Less" : "Show More"}
             </button>
