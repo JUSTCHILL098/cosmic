@@ -4,7 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { HomeInfoProvider } from "./context/HomeInfoContext";
-import { MultiplayerProvider } from "./context/MultiplayerContext";
+import { MultiplayerProvider } from "./context/MultiplayerContext"; // ✅ add multiplayer
 import Home from "./pages/Home/Home";
 import AnimeInfo from "./pages/animeInfo/AnimeInfo";
 import Navbar from "./components/navbar/Navbar";
@@ -36,48 +36,51 @@ function App() {
   return (
     <HomeInfoProvider>
       <MultiplayerProvider>
+        <ScrollToTop /> {/* always scrolls to top on route change */}
         <div className="app-container px-4 lg:px-10">
-        <main className="content max-w-[2048px] mx-auto w-full">
-          {!isSplashScreen && <Navbar />}
-          <Routes>
-            <Route path="/" element={<SplashScreen />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/watch/:id" element={<Watch />} />
-            <Route path="/random" element={<AnimeInfo random={true} />} />
-            <Route path="/404-not-found-page" element={<Error error="404" />} />
-            <Route path="/error-page" element={<Error />} />
-            <Route path="/terms-of-service" element={<Terms />} />
-            <Route path="/dmca" element={<DMCA />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/producer/:id" element={<Producer />} />
-            <Route path="/search" element={<Search />} />
-            {/* Render category routes */}
-            {categoryRoutes.map((path) => (
+          <main className="content max-w-[2048px] mx-auto w-full">
+            {!isSplashScreen && <Navbar />}
+            <Routes>
+              <Route path="/" element={<SplashScreen />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/:id" element={<AnimeInfo />} />
+              <Route path="/watch/:id" element={<Watch />} />
+              <Route path="/random" element={<AnimeInfo random={true} />} />
               <Route
-                key={path}
-                path={`/${path}`}
-                element={
-                  <Category path={path} label={path.split("-").join(" ")} />
-                }
+                path="/404-not-found-page"
+                element={<Error error="404" />}
               />
-            ))}
-            {/* Render A to Z routes */}
-            {azRoute.map((path) => (
-              <Route
-                key={path}
-                path={`/${path}`}
-                element={<AtoZ path={path} />}
-              />
-            ))}
-            {/* Dynamic anime info route - must be last */}
-            <Route path="/:id" element={<AnimeInfo />} />
-            {/* Catch-all route for 404 */}
-            <Route path="*" element={<Error error="404" />} />
-          </Routes>
-          {!isSplashScreen && <Footer />}
-        </main>
-        <Analytics />
-        <SpeedInsights />
+              <Route path="/error-page" element={<Error />} />
+              <Route path="/terms-of-service" element={<Terms />} />
+              <Route path="/dmca" element={<DMCA />} />
+              <Route path="/contact" element={<Contact />} />
+
+              {/* Category routes */}
+              {categoryRoutes.map((path) => (
+                <Route
+                  key={path}
+                  path={`/${path}`}
+                  element={
+                    <Category path={path} label={path.split("-").join(" ")} />
+                  }
+                />
+              ))}
+
+              {/* A to Z routes */}
+              {azRoute.map((path) => (
+                <Route key={path} path={`/${path}`} element={<AtoZ path={path} />} />
+              ))}
+
+              <Route path="/producer/:id" element={<Producer />} />
+              <Route path="/search" element={<Search />} />
+
+              {/* Catch-all 404 */}
+              <Route path="*" element={<Error error="404" />} />
+            </Routes>
+            {!isSplashScreen && <Footer />}
+          </main>
+          <Analytics />
+          <SpeedInsights />
         </div>
       </MultiplayerProvider>
     </HomeInfoProvider>
