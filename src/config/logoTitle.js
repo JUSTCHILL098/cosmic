@@ -1,3 +1,3 @@
-const logoTitle="WeebIt"
+const logoTitle="Z-ANIME"
 
 export default logoTitle;

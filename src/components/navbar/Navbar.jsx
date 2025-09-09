@@ -5,10 +5,7 @@ import {
   faRandom,
   faMagnifyingGlass,
   faXmark,
-  faFilm,
-  faFire,
 } from "@fortawesome/free-solid-svg-icons";
-import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { Link, useLocation } from "react-router-dom";
 import Sidebar from "../sidebar/Sidebar";
@@ -77,35 +74,10 @@ function Navbar() {
             </div>
           </div>
 
-          {/* Center Section - Search + Icons */}
+          {/* Center Section - Search */}
           <div className="flex-1 flex justify-center items-center max-w-none mx-8 hidden md:flex">
-            <div className="flex items-center gap-2 w-[700px]">
-              {/* Discord Button */}
-              <a
-                href="https://discord.gg/YourDiscordInvite"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-[#5865F2] rounded-lg transition-colors flex items-center justify-center"
-                title="Join us on Discord"
-              >
-                <FontAwesomeIcon icon={faDiscord} className="text-lg" />
-              </a>
-
-              {/* Telegram Button */}
-              <a
-                href="https://t.me/YourTelegramLink"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-[#229ED9] rounded-lg transition-colors flex items-center justify-center"
-                title="Join us on Telegram"
-              >
-                <FontAwesomeIcon icon={faTelegram} className="text-lg" />
-              </a>
-
-              {/* Search Bar */}
+            <div className="flex items-center gap-2 w-[600px]">
               <WebSearch />
-
-              {/* Random Button */}
               <Link
                 to={location.pathname === "/random" ? "#" : "/random"}
                 onClick={handleRandomClick}
@@ -114,43 +86,25 @@ function Navbar() {
               >
                 <FontAwesomeIcon icon={faRandom} className="text-lg" />
               </Link>
-
-              {/* Movie Button */}
-              <Link
-                to="/movie"
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center"
-                title="Movies"
-              >
-                <FontAwesomeIcon icon={faFilm} className="text-lg" />
-              </Link>
-
-              {/* Popular Button */}
-              <Link
-                to="/most-popular"
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-orange-500 rounded-lg transition-colors flex items-center justify-center"
-                title="Popular Anime"
-              >
-                <FontAwesomeIcon icon={faFire} className="text-lg" />
-              </Link>
             </div>
           </div>
 
           {/* Language Toggle - Desktop */}
-          <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
-            {["EN", "JP"].map((lang) => (
-              <button
-                key={lang}
-                onClick={() => toggleLanguage(lang)}
-                className={`px-3 py-1 text-sm font-medium rounded ${
-                  language === lang
-                    ? "bg-[#3F3F46] text-white"
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                {lang}
-              </button>
-            ))}
-          </div>
+            <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
+              {["EN", "JP"].map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => toggleLanguage(lang)}
+                  className={`px-3 py-1 text-sm font-medium rounded ${
+                    language === lang
+                      ? "bg-[#3F3F46] text-white"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
 
           {/* Mobile Search Icon */}
           <div className="md:hidden flex items-center">
@@ -172,7 +126,7 @@ function Navbar() {
         {isMobileSearchOpen && (
           <div className="md:hidden bg-[#18181B] shadow-lg">
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
-          </div>
+        </div>
         )}
 
         {/* Sidebar */}

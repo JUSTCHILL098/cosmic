@@ -13,33 +13,32 @@ import "./Banner.css";
 function Banner({ item, index }) {
   const { language } = useLanguage();
   return (
-    <section className="spotlight w-full h-full relative overflow-hidden">
+    <section className="spotlight w-full h-full relative rounded-2xl overflow-hidden">
       <img
         src={`${item.poster}`}
         alt={item.title}
-        className="absolute inset-0 object-cover w-full h-full"
+        className="absolute inset-0 object-cover w-full h-full rounded-2xl"
       />
-      <div className="spotlight-overlay absolute inset-0 z-[1]"></div>
-
-      {/* Content */}
-      <div className="absolute flex flex-col left-0 bottom-[40px] w-[55%] z-[2] max-[1390px]:w-[45%] max-[1390px]:bottom-[40px] max-[1300px]:w-[600px] max-[1120px]:w-[60%] max-md:w-[90%] max-md:bottom-[20px] max-[300px]:w-full">
-        {/* Spotlight number */}
-        <p className="text-[#00ffe1] font-semibold text-[20px] w-fit max-[1300px]:text-[15px]">
+      <div className="spotlight-overlay absolute inset-0 z-[1] rounded-2xl"></div>
+      
+      <div className="absolute flex flex-col left-0 bottom-[40px] w-[55%] p-4 z-[2] max-[1390px]:w-[45%] max-[1390px]:bottom-[40px] max-[1300px]:w-[600px] max-[1120px]:w-[60%] max-md:w-[90%] max-md:bottom-[20px] max-[300px]:w-full">
+        <p className="text-[#ffbade] font-semibold text-[20px] w-fit max-[1300px]:text-[15px]">
           #{index + 1} Spotlight
         </p>
-
-        {/* Title */}
         <h3 className="text-white line-clamp-2 text-5xl font-bold mt-4 text-left max-[1390px]:text-[45px] max-[1300px]:text-3xl max-[1300px]:mt-3 max-md:text-2xl max-md:mt-1 max-[575px]:text-[22px] max-sm:leading-6 max-sm:w-[80%] max-[320px]:w-full">
           {language === "EN" ? item.title : item.japanese_title}
         </h3>
-
+        
         {/* Mobile Buttons */}
         <div className="hidden max-md:flex max-md:mt-3 max-md:gap-x-3 max-md:w-full">
           <Link
             to={`/watch/${item.id}`}
             className="bg-white/90 hover:bg-white text-black font-medium px-5 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-x-2 text-sm"
           >
-            <FontAwesomeIcon icon={faPlay} className="text-[10px]" />
+            <FontAwesomeIcon
+              icon={faPlay}
+              className="text-[10px]"
+            />
             <span>Watch Now</span>
           </Link>
           <Link
@@ -50,7 +49,6 @@ function Banner({ item, index }) {
           </Link>
         </div>
 
-        {/* TV Info */}
         <div className="flex h-fit justify-start items-center w-fit space-x-5 mt-5 max-[1300px]:mt-4 max-md:hidden">
           {item.tvInfo && (
             <>
@@ -125,20 +123,20 @@ function Banner({ item, index }) {
             </>
           )}
         </div>
-
-        {/* Description */}
         <p className="text-white/70 text-[17px] font-sm mt-4 text-left line-clamp-3 max-[1200px]:line-clamp-2 max-[1300px]:w-[500px] max-[1120px]:w-[90%] max-md:hidden">
           {item.description}
         </p>
       </div>
-
       {/* Desktop Buttons */}
       <div className="absolute bottom-[50px] right-[40px] flex gap-x-5 z-[2] max-md:hidden">
         <Link
           to={`/watch/${item.id}`}
           className="bg-white/90 hover:bg-white text-black font-medium px-7 py-2 rounded-lg transition-all duration-200 flex items-center gap-x-2.5 shadow-lg shadow-black/10 backdrop-blur-sm hover:translate-y-[-1px]"
         >
-          <FontAwesomeIcon icon={faPlay} className="text-[10px]" />
+          <FontAwesomeIcon
+            icon={faPlay}
+            className="text-[10px]"
+          />
           <span>Watch Now</span>
         </Link>
         <Link

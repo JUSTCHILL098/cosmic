@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+//* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useParams, Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/src/context/LanguageContext";
@@ -20,6 +20,9 @@ import SidecardLoader from "@/src/components/Loader/Sidecard.loader";
 import Watchcontrols from "@/src/components/watchcontrols/Watchcontrols";
 import useWatchControl from "@/src/hooks/useWatchControl";
 import Player from "@/src/components/player/Player";
+import MultiplayerPanel from "@/src/components/multiplayer/MultiplayerPanel";
+import RoomStatus from "@/src/components/multiplayer/RoomStatus";
+import { useMultiplayer } from "@/src/context/MultiplayerContext";
 
 export default function Watch() {
   const location = useLocation();
@@ -27,6 +30,22 @@ export default function Watch() {
   const { id: animeId } = useParams();
   const queryParams = new URLSearchParams(location.search);
   let initialEpisodeId = queryParams.get("ep");
+  const roomParam = queryParams.get("room");
+  
+  // Multiplayer context
+  const { 
+    isInRoom, 
+    isHost, 
+    roomCode: currentRoomCode,
+    syncVideoAction, 
+    syncEpisodeChange,
+    roomVideoState,
+    shouldSyncVideo,
+    setShouldSyncVideo,
+    setPlayerReference,
+    joinRoom,
+    nickname
+  } = useMultiplayer();
   const [tags, setTags] = useState([]);
   const { language } = useLanguage();
   const { homeInfo } = useHomeInfo();
@@ -40,6 +59,7 @@ export default function Watch() {
     animeInfo,
     episodes,
     nextEpisodeSchedule,
+    anilistId,
     animeInfoLoading,
     totalEpisodes,
     isFullOverview,
@@ -59,7 +79,8 @@ export default function Watch() {
     activeServerType,
     setActiveServerType,
     activeServerName,
-    setActiveServerName
+    setActiveServerName,
+    activeServer
   } = useWatch(animeId, initialEpisodeId);
   const {
     autoPlay,
@@ -73,6 +94,22 @@ export default function Watch() {
   const videoContainerRef = useRef(null);
   const controlsRef = useRef(null);
   const episodesRef = useRef(null);
+
+  // Auto-join room if room parameter exists in URL (only once)
+  useEffect(() => {
+    if (roomParam && !isInRoom && nickname && !currentRoomCode) {
+      // Only join if we don't already have a room code (prevents rejoining the same room)
+      console.log('Auto-joining room from URL:', roomParam);
+      joinRoom(roomParam);
+    }
+  }, [roomParam, isInRoom, nickname, currentRoomCode, joinRoom]);
+
+  // Sync episode changes in multiplayer
+  useEffect(() => {
+    if (isInRoom && isHost && episodeId && animeId) {
+      syncEpisodeChange(episodeId, animeId);
+    }
+  }, [episodeId, animeId, isInRoom, isHost, syncEpisodeChange]);
 
   useEffect(() => {
     if (!episodes || episodes.length === 0) return;
@@ -91,7 +128,8 @@ export default function Watch() {
       return;
     }
   
-    const newUrl = `/watch/${animeId}?ep=${episodeId}`;
+    // Preserve room parameter when updating URL
+    const newUrl = `/watch/${animeId}?ep=${episodeId}${currentRoomCode ? `&room=${currentRoomCode}` : ''}`;
     if (isFirstSet.current) {
       navigate(newUrl, { replace: true });
       isFirstSet.current = false;
@@ -227,10 +265,21 @@ export default function Watch() {
         <div className="grid grid-cols-[minmax(0,70%),minmax(0,30%)] gap-6 w-full h-full max-[1200px]:flex max-[1200px]:flex-col">
           {/* Left Column - Player, Controls, Servers */}
           <div className="flex flex-col w-full gap-6">
+            {/* Room Status */}
+            <RoomStatus />
+            
             <div ref={playerRef} className="player w-full h-fit bg-black flex flex-col rounded-xl overflow-hidden">
               {/* Video Container */}
               <div ref={videoContainerRef} className="w-full relative aspect-video bg-black">
-                {!buffering ? (["hd-1", "hd-4"].includes(activeServerName.toLowerCase()) ?
+                {(() => {
+                  const shouldUseIframe = ["hd-1", "hd-4", "nest"].includes(activeServerName?.toLowerCase()) || activeServerType?.toLowerCase() === "slay" || activeServerName?.includes("VidAPI") || activeServerName?.toLowerCase() === "pahe";
+                  console.log("=== WATCH COMPONENT DEBUG ===");
+                  console.log("Buffering:", buffering);
+                  console.log("ActiveServerName:", activeServerName);
+                  console.log("ActiveServerType:", activeServerType);
+                  console.log("Should use iframe:", shouldUseIframe);
+                  console.log("============================");
+                  return !buffering ? (shouldUseIframe ?
                   <IframePlayer
                     episodeId={episodeId}
                     servertype={activeServerType}
@@ -240,6 +289,8 @@ export default function Watch() {
                     episodes={episodes}
                     playNext={(id) => setEpisodeId(id)}
                     autoNext={autoNext}
+                    aniid={animeInfo.anilistId}
+                    activeServer={activeServer}
                   /> : <Player
                     streamUrl={streamUrl}
                     subtitles={subtitles}
@@ -261,7 +312,8 @@ export default function Watch() {
                   <div className="absolute inset-0 flex justify-center items-center bg-black">
                     <BouncingLoader />
                   </div>
-                )}
+                );
+                })()}
                 <p className="text-center underline font-medium text-[15px] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none text-gray-300">
                   {!buffering && !activeServerType ? (
                     servers ? (
@@ -296,6 +348,8 @@ export default function Watch() {
                       totalEpisodes={totalEpisodes}
                       episodeId={episodeId}
                       onButtonClick={(id) => setEpisodeId(id)}
+                      isInRoom={isInRoom}
+                      isHost={isHost}
                     />
                   </div>
                 )}
@@ -419,6 +473,8 @@ export default function Watch() {
                     currentEpisode={episodeId}
                     onEpisodeClick={(id) => setEpisodeId(id)}
                     totalEpisodes={totalEpisodes}
+                    isInRoom={isInRoom}
+                    isHost={isHost}
                   />
                 )}
               </div>
@@ -594,6 +650,14 @@ export default function Watch() {
           )}
         </div>
       </div>
+      
+      {/* Multiplayer Panel */}
+      <MultiplayerPanel />
     </div>
   );
 }
+
+
+
+
+

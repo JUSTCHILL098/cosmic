@@ -1,3 +1,3 @@
-const website_name = "WeebIt";
+const website_name = "Z-ANIME";
 
 export default website_name;

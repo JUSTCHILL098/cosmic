@@ -1,4 +1,4 @@
-import { faMagnifyingGlass, faFlim } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Suggestion from "../suggestion/Suggestion";
 import useSearch from "@/src/hooks/useSearch";
@@ -30,11 +30,7 @@ function WebSearch() {
         <div className="flex items-center relative w-[450px] max-[600px]:w-fit">
             <input
                 type="text"
-                className="w-full px-5 py-2 
-                           bg-[#2a2a2a]/50 backdrop-blur-md shadow-sm 
-                           text-white rounded-lg 
-                           focus:outline-none transition-colors 
-                           placeholder-white/50 max-[600px]:hidden"
+                className="w-full px-5 py-2 bg-[#2a2a2a]/75 text-white rounded-lg focus:outline-none transition-colors placeholder-white/50 max-[600px]:hidden"
                 placeholder="Search anime..."
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
@@ -58,8 +54,7 @@ function WebSearch() {
                 }}
             />
             <button
-                className="absolute right-4 text-white/50 hover:text-white transition-colors 
-                           max-[600px]:static max-[600px]:bg-transparent focus:outline-none max-[600px]:p-0"
+                className="absolute right-4 text-white/50 hover:text-white transition-colors max-[600px]:static max-[600px]:bg-transparent focus:outline-none max-[600px]:p-0"
                 onClick={handleSearchClick}
             >
                 <FontAwesomeIcon

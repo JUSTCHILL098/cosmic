@@ -28,6 +28,7 @@ import website_name from "@/src/config/website";
 import getChapterStyles from "./getChapterStyle";
 import artplayerPluginHlsControl from "artplayer-plugin-hls-control";
 import artplayerPluginUploadSubtitle from "./artplayerPluginUploadSubtitle";
+import { useMultiplayer } from "@/src/context/MultiplayerContext";
 
 Artplayer.LOG_VERSION = false;
 Artplayer.CONTEXTMENU = false;
@@ -61,7 +62,20 @@ export default function Player({
   streamInfo,
 }) {
   const artRef = useRef(null);
-  const leftAtRef = useRef(0); 
+  const leftAtRef = useRef(0);
+  const isUpdatingFromSync = useRef(false);
+  const playerInitialized = useRef(false);
+
+  // Multiplayer integration
+  const {
+    isInRoom,
+    isHost,
+    syncVideoAction,
+    roomVideoState,
+    shouldSyncVideo,
+    setShouldSyncVideo,
+    setPlayerReference
+  } = useMultiplayer();
   const proxy = import.meta.env.VITE_PROXY_URL;
   const m3u8proxy = import.meta.env.VITE_M3U8_PROXY_URL?.split(",") || [];
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(
@@ -78,6 +92,23 @@ export default function Player({
       setCurrentEpisodeIndex(newIndex);
     }
   }, [episodeId, episodes]);
+
+  // Video sync disabled - users can watch independently
+  useEffect(() => {
+    if (shouldSyncVideo) {
+      console.log('Video sync disabled - users watch independently');
+      setShouldSyncVideo(false);
+    }
+  }, [shouldSyncVideo, setShouldSyncVideo]);
+
+  // Update multiplayer event handlers when room state changes
+  useEffect(() => {
+    if (artRef.current && artRef.current.updateMultiplayerHandlers) {
+      console.log('Updating multiplayer handlers. isInRoom:', isInRoom, 'isHost:', isHost);
+      artRef.current.updateMultiplayerHandlers();
+    }
+  }, [isInRoom, isHost]);
+
   useEffect(() => {
     const applyChapterStyles = () => {
       const existingStyles = document.querySelectorAll(
@@ -207,8 +238,12 @@ export default function Player({
     }
   };
 
+  // Initialize video player - separate from sync events
   useEffect(() => {
-    if (!streamUrl || !artRef.current) return;
+    if (!streamUrl || !artRef.current || playerInitialized.current) return;
+
+    console.log('Initializing video player for episode:', episodeId);
+
     const iframeUrl = streamInfo?.streamingLink?.iframe;
     const headers = {};
     headers.referer=new URL(iframeUrl).origin+"/";
@@ -227,18 +262,18 @@ export default function Player({
       type: "m3u8",
       autoplay: autoPlay,
       volume: 1,
-      setting: true,
-      playbackRate: true,
-      pip: true,
-      hotkey: false,
-      fullscreen: true,
+      setting: isInRoom && !isHost ? false : true,
+      playbackRate: isInRoom && !isHost ? false : true,
+      pip: isInRoom && !isHost ? false : true,
+      hotkey: isInRoom && !isHost ? false : false,
+      fullscreen: isInRoom && !isHost ? false : true,
       mutex: true,
       playsInline: true,
-      lock: true,
-      airplay: true,
+      lock: isInRoom && !isHost ? true : true,
+      airplay: isInRoom && !isHost ? false : true,
       autoOrientation: true,
-      fastForward: true,
-      aspectRatio: true,
+      fastForward: isInRoom && !isHost ? false : true,
+      aspectRatio: isInRoom && !isHost ? false : true,
       moreVideoAttr: {
         crossOrigin: 'anonymous',
         preload: 'none',
@@ -289,25 +324,29 @@ export default function Player({
             height: "100%",
             transform: "translateX(-50%)",
           },
-          disable: !Artplayer.utils.isMobile,
-          click: () => art.toggle(),
+          disable: !Artplayer.utils.isMobile || (isInRoom && !isHost),
+          click: () => !isInRoom || isHost ? art.toggle() : null,
         },
         {
           name: "rewind",
           html: "",
           style: { position: "absolute", left: 0, top: 0, width: "40%", height: "100%" },
-          disable: !Artplayer.utils.isMobile,
+          disable: !Artplayer.utils.isMobile || (isInRoom && !isHost),
           click: () => {
-            art.controls.show = !art.controls.show;
+            if (!isInRoom || isHost) {
+              art.controls.show = !art.controls.show;
+            }
           },
         },
         {
           name: "forward",
           html: "",
           style: { position: "absolute", right: 0, top: 0, width: "40%", height: "100%" },
-          disable: !Artplayer.utils.isMobile,
+          disable: !Artplayer.utils.isMobile || (isInRoom && !isHost),
           click: () => {
-            art.controls.show = !art.controls.show;
+            if (!isInRoom || isHost) {
+              art.controls.show = !art.controls.show;
+            }
           },
         },
         {
@@ -380,9 +419,71 @@ export default function Player({
       const currentEntry = continueWatchingList.find((item) => item.episodeId === episodeId);
       if (currentEntry?.leftAt) art.currentTime = currentEntry.leftAt;
 
+      // Set player reference for multiplayer
+      setPlayerReference(art);
+
       art.on("video:timeupdate", () => {
         leftAtRef.current = Math.floor(art.currentTime);
       });
+
+      // Store event handlers for cleanup
+      let playHandler, pauseHandler, seekHandler;
+
+      const setupMultiplayerHandlers = () => {
+        // Clean up existing handlers first
+        if (playHandler) art.off("play", playHandler);
+        if (pauseHandler) art.off("pause", pauseHandler);
+        if (seekHandler) art.off("seek", seekHandler);
+
+        // Set up new handlers if host in room
+        if (isInRoom && isHost) {
+          console.log('Setting up multiplayer event handlers for host');
+
+          playHandler = () => {
+            if (!isUpdatingFromSync.current) {
+              console.log('Host initiated play at:', art.currentTime);
+              setTimeout(() => {
+                syncVideoAction({
+                  type: "play",
+                  currentTime: art.currentTime
+                });
+              }, 100);
+            }
+          };
+
+          pauseHandler = () => {
+            if (!isUpdatingFromSync.current) {
+              console.log('Host initiated pause at:', art.currentTime);
+              syncVideoAction({
+                type: "pause",
+                currentTime: art.currentTime
+              });
+            }
+          };
+
+          seekHandler = () => {
+            if (!isUpdatingFromSync.current) {
+              console.log('Host initiated seek to:', art.currentTime);
+              setTimeout(() => {
+                syncVideoAction({
+                  type: "seek",
+                  currentTime: art.currentTime
+                });
+              }, 100);
+            }
+          };
+
+          art.on("play", playHandler);
+          art.on("pause", pauseHandler);
+          art.on("seek", seekHandler);
+        }
+      };
+
+      // Setup handlers initially
+      setupMultiplayerHandlers();
+
+      // Store the setup function on the art instance so it can be called externally
+      art.updateMultiplayerHandlers = setupMultiplayerHandlers;
 
       setTimeout(() => {
         art.layers[website_name].style.opacity = 0;
@@ -402,7 +503,13 @@ export default function Player({
       ];
       autoSkipIntro && art.plugins.add(autoSkip(skipRanges));
 
-      document.addEventListener("keydown", (event) => handleKeydown(event, art));
+      const keydownHandler = (event) => {
+        // Disable keyboard shortcuts for joiners in multiplayer
+        if (isInRoom && !isHost) return;
+        handleKeydown(event, art);
+      };
+
+      document.addEventListener("keydown", keydownHandler);
 
       art.subtitle.style({
         fontSize: (art.width > 500 ? art.width * 0.02 : art.width * 0.03) + "px",
@@ -417,7 +524,7 @@ export default function Player({
       }
       const $rewind = art.layers["rewind"];
       const $forward = art.layers["forward"];
-      Artplayer.utils.isMobile &&
+      Artplayer.utils.isMobile && (!isInRoom || isHost) &&
         art.proxy($rewind, "dblclick", () => {
           art.currentTime = Math.max(0, art.currentTime - 10);
           art.layers["backwardIcon"].style.opacity = 1;
@@ -425,7 +532,7 @@ export default function Player({
             art.layers["backwardIcon"].style.opacity = 0;
           }, 300);
         });
-      Artplayer.utils.isMobile &&
+      Artplayer.utils.isMobile && (!isInRoom || isHost) &&
         art.proxy($forward, "dblclick", () => {
           art.currentTime = Math.max(0, art.currentTime + 10);
           art.layers["forwardIcon"].style.opacity = 1;
@@ -468,11 +575,19 @@ export default function Player({
       }
     });
 
+    // Mark player as initialized
+    playerInitialized.current = true;
+
     return () => {
+      console.log('Cleaning up video player for episode:', episodeId);
+      playerInitialized.current = false;
+
       if (art && art.destroy) {
         art.destroy(false);
       }
       document.removeEventListener("keydown", handleKeydown);
+
+      // Save continue watching data
       const continueWatching = JSON.parse(localStorage.getItem("continueWatching")) || [];
       const newEntry = {
         id: animeInfo?.id,
@@ -496,8 +611,8 @@ export default function Player({
       }
       localStorage.setItem("continueWatching", JSON.stringify(continueWatching));
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [streamUrl, subtitles, intro, outro]);
+    // Only recreate player when essential props change
+  }, [streamUrl, episodeId]);
 
   return <div ref={artRef} className="w-full h-full"></div>;
 }

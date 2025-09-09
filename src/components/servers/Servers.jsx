@@ -3,11 +3,13 @@ import {
   faClosedCaptioning,
   faFile,
   faMicrophone,
+  faLanguage,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import BouncingLoader from "../ui/bouncingloader/Bouncingloader";
 import "./Servers.css";
 import { useEffect } from "react";
+import { useMultiplayer } from "@/src/context/MultiplayerContext";
 
 function Servers({
   servers,
@@ -18,41 +20,92 @@ function Servers({
   setActiveServerType,
   setActiveServerName,
 }) {
-  const subServers =
-    servers?.filter((server) => server.type === "sub") || [];
-  const dubServers =
-    servers?.filter((server) => server.type === "dub") || [];
-  const rawServers =
-    servers?.filter((server) => server.type === "raw") || [];
-
-  useEffect(() => {
-    const savedServerName = localStorage.getItem("server_name");
-    if (savedServerName) {
-      const matchingServer = servers?.find(
-        (server) => server.serverName === savedServerName,
-      );
-
-      if (matchingServer) {
-        setActiveServerId(matchingServer.data_id);
-        setActiveServerType(matchingServer.type);
-      } else if (servers && servers.length > 0) {
-        setActiveServerId(servers[0].data_id);
-        setActiveServerType(servers[0].type);
-      }
-    } else if (servers && servers.length > 0) {
-      setActiveServerId(servers[0].data_id);
-      setActiveServerType(servers[0].type);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [servers]);
-
+  // Multiplayer integration - only show iframe compatible servers when in room
+  const { isInRoom } = useMultiplayer();
+  
   const handleServerSelect = (server) => {
+    console.log("Selecting server:", server);
     setActiveServerId(server.data_id);
     setActiveServerType(server.type);
     setActiveServerName(server.serverName);
     localStorage.setItem("server_name", server.serverName);
     localStorage.setItem("server_type", server.type);
+    localStorage.setItem("server_data_id", server.data_id);
   };
+
+  // Filter servers based on multiplayer compatibility
+  const isIframeCompatible = (server) => {
+    // Multiplayer compatible servers: SLAY, VIDAPI, and PAHE servers
+    return server.type === "slay" || server.isVidapi || server.isPahe;
+  };
+
+  // When in multiplayer room, only show iframe-compatible servers
+  const filteredServers = isInRoom 
+    ? servers?.filter(isIframeCompatible) || []
+    : servers || [];
+
+  const subServers = filteredServers.filter((server) => server.type === "sub") || [];
+  const dubServers = filteredServers.filter((server) => server.type === "dub") || [];
+  const rawServers = filteredServers.filter((server) => server.type === "raw") || [];
+  const multiServers = filteredServers.filter((server) => server.type === "multi") || [];
+  const slayServers = filteredServers.filter((server) => server.type === "slay") || [];
+
+  useEffect(() => {
+    const savedServerName = localStorage.getItem("server_name");
+    
+    // When joining a room, switch to iframe-compatible server if current isn't compatible
+    if (isInRoom && servers) {
+      const currentServer = servers.find(s => s.data_id === activeServerId);
+      if (currentServer && !isIframeCompatible(currentServer)) {
+        // Switch to first available iframe-compatible server
+        const compatibleServer = servers.find(isIframeCompatible);
+        if (compatibleServer) {
+          setActiveServerId(compatibleServer.data_id);
+          setActiveServerType(compatibleServer.type);
+          setActiveServerName(compatibleServer.serverName);
+          localStorage.setItem("server_name", compatibleServer.serverName);
+          localStorage.setItem("server_type", compatibleServer.type);
+        }
+      }
+    } else if (savedServerName) {
+      const savedServerType = localStorage.getItem("server_type");
+      const savedDataId = localStorage.getItem("server_data_id");
+      
+      // First try to match by exact data_id (most precise)
+      let matchingServer = servers?.find(
+        (server) => server.data_id === savedDataId
+      );
+      
+      // If no exact data_id match, try to match by serverName AND type
+      if (!matchingServer && savedServerType) {
+        matchingServer = servers?.find(
+          (server) => server.serverName === savedServerName && server.type === savedServerType
+        );
+      }
+      
+      // If still no match, try just serverName (fallback)
+      if (!matchingServer) {
+        matchingServer = servers?.find(
+          (server) => server.serverName === savedServerName
+        );
+      }
+
+      if (matchingServer) {
+        setActiveServerId(matchingServer.data_id);
+        setActiveServerType(matchingServer.type);
+        setActiveServerName(matchingServer.serverName);
+      } else if (servers && servers.length > 0) {
+        setActiveServerId(servers[0].data_id);
+        setActiveServerType(servers[0].type);
+        setActiveServerName(servers[0].serverName);
+      }
+    } else if (servers && servers.length > 0) {
+      setActiveServerId(servers[0].data_id);
+      setActiveServerType(servers[0].type);
+      setActiveServerName(servers[0].serverName);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [servers, isInRoom, activeServerId]);
 
   return (
     <div className="relative bg-[#111111] p-4 w-full min-h-[100px] flex justify-center items-center max-[1200px]:bg-[#151515] max-[600px]:p-2">
@@ -64,16 +117,22 @@ function Servers({
         <div className="w-full h-full rounded-lg grid grid-cols-[minmax(0,30%),minmax(0,70%)] overflow-hidden max-[800px]:grid-cols-[minmax(0,40%),minmax(0,60%)] max-[600px]:flex max-[600px]:flex-col max-[600px]:rounded-none max-[600px]:gap-2">
           <div className="h-full bg-[#e0e0e0] px-6 text-black flex flex-col justify-center items-center gap-y-2 max-[600px]:bg-transparent max-[600px]:h-auto max-[600px]:text-white max-[600px]:py-1 max-[600px]:px-2">
             <p className="text-center leading-5 font-medium text-[14px] max-[600px]:text-[13px] max-[600px]:mb-0">
-              You are watching:{" "}
+              𝖄𝖔𝖚 𝖆𝖗𝖊 𝖜𝖆𝖙𝖈𝖍𝖎𝖓𝖌:{" "}
               <br className="max-[600px]:hidden" />
               <span className="font-semibold max-[600px]:text-[#e0e0e0] max-[600px]:ml-1">
                 Episode {activeEpisodeNum}
               </span>
             </p>
-            <p className="leading-5 text-[14px] font-medium text-center max-[600px]:text-[12px] max-[600px]:hidden">
-              If the current server doesn&apos;t work, please try other servers
-              beside.
-            </p>
+            {isInRoom ? (
+              <p className="leading-5 text-[14px] font-medium text-center max-[600px]:text-[12px] text-blue-300">
+                👥 Multiplayer Mode - Only compatible servers shown
+              </p>
+            ) : (
+              <p className="leading-5 text-[14px] font-medium text-center max-[600px]:text-[12px] max-[600px]:hidden">
+                𝕴𝖋 𝖙𝖍𝖊 𝖈𝖚𝖗𝖗𝖊𝖓𝖙 𝖘𝖊𝖗𝖛𝖊𝖗 𝖉𝖔𝖊𝖘𝖓&𝖆𝖕𝖔𝖘;𝖙 𝖜𝖔𝖗𝖐, 𝖕𝖑𝖊𝖆𝖘𝖊 𝖙𝖗𝖞 𝖔𝖙𝖍𝖊𝖗 𝖘𝖊𝖗𝖛𝖊𝖗𝖘
+                𝖇𝖊𝖘𝖎𝖉𝖊.
+              </p>
+            )}
           </div>
           <div className="bg-[#1f1f1f] flex flex-col max-[600px]:rounded-lg max-[600px]:p-2">
             {rawServers.length > 0 && (
@@ -151,6 +210,65 @@ function Servers({
                 </div>
                 <div className="flex gap-1.5 ml-2 flex-wrap max-[600px]:ml-0">
                   {dubServers.map((item, index) => (
+                    <div
+                      key={index}
+                      className={`px-6 py-[5px] rounded-lg cursor-pointer ${
+                        activeServerId === item?.data_id
+                          ? "bg-[#e0e0e0] text-black"
+                          : "bg-[#373737] text-white"
+                      } max-[700px]:px-3 max-[600px]:px-2 max-[600px]:py-1`}
+                      onClick={() => handleServerSelect(item)}
+                    >
+                      <p className="text-[13px] font-semibold max-[600px]:text-[12px]">
+                        {item.serverName}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+             {multiServers.length > 0 && (
+              <div className={`servers px-2 flex items-center flex-wrap gap-y-1 ml-2 max-[600px]:py-1.5 max-[600px]:px-1 max-[600px]:ml-0 ${
+                subServers.length === 0 && dubServers.length === 0 ? "h-1/2" : "h-full"
+              }`}>
+                <div className="flex items-center gap-x-2 min-w-[65px]">
+                  <FontAwesomeIcon
+                    icon={faLanguage}
+                    className="text-[#e0e0e0] text-[13px]"
+                  />
+                  <p className="font-bold text-[14px] max-[600px]:text-[12px]">MULTI:</p>
+                </div>
+                <div className="flex gap-1.5 ml-2 flex-wrap max-[600px]:ml-0">
+                  {multiServers.map((item, index) => (
+                    <div
+                      key={index}
+                      className={`px-6 py-[5px] rounded-lg cursor-pointer ${
+                        activeServerId === item?.data_id
+                          ? "bg-[#e0e0e0] text-black"
+                          : "bg-[#373737] text-white"
+                      } max-[700px]:px-3 max-[600px]:px-2 max-[600px]:py-1`}
+                      onClick={() => handleServerSelect(item)}
+                    >
+                      <p className="text-[13px] font-semibold max-[600px]:text-[12px]">
+                        {item.serverName}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {slayServers.length > 0 && (
+              <div className="servers px-2 flex items-center flex-wrap gap-y-1 ml-2 max-[600px]:py-1.5 max-[600px]:px-1 max-[600px]:ml-0 h-full">
+                <div className="flex items-center gap-x-2 min-w-[65px]">
+                  <FontAwesomeIcon
+                    icon={faMicrophone}
+                    className="text-[#e0e0e0] text-[13px]"
+                  />
+                  <p className="font-bold text-[14px] max-[600px]:text-[12px]">SLAY:</p>
+                </div>
+                <div className="flex gap-1.5 ml-2 flex-wrap max-[600px]:ml-0">
+                  {slayServers.map((item, index) => (
                     <div
                       key={index}
                       className={`px-6 py-[5px] rounded-lg cursor-pointer ${

@@ -20,10 +20,10 @@ function Contact() {
             className="flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group"
           >
             <FontAwesomeIcon icon={faPaperPlane} className="text-xl text-white/60 group-hover:text-white" />
-            <span className="text-white/60 group-hover:text-white">Join our Telegram</span>
+            <span className="text-white/60 group-hover:text-white">soon</span>
           </a>
           <a
-            href="#"
+            href="https://discord.gg/rEh9KrG2DV"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group"
@@ -38,7 +38,7 @@ function Contact() {
             className="flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group"
           >
             <FontAwesomeIcon icon={faGithub} className="text-xl text-white/60 group-hover:text-white" />
-            <span className="text-white/60 group-hover:text-white">GitHub</span>
+            <span className="text-white/60 group-hover:text-white">soon</span>
           </a>
         </div>
       </div>

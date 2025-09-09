@@ -120,34 +120,117 @@ export const useWatch = (animeId, initialEpisodeId) => {
         const data = await getServers(animeId, episodeId);
         console.log(data);
         
-        const filteredServers = data?.filter(
+        const originalServers = data?.filter(
           (server) =>
             server.serverName === "HD-1" ||
-            server.serverName === "HD-2" ||
             server.serverName === "HD-3"
         );
+        
+        // Create properly filtered servers with unique IDs to prevent conflicts
+        const filteredServers = [];
+        
+        originalServers?.forEach(server => {
+          if (server.serverName === "HD-3" && server.type === "dub") {
+            return; // Skip HD-3 for DUB section
+          }
+          
+          // Create completely unique data_ids for each server type combination
+          filteredServers.push({
+            ...server,
+            data_id: `${server.serverName.toLowerCase().replace('-', '')}_${server.type}_${server.data_id || Math.random().toString(36).substr(2, 9)}`,
+            server_id: `${server.serverName.toLowerCase().replace('-', '')}_${server.type}_${server.server_id || Math.random().toString(36).substr(2, 9)}`
+          });
+        });
+        
+        // Add VidAPI-1 to SUB category only
         if (filteredServers.some((s) => s.type === "sub")) {
           filteredServers.push({
             type: "sub",
-            data_id: "69696969",
-            server_id: "41",
+            data_id: "vidapi1-sub",
+            server_id: "vidapi1-sub",
+            serverName: "VidAPI-1",
+            isVidapi: true,
+          });
+        }
+        
+        // Add Pahe servers to both SUB and DUB categories
+        if (filteredServers.some((s) => s.type === "sub")) {
+          filteredServers.push({
+            type: "sub",
+            data_id: "pahe-sub",
+            server_id: "pahe-sub",
+            serverName: "Pahe",
+            isPahe: true,
+          });
+        }
+        if (filteredServers.some((s) => s.type === "dub")) {
+          filteredServers.push({
+            type: "dub",
+            data_id: "pahe-dub",
+            server_id: "pahe-dub",
+            serverName: "Pahe",
+            isPahe: true,
+          });
+        }
+        
+        // Add HD-4 servers
+        if (filteredServers.some((s) => s.type === "sub")) {
+          filteredServers.push({
+            type: "sub",
+            data_id: "hd4-sub-custom",
+            server_id: "hd4-sub-41",
             serverName: "HD-4",
           });
         }
         if (filteredServers.some((s) => s.type === "dub")) {
           filteredServers.push({
             type: "dub",
-            data_id: "96969696",
-            server_id: "42",
+            data_id: "hd4-dub-custom",
+            server_id: "hd4-dub-42",
             serverName: "HD-4",
           });
         }
+        
+        // Add multi server if any sub/dub servers exist
+        if (filteredServers.some(s => s.type === "sub" || s.type === "dub")) {
+          filteredServers.push({ 
+            type: "multi", 
+            serverName: "Nest", 
+            data_id: "multi",
+            server_id: "43"
+          });
+        }
+        
+        // Add SLAY servers based on API categories
+        const slayLanguages = [
+          { name: "English", param: "ENGLISH" },
+          { name: "Japanese", param: "JAPANESE" }, 
+          { name: "Hindi", param: "HINDI" },
+          { name: "Nest", param: "NEST" }
+        ];
+        
+        slayLanguages.forEach(lang => {
+          filteredServers.push({ 
+            type: "slay", 
+            serverName: lang.name, 
+            data_id: `slay-${lang.param.toLowerCase()}`,
+            slayLang: lang.param,
+            server_id: `slay-${lang.param.toLowerCase()}`
+          });
+        });
+        
+        
+        console.log("Final filteredServers:", filteredServers);
+        
         const savedServerName = localStorage.getItem("server_name");
         const savedServerType = localStorage.getItem("server_type");
+        const savedDataId = localStorage.getItem("server_data_id");
+        
         const initialServer =
+          filteredServers.find(s => s.data_id === savedDataId) ||
           filteredServers.find(s => s.serverName === savedServerName && s.type === savedServerType) ||
-          filteredServers.find(s => s.serverName === savedServerName) ||
-          filteredServers.find(s => s.type === savedServerType && ["HD-1", "HD-2", "HD-3", "HD-4"].includes(s.serverName)) ||
+          filteredServers.find(s => s.type === "dub") ||
+          filteredServers.find(s => s.type === "sub") ||
           filteredServers[0];
 
         setServers(filteredServers);
@@ -163,7 +246,7 @@ export const useWatch = (animeId, initialEpisodeId) => {
       }
     };
     fetchServers();
-  }, [episodeId, episodes]);
+  }, [episodeId, episodes, animeInfo]);
   // Fetch stream info only when episodeId, activeServerId, and servers are ready
   useEffect(() => {
     if (
@@ -175,8 +258,8 @@ export const useWatch = (animeId, initialEpisodeId) => {
     )
       return;
     if (
-      (activeServerName?.toLowerCase() === "hd-1" || activeServerName?.toLowerCase() === "hd-4") 
-        &&
+      (activeServerName?.toLowerCase() === "hd-1" || activeServerName?.toLowerCase() === "hd-4" || activeServerName?.toLowerCase() === "nest" || activeServerType?.toLowerCase() === "slay" || activeServerName?.includes("VidAPI") || activeServerName?.toLowerCase() === "pahe") 
+      &&
       !serverLoading
     ) {
       setBuffering(false);
@@ -188,12 +271,12 @@ export const useWatch = (animeId, initialEpisodeId) => {
       try {
         const server = servers.find((srv) => srv.data_id === activeServerId);
         if (server) {
-          const data = await getStreamInfo(
+            const data = await getStreamInfo(
             animeId,
             episodeId,
-            server.serverName.toLowerCase()==="hd-3"?"hd-1":server.serverName.toLowerCase(),
+            server.serverName.toLowerCase()==="hd-3"?"hd-1":server.serverName.toLowerCase()==="nest"?"hd-1":server.serverName.toLowerCase(),
             server.type.toLowerCase()
-          );
+            );
           setStreamInfo(data);
           setStreamUrl(data?.streamingLink?.link?.file || null);
           setIntro(data?.streamingLink?.intro || null);
@@ -220,6 +303,16 @@ export const useWatch = (animeId, initialEpisodeId) => {
     };
     fetchStreamInfo();
   }, [episodeId, activeServerId, servers]);
+
+  // Find the active server object from the main servers array (now includes all server types)
+  const activeServer = servers?.find(server => server.data_id === activeServerId);
+
+  // Add console log to debug server changes
+  useEffect(() => {
+    if (activeServer) {
+      console.log("Active server changed:", activeServer);
+    }
+  }, [activeServerId, activeServer]);
 
   return {
     error,
@@ -250,5 +343,6 @@ export const useWatch = (animeId, initialEpisodeId) => {
     setActiveServerType,
     activeServerName,
     setActiveServerName,
+    activeServer,
   };
 };
