@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { HomeInfoProvider } from "./context/HomeInfoContext";
+import { MultiplayerProvider } from "./context/MultiplayerContext"; // ✅ add multiplayer
 import Home from "./pages/Home/Home";
 import AnimeInfo from "./pages/animeInfo/AnimeInfo";
 import Navbar from "./components/navbar/Navbar";
@@ -27,47 +28,54 @@ function App() {
 
   return (
     <HomeInfoProvider>
-      <ScrollToTop /> {/* always scrolls to top on route change */}
-      <div className="app-container px-4 lg:px-10">
-        <main className="content max-w-[2048px] mx-auto w-full">
-          {!isSplashScreen && <Navbar />}
-          <Routes>
-            <Route path="/" element={<SplashScreen />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/:id" element={<AnimeInfo />} />
-            <Route path="/watch/:id" element={<Watch />} />
-            <Route path="/random" element={<AnimeInfo random={true} />} />
-            <Route path="/404-not-found-page" element={<Error error="404" />} />
-            <Route path="/error-page" element={<Error />} />
-            <Route path="/terms-of-service" element={<Terms />} />
-            <Route path="/dmca" element={<DMCA />} />
-            <Route path="/contact" element={<Contact />} />
-
-            {/* Category routes */}
-            {categoryRoutes.map((path) => (
+      <MultiplayerProvider>
+        <ScrollToTop /> {/* always scrolls to top on route change */}
+        <div className="app-container px-4 lg:px-10">
+          <main className="content max-w-[2048px] mx-auto w-full">
+            {!isSplashScreen && <Navbar />}
+            <Routes>
+              <Route path="/" element={<SplashScreen />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/:id" element={<AnimeInfo />} />
+              <Route path="/watch/:id" element={<Watch />} />
+              <Route path="/random" element={<AnimeInfo random={true} />} />
               <Route
-                key={path}
-                path={`/${path}`}
-                element={<Category path={path} label={path.split("-").join(" ")} />}
+                path="/404-not-found-page"
+                element={<Error error="404" />}
               />
-            ))}
+              <Route path="/error-page" element={<Error />} />
+              <Route path="/terms-of-service" element={<Terms />} />
+              <Route path="/dmca" element={<DMCA />} />
+              <Route path="/contact" element={<Contact />} />
 
-            {/* A to Z routes */}
-            {azRoute.map((path) => (
-              <Route key={path} path={`/${path}`} element={<AtoZ path={path} />} />
-            ))}
+              {/* Category routes */}
+              {categoryRoutes.map((path) => (
+                <Route
+                  key={path}
+                  path={`/${path}`}
+                  element={
+                    <Category path={path} label={path.split("-").join(" ")} />
+                  }
+                />
+              ))}
 
-            <Route path="/producer/:id" element={<Producer />} />
-            <Route path="/search" element={<Search />} />
+              {/* A to Z routes */}
+              {azRoute.map((path) => (
+                <Route key={path} path={`/${path}`} element={<AtoZ path={path} />} />
+              ))}
 
-            {/* Catch-all 404 */}
-            <Route path="*" element={<Error error="404" />} />
-          </Routes>
-          {!isSplashScreen && <Footer />}
-        </main>
-        <Analytics />
-        <SpeedInsights />
-      </div>
+              <Route path="/producer/:id" element={<Producer />} />
+              <Route path="/search" element={<Search />} />
+
+              {/* Catch-all 404 */}
+              <Route path="*" element={<Error error="404" />} />
+            </Routes>
+            {!isSplashScreen && <Footer />}
+          </main>
+          <Analytics />
+          <SpeedInsights />
+        </div>
+      </MultiplayerProvider>
     </HomeInfoProvider>
   );
 }
