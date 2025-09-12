@@ -126,7 +126,7 @@ function Navbar() {
 
               {/* Popular Button */}
               <Link
-                to="/popular"
+                to="/most-popular"
                 className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-orange-500 rounded-lg transition-colors flex items-center justify-center"
                 title="Popular Anime"
               >
