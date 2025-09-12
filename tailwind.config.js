@@ -12,7 +12,7 @@ export default {
       screens: {
         "custom-md": "600px",
         "custom-xl": "1200px",
-        "ultra-wide":"1660px",
+        "ultra-wide": "1660px",
       },
       colors: {
         background: "hsl(var(--background))",
@@ -55,6 +55,9 @@ export default {
           4: "hsl(var(--chart-4))",
           5: "hsl(var(--chart-5))",
         },
+      },
+      fontFamily: {
+        poppins: ["Poppins", "sans-serif"], // ✅ add this
       },
     },
   },
