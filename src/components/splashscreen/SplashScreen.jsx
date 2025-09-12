@@ -1,23 +1,31 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./SplashScreen.css";
 import logoTitle from "@/src/config/logoTitle";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass, faChevronDown } from "@fortawesome/free-solid-svg-icons";
-import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import {
+  faMagnifyingGlass,
+  faChevronDown,
+  faAngleRight,
+  faVolumeHigh,
+  faVolumeXmark
+} from "@fortawesome/free-solid-svg-icons";
 
 const FAQ_ITEMS = [
   {
-    question: "how to use adfree server?",
-    answer: "just click on HD2 for watching it adfree"
+    question: "Is JustAnime safe?",
+    answer:
+      "Yes, JustAnime is completely safe to use. We ensure all content is properly scanned and secured for our users."
   },
   {
-    question: "What makes Z-ANIME the best site to watch anime free online?",
-    answer: "Z-ANIME offers high-quality streaming, a vast library of anime, no intrusive ads, and a user-friendly interface - all completely free."
+    question: "What makes JustAnime the best site to watch anime free online?",
+    answer:
+      "JustAnime offers high-quality streaming, a vast library of anime, no intrusive ads, and a user-friendly interface - all completely free."
   },
   {
     question: "How do I request an anime?",
-    answer: "You can submit anime requests through our contact form or by reaching out to our support team."
+    answer:
+      "You can submit anime requests through our contact form or by reaching out to our support team."
   }
 ];
 
@@ -25,6 +33,8 @@ function SplashScreen() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef(null);
 
   const handleSearchSubmit = useCallback(() => {
     const trimmedSearch = search.trim();
@@ -46,14 +56,42 @@ function SplashScreen() {
     setExpandedFaq(expandedFaq === index ? null : index);
   };
 
+  const toggleAudio = () => {
+    const video = videoRef.current;
+    if (video) {
+      video.muted = !video.muted;
+      setIsMuted(video.muted);
+    }
+  };
+
   return (
     <div className="splash-container">
+      {/* Video Background */}
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted={isMuted}
+        playsInline
+        className="splash-video"
+      >
+        <source src="https://files.catbox.moe/kfq8pz.mp4" type="video/mp4" />
+      </video>
+
       <div className="splash-overlay"></div>
+
+      {/* Audio Button */}
+      <button className="audio-toggle" onClick={toggleAudio}>
+        <FontAwesomeIcon icon={isMuted ? faVolumeXmark : faVolumeHigh} />
+      </button>
+
       <div className="content-wrapper">
+        {/* Logo */}
         <div className="logo-container">
           <img src="/logo.png" alt={logoTitle} className="logo" />
         </div>
 
+        {/* Search */}
         <div className="search-container">
           <input
             type="text"
@@ -72,10 +110,13 @@ function SplashScreen() {
           </button>
         </div>
 
+        {/* Enter Homepage */}
         <Link to="/home" className="enter-button">
-          Enter Homepage <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
+          Enter Homepage{" "}
+          <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
         </Link>
 
+        {/* FAQ */}
         <div className="faq-section">
           <h2 className="faq-title">Frequently Asked Questions</h2>
           <div className="faq-list">
@@ -86,15 +127,15 @@ function SplashScreen() {
                   onClick={() => toggleFaq(index)}
                 >
                   <span>{item.question}</span>
-                  <FontAwesomeIcon 
-                    icon={faChevronDown} 
-                    className={`faq-toggle ${expandedFaq === index ? 'rotate' : ''}`}
+                  <FontAwesomeIcon
+                    icon={faChevronDown}
+                    className={`faq-toggle ${
+                      expandedFaq === index ? "rotate" : ""
+                    }`}
                   />
                 </button>
                 {expandedFaq === index && (
-                  <div className="faq-answer">
-                    {item.answer}
-                  </div>
+                  <div className="faq-answer">{item.answer}</div>
                 )}
               </div>
             ))}
