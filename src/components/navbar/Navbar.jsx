@@ -1,185 +1,44 @@
-import { useState, useEffect } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faBars,
-  faRandom,
-  faMagnifyingGlass,
-  faXmark,
-  faFilm,
-  faFire,
-} from "@fortawesome/free-solid-svg-icons";
-import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
-import { useLanguage } from "@/src/context/LanguageContext";
-import { Link, useLocation } from "react-router-dom";
-import Sidebar from "../sidebar/Sidebar";
-import { SearchProvider } from "@/src/context/SearchContext";
-import WebSearch from "../searchbar/WebSearch";
-import MobileSearch from "../searchbar/MobileSearch";
+// Navbar.jsx
+import { useState, useRef, useEffect } from "react";
 
-function Navbar() {
-  const location = useLocation();
-  const { language, toggleLanguage } = useLanguage();
-  const [isNotHomePage, setIsNotHomePage] = useState(
-    location.pathname !== "/" && location.pathname !== "/home"
-  );
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+const navItems = ["Home", "Browse Genres", "Trending", "Schedule", "Playlists"];
+
+export default function Navbar() {
+  const [active, setActive] = useState("Home");
+  const [underlineStyle, setUnderlineStyle] = useState({});
+  const navRef = useRef([]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
-  const handleHamburgerClick = () => {
-    setIsSidebarOpen(true);
-  };
-
-  const handleCloseSidebar = () => {
-    setIsSidebarOpen(false);
-  };
-
-  const handleRandomClick = () => {
-    if (location.pathname === "/random") {
-      window.location.reload();
+    const activeIndex = navItems.indexOf(active);
+    const activeEl = navRef.current[activeIndex];
+    if (activeEl) {
+      setUnderlineStyle({
+        width: `${activeEl.offsetWidth}px`,
+        left: `${activeEl.offsetLeft}px`,
+      });
     }
-  };
-
-  useEffect(() => {
-    setIsNotHomePage(
-      location.pathname !== "/" && location.pathname !== "/home"
-    );
-  }, [location.pathname]);
+  }, [active]);
 
   return (
-    <SearchProvider>
-      <nav
-        className={`fixed top-0 left-0 w-full z-[1000000] transition-all duration-300 ease-in-out bg-[#0a0a0a]
-          ${isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"}`}
-      >
-        <div className="max-w-[1920px] mx-auto px-4 h-16 flex items-center justify-between">
-          {/* Left Section */}
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-4">
-              <FontAwesomeIcon
-                icon={faBars}
-                className="text-xl text-gray-200 cursor-pointer hover:text-white transition-colors"
-                onClick={handleHamburgerClick}
-              />
-              <Link to="/home" className="flex items-center">
-                <img src="/logo.png" alt="JustAnime Logo" className="h-9 w-auto" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Center Section - Search + Icons */}
-          <div className="flex-1 flex justify-center items-center max-w-none mx-8 hidden md:flex">
-            <div className="flex items-center gap-2 w-[700px]">
-              {/* Discord Button */}
-              <a
-                href="https://discord.gg/YourDiscordInvite"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-[#5865F2] rounded-lg transition-colors flex items-center justify-center"
-                title="Join us on Discord"
-              >
-                <FontAwesomeIcon icon={faDiscord} className="text-lg" />
-              </a>
-
-              {/* Telegram Button */}
-              <a
-                href="https://t.me/YourTelegramLink"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-[#229ED9] rounded-lg transition-colors flex items-center justify-center"
-                title="Join us on Telegram"
-              >
-                <FontAwesomeIcon icon={faTelegram} className="text-lg" />
-              </a>
-
-              {/* Search Bar */}
-              <WebSearch />
-
-              {/* Random Button */}
-              <Link
-                to={location.pathname === "/random" ? "#" : "/random"}
-                onClick={handleRandomClick}
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center"
-                title="Random Anime"
-              >
-                <FontAwesomeIcon icon={faRandom} className="text-lg" />
-              </Link>
-
-              {/* Movie Button */}
-              <Link
-                to="/movie"
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center"
-                title="Movies"
-              >
-                <FontAwesomeIcon icon={faFilm} className="text-lg" />
-              </Link>
-
-              {/* Popular Button */}
-              <Link
-                to="/most-popular"
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-orange-500 rounded-lg transition-colors flex items-center justify-center"
-                title="Popular Anime"
-              >
-                <FontAwesomeIcon icon={faFire} className="text-lg" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Language Toggle - Desktop */}
-          <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
-            {["EN", "JP"].map((lang) => (
-              <button
-                key={lang}
-                onClick={() => toggleLanguage(lang)}
-                className={`px-3 py-1 text-sm font-medium rounded ${
-                  language === lang
-                    ? "bg-[#3F3F46] text-white"
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                {lang}
-              </button>
-            ))}
-          </div>
-
-          {/* Mobile Search Icon */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center w-[38px] h-[38px]"
-              title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
-            >
-              <FontAwesomeIcon 
-                icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass} 
-                className="w-[18px] h-[18px] transition-transform duration-200"
-                style={{ transform: isMobileSearchOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
-              />
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Search Dropdown */}
-        {isMobileSearchOpen && (
-          <div className="md:hidden bg-[#18181B] shadow-lg">
-            <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
-          </div>
-        )}
-
-        {/* Sidebar */}
-        <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
-      </nav>
-    </SearchProvider>
+    <div className="relative bg-[#1F1B2E] p-4 rounded-xl flex justify-center">
+      <div className="flex gap-6 relative">
+        {navItems.map((item, index) => (
+          <button
+            key={item}
+            ref={(el) => (navRef.current[index] = el)}
+            onClick={() => setActive(item)}
+            className={`text-white font-medium relative transition-colors ${
+              active === item ? "text-purple-400" : "text-gray-400"
+            }`}
+          >
+            {item}
+          </button>
+        ))}
+        <span
+          className="absolute bottom-0 h-1 bg-purple-500 rounded transition-all duration-300"
+          style={underlineStyle}
+        />
+      </div>
+    </div>
   );
 }
-
-export default Navbar;
