@@ -52,7 +52,7 @@ export const MultiplayerProvider = ({ children }) => {
 
   useEffect(() => {
     // Initialize socket connection to multiplayer server
-    const serverUrl = import.meta.env.VITE_MULTIPLAYER_SERVER_URL || 'https://server-bkur.onrender.com';
+    const serverUrl = import.meta.env.VITE_MULTIPLAYER_SERVER_URL || 'https://server-81ja.onrender.com';
     const newSocket = io(serverUrl, {
       reconnection: true,
       reconnectionAttempts: 5,
