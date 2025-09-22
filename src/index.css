@@ -14,7 +14,7 @@
 /* ---------------- Global font ---------------- */
 :root {
   font-family: 'GeistMono', monospace; /* GeistMono globally */
-  font-weight: 900; /* Black */
+  font-weight: 9; /* Black */
   line-height: 1.5;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
