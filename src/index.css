@@ -6,7 +6,7 @@
 @font-face {
   font-family: 'GeistMono';
   src: url('/src/fonts/GeistMono-Black.woff2') format('woff2');
-  font-weight: 100;
+  font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
@@ -14,7 +14,7 @@
 /* ---------------- Global font ---------------- */
 :root {
   font-family: 'GeistMono', monospace; /* GeistMono globally */
-  font-weight: 100; /* Black */
+  font-weight: 900; /* Black */
   line-height: 1.5;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
