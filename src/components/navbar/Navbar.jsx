@@ -47,7 +47,6 @@ function Navbar() {
       <nav className="fixed left-0 right-0 top-4 z-[100000]">
         <div className="flex justify-center px-4">
           <div
-            // REDUCED WIDTH: max-w-[900px] -> max-w-[800px]
             className={`w-full max-w-[800px] rounded-full border border-white/10 shadow-lg
                         ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
                         px-4 py-[6px]`}
@@ -55,7 +54,6 @@ function Navbar() {
             <div className="flex items-center justify-between relative z-[100001]">
               
               {/* === LEFT SIDE: Hamburger, KAITO, Social Icons, and Web Search === */}
-              {/* INCREASED GAP: gap-2 -> gap-4 for better visual comfort */}
               <div className="flex items-center gap-4"> 
                 
                 {/* Hamburger */}
@@ -97,14 +95,13 @@ function Navbar() {
                   <FontAwesomeIcon icon={faTelegram} className="text-[20px]" />
                 </a>
                 
-                {/* Compact Web Search (MOVED TO LEFT) */}
-                <div className="hidden md:block basis-[170px] max-w-[170px] flex-shrink-0">
+                {/* Compact Web Search (WIDTH REDUCED: 170px -> 140px) */}
+                <div className="hidden md:block basis-[140px] max-w-[140px] flex-shrink-0">
                   <WebSearch />
                 </div>
               </div>
 
               {/* === RIGHT SIDE: Random, Movie, Popular, and Language Toggle === */}
-              {/* Gap-1 remains for tightly grouping the small icon buttons */}
               <div className="flex items-center gap-1"> 
                 
                 {/* Random */}
