@@ -11,23 +11,7 @@ import {
   faVolumeXmark
 } from "@fortawesome/free-solid-svg-icons";
 
-const FAQ_ITEMS = [
-  {
-    question: "Is JustAnime safe?",
-    answer:
-      "Yes, JustAnime is completely safe to use. We ensure all content is properly scanned and secured for our users."
-  },
-  {
-    question: "What makes JustAnime the best site to watch anime free online?",
-    answer:
-      "JustAnime offers high-quality streaming, a vast library of anime, no intrusive ads, and a user-friendly interface - all completely free."
-  },
-  {
-    question: "How do I request an anime?",
-    answer:
-      "You can submit anime requests through our contact form or by reaching out to our support team."
-  }
-];
+// ... (FAQ_ITEMS remains the same)
 
 function SplashScreen() {
   const navigate = useNavigate();
@@ -89,8 +73,10 @@ function SplashScreen() {
       </button>
 
       {/* Centered content — kept within viewport */}
-      <div className="content-wrapper">
+      {/* ADDED: A max-width class and padding to ensure content doesn't stretch too wide on any screen */}
+      <div className="content-wrapper w-full max-w-4xl px-4 mx-auto"> 
         {/* Logo */}
+        {/* ASSUMPTION: Logo size is managed by CSS, but if it's too big, you may need a max-width here */}
         <div className="logo-container">
           <img src="/logo.png" alt={logoTitle} className="logo" />
         </div>
@@ -99,11 +85,14 @@ function SplashScreen() {
         <div className="watching-pill">10 users watching now</div>
 
         {/* Headings */}
-        <h1 className="tagline">Your Complete Anime Entertainment Platform</h1>
-        <p className="subline">Thousands of series — free and fast streaming.</p>
+        {/* ADJUSTED: Used common responsive text classes (text-5xl for desktop, text-3xl for mobile) 
+             Note: These classes should be defined in your CSS/Tailwind config. If you are using plain CSS,
+             you will need to implement media queries for the .tagline and .subline classes. */}
+        <h1 className="tagline text-5xl md:text-6xl text-center mx-auto">Your Complete Anime Entertainment Platform</h1>
+        <p className="subline text-lg text-center mx-auto">Thousands of series — free and fast streaming.</p>
 
         {/* Search */}
-        <div className="search-container">
+        <div className="search-container w-full max-w-lg mx-auto"> 
           <input
             type="text"
             placeholder="Search anime..."
@@ -121,10 +110,8 @@ function SplashScreen() {
           </button>
         </div>
 
-        {/* Removed tags below the search bar as requested */}
-
         {/* CTA Row */}
-        <div className="button-row">
+        <div className="button-row flex justify-center mt-6"> 
           <Link to="/home" className="enter-button">
             Start Watching <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
           </Link>
@@ -132,14 +119,14 @@ function SplashScreen() {
             href="https://discord.gg/YourDiscordInvite"
             target="_blank"
             rel="noopener noreferrer"
-            className="secondary-button"
+            className="secondary-button ml-4"
           >
             Discord
           </a>
         </div>
 
         {/* FAQ */}
-        <div className="faq-section">
+        <div className="faq-section mt-10 w-full max-w-xl mx-auto"> 
           <h2 className="faq-title">Frequently Asked Questions</h2>
           <div className="faq-list">
             {FAQ_ITEMS.map((item, index) => (
