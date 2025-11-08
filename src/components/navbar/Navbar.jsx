@@ -4,9 +4,11 @@ import {
   faBars,
   faRandom,
   faMagnifyingGlass,
-  faXmark
+  faXmark,
+  faFilm,
+  faFire,
 } from "@fortawesome/free-solid-svg-icons";
-import { faDiscord } from "@fortawesome/free-brands-svg-icons";
+import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { Link, useLocation } from "react-router-dom";
 import Sidebar from "../sidebar/Sidebar";
@@ -35,106 +37,129 @@ function Navbar() {
 
   return (
     <SearchProvider>
-      {/* Centered rounded pill bar */}
-      <nav className="fixed left-0 right-0 top-4 z-[1000000]">
-        <div className="flex justify-center px-4">
-          <div
-            className={`flex items-center gap-3 max-w-[1100px] w-full
-              rounded-full px-4 py-2
-              ${isScrolled ? "bg-black/75" : "bg-black/60"}
-              backdrop-blur-md border border-white/10 shadow-lg`}
-          >
-            {/* Left: hamburger + logo */}
-            <button
+      {/* full-width bar (no top margin) */}
+      <nav
+        className={`fixed top-0 left-0 w-full z-[1000000] transition-all duration-300 ease-in-out
+          ${isScrolled ? "bg-black/80 backdrop-blur-md shadow-lg" : "bg-black/60 backdrop-blur"}`}
+      >
+        <div className="max-w-[1920px] mx-auto px-4 h-16 flex items-center justify-between">
+
+          {/* LEFT: hamburger + logo */}
+          <div className="flex items-center gap-4">
+            <FontAwesomeIcon
+              icon={faBars}
+              className="text-xl text-gray-200 cursor-pointer hover:text-white transition-colors"
               onClick={handleHamburgerClick}
-              className="p-[10px] aspect-square bg-[#1f1f1f] text-white/70 hover:text-white rounded-lg transition-colors flex items-center justify-center"
-              title="Menu"
-            >
-              <FontAwesomeIcon icon={faBars} className="text-lg" />
-            </button>
-
-            <Link to="/home" className="flex items-center mr-2">
-              <img src="/logo.png" alt="JustAnime Logo" className="h-8 w-auto" />
+            />
+            <Link to="/home" className="flex items-center">
+              <img src="/logo.png" alt="JustAnime Logo" className="h-9 w-auto" />
             </Link>
+          </div>
 
-            {/* Center navigation labels (Lunar-like) */}
-            <div className="hidden md:flex items-center gap-2">
-              <Link to="/home" className="px-3 py-2 rounded-full bg-[#1f1f1f] text-white/80 hover:bg-[#2a2a2a] transition">Home</Link>
-              <Link to="#" className="px-3 py-2 rounded-full bg-[#1f1f1f] text-white/60 hover:bg-[#2a2a2a] transition">Features</Link>
-              <Link to="#" className="px-3 py-2 rounded-full bg-[#1f1f1f] text-white/60 hover:bg-[#2a2a2a] transition">Changelog</Link>
-              <Link to="/contact" className="px-3 py-2 rounded-full bg-[#1f1f1f] text-white/80 hover:bg-[#2a2a2a] transition">Contact</Link>
-              <Link to="/a2z" className="px-3 py-2 rounded-full bg-[#1f1f1f] text-white/80 hover:bg-[#2a2a2a] transition">View Animes</Link>
-            </div>
-
-            {/* Search inside the pill */}
-            <div className="flex-1 hidden md:flex justify-center">
-              <WebSearch />
-            </div>
-
-            {/* Discord */}
-            <a
-              href="https://discord.gg/YourDiscordInvite"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-[10px] aspect-square bg-[#1f1f1f] text-white/70 hover:text-[#5865F2] rounded-lg transition-colors flex items-center justify-center"
-              title="Discord"
-            >
-              <FontAwesomeIcon icon={faDiscord} className="text-lg" />
-            </a>
-
-            {/* Random */}
-            <Link
-              to={location.pathname === "/random" ? "#" : "/random"}
-              onClick={handleRandomClick}
-              className="p-[10px] aspect-square bg-[#1f1f1f] text-white/70 hover:text-white rounded-lg transition-colors flex items-center justify-center"
-              title="Random Anime"
-            >
-              <FontAwesomeIcon icon={faRandom} className="text-lg" />
-            </Link>
-
-            {/* Language toggle (desktop) */}
-            <div className="hidden md:flex items-center gap-2 bg-[#1f1f1f] rounded-md p-1 ml-1">
-              {["EN", "JP"].map((lang) => (
-                <button
-                  key={lang}
-                  onClick={() => toggleLanguage(lang)}
-                  className={`px-3 py-1 text-sm font-medium rounded ${
-                    language === lang ? "bg-[#2a2a2a] text-white" : "text-gray-400 hover:text-white"
-                  }`}
-                >
-                  {lang}
-                </button>
-              ))}
-            </div>
-
-            {/* Mobile search toggle */}
-            <div className="md:hidden ml-auto">
-              <button
-                onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-                className="p-[10px] aspect-square bg-[#1f1f1f] text-white/70 hover:text-white rounded-lg transition-colors flex items-center justify-center w-[38px] h-[38px]"
-                title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
+          {/* CENTER: compact search (shorter) + original icon set */}
+          <div className="flex-1 flex justify-center items-center max-w-none mx-8 hidden md:flex">
+            <div className="flex items-center gap-2 w-[600px]">
+              {/* Discord */}
+              <a
+                href="https://discord.gg/YourDiscordInvite"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-[10px] aspect-square bg-[#1f1f1f] text-white/60 hover:text-[#5865F2] rounded-lg transition-colors flex items-center justify-center"
+                title="Join us on Discord"
               >
-                <FontAwesomeIcon
-                  icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
-                  className="w-[18px] h-[18px] transition-transform duration-200"
-                  style={{ transform: isMobileSearchOpen ? "rotate(90deg)" : "rotate(0deg)" }}
-                />
-              </button>
+                <FontAwesomeIcon icon={faDiscord} className="text-lg" />
+              </a>
+
+              {/* Telegram */}
+              <a
+                href="https://t.me/YourTelegramLink"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-[10px] aspect-square bg-[#1f1f1f] text-white/60 hover:text-[#229ED9] rounded-lg transition-colors flex items-center justify-center"
+                title="Join us on Telegram"
+              >
+                <FontAwesomeIcon icon={faTelegram} className="text-lg" />
+              </a>
+
+              {/* COMPACT SEARCH (shorter) */}
+              <div className="flex-1 max-w-[280px]">
+                <WebSearch />
+              </div>
+
+              {/* Random */}
+              <Link
+                to={location.pathname === "/random" ? "#" : "/random"}
+                onClick={handleRandomClick}
+                className="p-[10px] aspect-square bg-[#1f1f1f] text-white/60 hover:text-white rounded-lg transition-colors flex items-center justify-center"
+                title="Random Anime"
+              >
+                <FontAwesomeIcon icon={faRandom} className="text-lg" />
+              </Link>
+
+              {/* Movie */}
+              <Link
+                to="/movie"
+                className="p-[10px] aspect-square bg-[#1f1f1f] text-white/60 hover:text-white rounded-lg transition-colors flex items-center justify-center"
+                title="Movies"
+              >
+                <FontAwesomeIcon icon={faFilm} className="text-lg" />
+              </Link>
+
+              {/* Popular */}
+              <Link
+                to="/most-popular"
+                className="p-[10px] aspect-square bg-[#1f1f1f] text-white/60 hover:text-orange-500 rounded-lg transition-colors flex items-center justify-center"
+                title="Popular Anime"
+              >
+                <FontAwesomeIcon icon={faFire} className="text-lg" />
+              </Link>
             </div>
+          </div>
+
+          {/* RIGHT: language toggle (desktop) */}
+          <div className="hidden md:flex items-center gap-2 bg-[#1f1f1f] rounded-md p-1">
+            {["EN", "JP"].map((lang) => (
+              <button
+                key={lang}
+                onClick={() => toggleLanguage(lang)}
+                className={`px-3 py-1 text-sm font-medium rounded ${
+                  language === lang
+                    ? "bg-[#2a2a2a] text-white"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                {lang}
+              </button>
+            ))}
+          </div>
+
+          {/* Mobile search icon */}
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+              className="p-[10px] aspect-square bg-[#1f1f1f] text-white/60 hover:text-white rounded-lg transition-colors flex items-center justify-center w-[38px] h-[38px]"
+              title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
+            >
+              <FontAwesomeIcon
+                icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
+                className="w-[18px] h-[18px] transition-transform duration-200"
+                style={{ transform: isMobileSearchOpen ? "rotate(90deg)" : "rotate(0deg)" }}
+              />
+            </button>
           </div>
         </div>
 
-        {/* Mobile search dropdown — below the pill */}
+        {/* Mobile search dropdown */}
         {isMobileSearchOpen && (
-          <div className="md:hidden mx-4 mt-2 bg-black/85 backdrop-blur-md rounded-xl shadow-lg border border-white/10">
+          <div className="md:hidden bg-black/90 backdrop-blur-md shadow-lg">
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
           </div>
         )}
 
-        {/* Sidebar outside the pill */}
+        {/* Sidebar */}
         <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
 
-        {/* Blue underline under the navbar (like Lunar) */}
+        {/* Blue underline under the navbar */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-blue-500/60 via-blue-400/60 to-blue-500/60" />
       </nav>
     </SearchProvider>
