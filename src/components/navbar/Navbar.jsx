@@ -74,12 +74,18 @@ function Navbar() {
                 </Link>
               </div>
 
-              {/* === MIDDLE SECTION === */}
-              <div className="flex items-center gap-6 flex-1 justify-center min-w-0">
+              {/* === MIDDLE SECTION (Now Empty/Spacer) === */}
+              {/* The use of justify-between in the parent div ensures spacing */}
+              <div className="flex-1 min-w-4"></div> 
+              {/* Added a small spacer for consistency */}
+
+              {/* === RIGHT SIDE (Utility Links and Search) === */}
+              {/* Changed gap-6 to gap-4 for tighter grouping */}
+              <div className="flex items-center gap-4"> 
                 {/* Discord */}
                 <a
                   href="#"
-                  className="p-[8px] text-white/80 hover:text-[#5865F2] transition-colors rounded-md"
+                  className="p-[8px] text-white/80 hover:text-[#5865F2] transition-colors rounded-md hidden sm:block"
                   title="Discord"
                 >
                   <FontAwesomeIcon icon={faDiscord} className="text-[20px]" />
@@ -88,20 +94,12 @@ function Navbar() {
                 {/* Telegram */}
                 <a
                   href="#"
-                  className="p-[8px] text-white/80 hover:text-[#229ED9] transition-colors rounded-md"
+                  className="p-[8px] text-white/80 hover:text-[#229ED9] transition-colors rounded-md hidden sm:block"
                   title="Telegram"
                 >
                   <FontAwesomeIcon icon={faTelegram} className="text-[20px]" />
                 </a>
 
-                {/* Compact Web Search */}
-                <div className="hidden md:block basis-[170px] max-w-[170px] flex-shrink-0">
-                  <WebSearch />
-                </div>
-              </div>
-
-              {/* === RIGHT SIDE === */}
-              <div className="flex items-center gap-6">
                 {/* Random */}
                 <Link
                   to={location.pathname === "/random" ? "#" : "/random"}
@@ -115,7 +113,7 @@ function Navbar() {
                 {/* Movies */}
                 <Link
                   to="/movie"
-                  className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md"
+                  className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md hidden sm:block"
                   title="Movies"
                 >
                   <FontAwesomeIcon icon={faFilm} className="text-[20px]" />
@@ -124,12 +122,17 @@ function Navbar() {
                 {/* Popular */}
                 <Link
                   to="/most-popular"
-                  className="p-[8px] text-white/80 hover:text-orange-500 transition-colors rounded-md"
+                  className="p-[8px] text-white/80 hover:text-orange-500 transition-colors rounded-md hidden sm:block"
                   title="Popular Anime"
                 >
                   <FontAwesomeIcon icon={faFire} className="text-[20px]" />
                 </Link>
 
+                {/* Compact Web Search */}
+                <div className="hidden md:block basis-[170px] max-w-[170px] flex-shrink-0">
+                  <WebSearch />
+                </div>
+                
                 {/* Language Toggle */}
                 <div className="hidden md:flex items-center gap-2 bg-[#1f1f1f] rounded-md p-[2px]">
                   {["EN", "JP"].map((lang) => (
