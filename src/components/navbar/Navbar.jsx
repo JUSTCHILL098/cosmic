@@ -51,11 +51,13 @@ function Navbar() {
                         ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
                         px-4 py-[6px]`}
           >
-            {/* The main flex container uses justify-between to push KAITO (left) and all icons (right) to the edges. */}
             <div className="flex items-center justify-between relative z-[100001]">
               
-              {/* === LEFT SIDE: Hamburger & KAITO === */}
-              <div className="flex items-center gap-2">
+              {/* === LEFT SIDE: Hamburger, KAITO, Social Icons, and Web Search === */}
+              {/* Increased gap-2 for better spacing on the crowded left side */}
+              <div className="flex items-center gap-2"> 
+                
+                {/* Hamburger */}
                 <button
                   onClick={handleHamburgerClick}
                   className="p-[8px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
@@ -64,9 +66,10 @@ function Navbar() {
                   <FontAwesomeIcon icon={faBars} className="text-[20px]" />
                 </button>
 
+                {/* KAITO Text (Adjusted with mt-1 for better vertical alignment) */}
                 <Link to="/home" className="flex items-center select-none">
                   <span
-                    className="text-white text-[22px] font-bold tracking-wide"
+                    className="text-white text-[22px] font-bold tracking-wide mt-1" 
                     style={{
                       fontFamily: "'Koulen', sans-serif",
                     }}
@@ -74,12 +77,8 @@ function Navbar() {
                     KAITO
                   </span>
                 </Link>
-              </div>
 
-              {/* === RIGHT SIDE: All Icons, Search, and Language Toggle === */}
-              {/* Using gap-1 to create minimal space between all the items on the right side. */}
-              <div className="flex items-center gap-1"> 
-                {/* Discord */}
+                {/* Discord (MOVED TO LEFT) */}
                 <a
                   href="#"
                   className="p-[8px] text-white/80 hover:text-[#5865F2] transition-colors rounded-md hidden sm:block"
@@ -88,7 +87,7 @@ function Navbar() {
                   <FontAwesomeIcon icon={faDiscord} className="text-[20px]" />
                 </a>
 
-                {/* Telegram */}
+                {/* Telegram (MOVED TO LEFT) */}
                 <a
                   href="#"
                   className="p-[8px] text-white/80 hover:text-[#229ED9] transition-colors rounded-md hidden sm:block"
@@ -97,10 +96,15 @@ function Navbar() {
                   <FontAwesomeIcon icon={faTelegram} className="text-[20px]" />
                 </a>
                 
-                {/* Compact Web Search - NOTE: This element naturally takes up space, which is why it looks separate. */}
+                {/* Compact Web Search (MOVED TO LEFT) */}
                 <div className="hidden md:block basis-[170px] max-w-[170px] flex-shrink-0">
                   <WebSearch />
                 </div>
+              </div>
+
+              {/* === RIGHT SIDE: Random, Movie, Popular, and Language Toggle === */}
+              {/* Using gap-1 to create minimal space between all the items on the right side. */}
+              <div className="flex items-center gap-1"> 
                 
                 {/* Random */}
                 <Link
