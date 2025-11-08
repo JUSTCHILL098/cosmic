@@ -8,25 +8,13 @@ import {
   faChevronDown,
   faAngleRight,
   faVolumeHigh,
-  faVolumeXmark
+  faVolumeXmark,
+  // ... existing code ...
+  // Add featured icons for visual cards
 } from "@fortawesome/free-solid-svg-icons";
 
 const FAQ_ITEMS = [
-  {
-    question: "Is JustAnime safe?",
-    answer:
-      "Yes, JustAnime is completely safe to use. We ensure all content is properly scanned and secured for our users."
-  },
-  {
-    question: "What makes JustAnime the best site to watch anime free online?",
-    answer:
-      "JustAnime offers high-quality streaming, a vast library of anime, no intrusive ads, and a user-friendly interface - all completely free."
-  },
-  {
-    question: "How do I request an anime?",
-    answer:
-      "You can submit anime requests through our contact form or by reaching out to our support team."
-  }
+  // ... existing code ...
 ];
 
 function SplashScreen() {
@@ -66,40 +54,39 @@ function SplashScreen() {
 
   return (
     <div className="splash-container">
-      {/* Video Background with local-first source */}
+      {/* Video Background with local-first fallback and poster */}
       <video
         ref={videoRef}
         autoPlay
         loop
         muted={isMuted}
         playsInline
+        poster="/splash.jpg"
         className="splash-video"
       >
         <source src="/bg-video.mp4" type="video/mp4" />
         <source src="https://files.catbox.moe/kfq8pz.mp4" type="video/mp4" />
       </video>
 
+      {/* Gradient Overlay */}
       <div className="splash-overlay"></div>
+      <div className="splash-gradient"></div>
 
-      {/* Audio Button */}
-      <button className="audio-toggle" onClick={toggleAudio} title={isMuted ? "Unmute" : "Mute"}>
+      {/* Audio Toggle */}
+      <button className="audio-toggle" onClick={toggleAudio}>
         <FontAwesomeIcon icon={isMuted ? faVolumeXmark : faVolumeHigh} />
       </button>
 
-      {/* Centered content */}
+      {/* Centered Content */}
       <div className="content-wrapper">
-        {/* Logo */}
+        {/* Branding */}
         <div className="logo-container">
           <img src="/logo.png" alt={logoTitle} className="logo" />
         </div>
 
-        {/* Tagline */}
-        <p className="mx-auto max-w-[700px] text-sm text-zinc-300 sm:text-base md:text-lg mb-2">
-          Your Ultimate Anime Streaming Platform
-        </p>
-        <p className="mx-auto max-w-[700px] text-xs text-zinc-400 sm:text-sm mb-6">
-          Thousands of anime series and movies
-        </p>
+        {/* Tagline/Subline */}
+        <h1 className="tagline">Watch anime free, fast, and without intrusive ads</h1>
+        <p className="subline">Latest episodes, movies, and timeless classics — all in one place.</p>
 
         {/* Search */}
         <div className="search-container">
@@ -115,31 +102,37 @@ function SplashScreen() {
             className="search-button"
             onClick={handleSearchSubmit}
             aria-label="Search"
-            title="Search"
           >
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
         </div>
 
-        {/* Enter Homepage */}
-        <Link to="/home" className="enter-button" title="Enter Homepage">
-          Enter Homepage{" "}
-          <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
+        {/* Quick Links */}
+        <div className="quick-links">
+          <Link to="/most-popular" className="quick-link">Popular</Link>
+          <Link to="/movie" className="quick-link">Movies</Link>
+          <Link to="/a2z" className="quick-link">A–Z</Link>
+          <Link to="/schedule" className="quick-link">Schedule</Link>
+        </div>
+
+        {/* Enter Homepage CTA */}
+        <Link to="/home" className="enter-button">
+          Enter Homepage <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
         </Link>
 
-        {/* Quick features row (Lunar-style vibe) */}
-        <div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-          <div className="bg-zinc-900/60 border border-zinc-800 rounded-lg p-4 text-center">
-            <div className="text-indigo-400 font-semibold mb-1">Massive Library</div>
-            <div className="text-xs text-zinc-400">Explore thousands of anime</div>
+        {/* Feature Cards */}
+        <div className="feature-grid">
+          <div className="feature-card">
+            <div className="feature-title">Fast Streaming</div>
+            <div className="feature-desc">Optimized delivery for smooth playback.</div>
           </div>
-          <div className="bg-zinc-900/60 border border-zinc-800 rounded-lg p-4 text-center">
-            <div className="text-indigo-400 font-semibold mb-1">Global Content</div>
-            <div className="text-xs text-zinc-400">Multi-language support</div>
+          <div className="feature-card">
+            <div className="feature-title">No Intrusive Ads</div>
+            <div className="feature-desc">Focus on content, not interruptions.</div>
           </div>
-          <div className="bg-zinc-900/60 border border-zinc-800 rounded-lg p-4 text-center">
-            <div className="text-indigo-400 font-semibold mb-1">Personal Watchlist</div>
-            <div className="text-xs text-zinc-400">Save favorites easily</div>
+          <div className="feature-card">
+            <div className="feature-title">Community & Support</div>
+            <div className="feature-desc">Active channels and prompt help.</div>
           </div>
         </div>
 
