@@ -47,15 +47,16 @@ function Navbar() {
       <nav className="fixed left-0 right-0 top-4 z-[100000]">
         <div className="flex justify-center px-4">
           <div
-            className={`w-full max-w-[900px] rounded-full border border-white/10 shadow-lg
+            // REDUCED WIDTH: max-w-[900px] -> max-w-[800px]
+            className={`w-full max-w-[800px] rounded-full border border-white/10 shadow-lg
                         ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
                         px-4 py-[6px]`}
           >
             <div className="flex items-center justify-between relative z-[100001]">
               
               {/* === LEFT SIDE: Hamburger, KAITO, Social Icons, and Web Search === */}
-              {/* Increased gap-2 for better spacing on the crowded left side */}
-              <div className="flex items-center gap-2"> 
+              {/* INCREASED GAP: gap-2 -> gap-4 for better visual comfort */}
+              <div className="flex items-center gap-4"> 
                 
                 {/* Hamburger */}
                 <button
@@ -66,7 +67,7 @@ function Navbar() {
                   <FontAwesomeIcon icon={faBars} className="text-[20px]" />
                 </button>
 
-                {/* KAITO Text (Adjusted with mt-1 for better vertical alignment) */}
+                {/* KAITO Text (mt-1 for better vertical alignment) */}
                 <Link to="/home" className="flex items-center select-none">
                   <span
                     className="text-white text-[22px] font-bold tracking-wide mt-1" 
@@ -103,7 +104,7 @@ function Navbar() {
               </div>
 
               {/* === RIGHT SIDE: Random, Movie, Popular, and Language Toggle === */}
-              {/* Using gap-1 to create minimal space between all the items on the right side. */}
+              {/* Gap-1 remains for tightly grouping the small icon buttons */}
               <div className="flex items-center gap-1"> 
                 
                 {/* Random */}
