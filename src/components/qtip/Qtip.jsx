@@ -145,7 +145,7 @@ function Qtip({ id }) {
           </div>
           <Link
             to={qtip.watchLink}
-            className="w-[80%] flex mt-4 justify-center items-center gap-x-2 bg-[#ffbade] py-[9px] rounded-3xl"
+            className="w-[80%] flex mt-4 justify-center items-center gap-x-2 bg-[#8a00c2] py-[9px] rounded-3xl"
           >
             <FontAwesomeIcon icon={faPlay} className="text-[14px] text-black" />
             <p className="text-[14px] font-semibold text-black">Watch Now</p>
