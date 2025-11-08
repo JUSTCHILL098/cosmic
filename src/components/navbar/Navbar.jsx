@@ -51,8 +51,10 @@ function Navbar() {
                         ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
                         px-4 py-[6px]`}
           >
-            <div className="flex items-center justify-between flex-wrap relative z-[100001]">
-              {/* === LEFT SIDE === */}
+            {/* The main flex container uses justify-between to push KAITO (left) and all icons (right) to the edges. */}
+            <div className="flex items-center justify-between relative z-[100001]">
+              
+              {/* === LEFT SIDE: Hamburger & KAITO === */}
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleHamburgerClick}
@@ -74,14 +76,9 @@ function Navbar() {
                 </Link>
               </div>
 
-              {/* === MIDDLE SECTION (Now Empty/Spacer) === */}
-              {/* The use of justify-between in the parent div ensures spacing */}
-              <div className="flex-1 min-w-4"></div> 
-              {/* Added a small spacer for consistency */}
-
-              {/* === RIGHT SIDE (Utility Links and Search) === */}
-              {/* Changed gap-6 to gap-4 for tighter grouping */}
-              <div className="flex items-center gap-4"> 
+              {/* === RIGHT SIDE: All Icons, Search, and Language Toggle === */}
+              {/* Using gap-1 to create minimal space between all the items on the right side. */}
+              <div className="flex items-center gap-1"> 
                 {/* Discord */}
                 <a
                   href="#"
@@ -99,7 +96,12 @@ function Navbar() {
                 >
                   <FontAwesomeIcon icon={faTelegram} className="text-[20px]" />
                 </a>
-
+                
+                {/* Compact Web Search - NOTE: This element naturally takes up space, which is why it looks separate. */}
+                <div className="hidden md:block basis-[170px] max-w-[170px] flex-shrink-0">
+                  <WebSearch />
+                </div>
+                
                 {/* Random */}
                 <Link
                   to={location.pathname === "/random" ? "#" : "/random"}
@@ -128,13 +130,8 @@ function Navbar() {
                   <FontAwesomeIcon icon={faFire} className="text-[20px]" />
                 </Link>
 
-                {/* Compact Web Search */}
-                <div className="hidden md:block basis-[170px] max-w-[170px] flex-shrink-0">
-                  <WebSearch />
-                </div>
-                
                 {/* Language Toggle */}
-                <div className="hidden md:flex items-center gap-2 bg-[#1f1f1f] rounded-md p-[2px]">
+                <div className="hidden md:flex items-center gap-2 bg-[#1f1f1f] rounded-md p-[2px] ml-1">
                   {["EN", "JP"].map((lang) => (
                     <button
                       key={lang}
