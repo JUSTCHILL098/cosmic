@@ -66,7 +66,7 @@ function SplashScreen() {
 
   return (
     <div className="splash-container">
-      {/* Remote video only */}
+      {/* Remote video ONLY (as requested) */}
       <video
         ref={videoRef}
         autoPlay
@@ -88,14 +88,14 @@ function SplashScreen() {
         <FontAwesomeIcon icon={isMuted ? faVolumeXmark : faVolumeHigh} />
       </button>
 
-      {/* Centered content — kept inside viewport */}
+      {/* Centered content — kept within viewport */}
       <div className="content-wrapper">
         {/* Logo */}
         <div className="logo-container">
           <img src="/logo.png" alt={logoTitle} className="logo" />
         </div>
 
-        {/* Optional small pill like Lunar */}
+        {/* Status pill like Lunar */}
         <div className="watching-pill">10 users watching now</div>
 
         {/* Headings */}
@@ -121,14 +121,7 @@ function SplashScreen() {
           </button>
         </div>
 
-        {/* Quick Links */}
-        <div className="quick-links">
-          <Link to="/home" className="quick-link">Home</Link>
-          <Link to="#" className="quick-link">Features</Link>
-          <Link to="#" className="quick-link">Changelog</Link>
-          <Link to="/contact" className="quick-link">Contact</Link>
-          <Link to="/a2z" className="quick-link">View Animes</Link>
-        </div>
+        {/* Removed tags below the search bar as requested */}
 
         {/* CTA Row */}
         <div className="button-row">
@@ -145,7 +138,7 @@ function SplashScreen() {
           </a>
         </div>
 
-        {/* FAQ (kept same data) */}
+        {/* FAQ */}
         <div className="faq-section">
           <h2 className="faq-title">Frequently Asked Questions</h2>
           <div className="faq-list">
