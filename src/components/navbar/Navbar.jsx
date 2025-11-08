@@ -37,7 +37,7 @@ function Navbar() {
 
   return (
     <SearchProvider>
-      {/* Koulen Regular font */}
+      {/* Import Koulen Regular font */}
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Koulen&display=swap');
@@ -53,13 +53,13 @@ function Navbar() {
           >
             <div className="flex items-center justify-between flex-wrap relative z-[100001]">
               {/* === LEFT SIDE === */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={handleHamburgerClick}
-                  className="p-[6px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
+                  className="p-[8px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
                   title="Menu"
                 >
-                  <FontAwesomeIcon icon={faBars} className="text-[16px]" />
+                  <FontAwesomeIcon icon={faBars} className="text-[18px]" />
                 </button>
 
                 <Link to="/home" className="flex items-center select-none">
@@ -74,22 +74,24 @@ function Navbar() {
                 </Link>
               </div>
 
-              {/* === MIDDLE SECTION (Discord, Telegram, Search) === */}
-              <div className="flex items-center gap-3 flex-1 justify-center min-w-0">
+              {/* === MIDDLE SECTION === */}
+              <div className="flex items-center gap-5 flex-1 justify-center min-w-0">
+                {/* Discord */}
                 <a
                   href="#"
-                  className="text-white/80 hover:text-[#5865F2] transition-colors"
+                  className="p-[8px] text-white/80 hover:text-[#5865F2] transition-colors rounded-md"
                   title="Discord"
                 >
-                  <FontAwesomeIcon icon={faDiscord} className="text-[16px]" />
+                  <FontAwesomeIcon icon={faDiscord} className="text-[18px]" />
                 </a>
 
+                {/* Telegram */}
                 <a
                   href="#"
-                  className="text-white/80 hover:text-[#229ED9] transition-colors"
+                  className="p-[8px] text-white/80 hover:text-[#229ED9] transition-colors rounded-md"
                   title="Telegram"
                 >
-                  <FontAwesomeIcon icon={faTelegram} className="text-[16px]" />
+                  <FontAwesomeIcon icon={faTelegram} className="text-[18px]" />
                 </a>
 
                 {/* Compact Web Search */}
@@ -98,31 +100,34 @@ function Navbar() {
                 </div>
               </div>
 
-              {/* === RIGHT SIDE (Icons + Language) === */}
-              <div className="flex items-center gap-3">
+              {/* === RIGHT SIDE === */}
+              <div className="flex items-center gap-5">
+                {/* Random */}
                 <Link
                   to={location.pathname === "/random" ? "#" : "/random"}
                   onClick={handleRandomClick}
-                  className="text-white/80 hover:text-white transition-colors"
+                  className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md"
                   title="Random Anime"
                 >
-                  <FontAwesomeIcon icon={faRandom} className="text-[16px]" />
+                  <FontAwesomeIcon icon={faRandom} className="text-[18px]" />
                 </Link>
 
+                {/* Movies */}
                 <Link
                   to="/movie"
-                  className="text-white/80 hover:text-white transition-colors"
+                  className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md"
                   title="Movies"
                 >
-                  <FontAwesomeIcon icon={faFilm} className="text-[16px]" />
+                  <FontAwesomeIcon icon={faFilm} className="text-[18px]" />
                 </Link>
 
+                {/* Popular */}
                 <Link
                   to="/most-popular"
-                  className="text-white/80 hover:text-orange-500 transition-colors"
+                  className="p-[8px] text-white/80 hover:text-orange-500 transition-colors rounded-md"
                   title="Popular Anime"
                 >
-                  <FontAwesomeIcon icon={faFire} className="text-[16px]" />
+                  <FontAwesomeIcon icon={faFire} className="text-[18px]" />
                 </Link>
 
                 {/* Language Toggle */}
@@ -151,7 +156,7 @@ function Navbar() {
                   >
                     <FontAwesomeIcon
                       icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
-                      className="w-[16px] h-[16px]"
+                      className="w-[18px] h-[18px]"
                       style={{
                         transform: isMobileSearchOpen
                           ? "rotate(90deg)"
