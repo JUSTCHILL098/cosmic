@@ -11,7 +11,7 @@ const Spotlight = ({ spotlights }) => {
   return (
     <>
       {/* ADDED: Negative margin (mt-[-1rem] or -mt-4) to pull the banner up */}
-      <div className="relative h-[450px] max-[1390px]:h-[400px] max-[1300px]:h-[350px] max-md:h-[300px] mt-[-4]"> 
+      <div className="relative h-[450px] max-[1390px]:h-[400px] max-[1300px]:h-[350px] max-md:h-[300px] mt-[-8]"> 
         {spotlights && spotlights.length > 0 ? (
           <>
             <Swiper
