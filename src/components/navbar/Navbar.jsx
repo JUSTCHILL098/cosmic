@@ -37,33 +37,34 @@ function Navbar() {
 
   return (
     <SearchProvider>
+      {/* Import Koulen Regular font */}
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Koulen&display=swap');
         `}
       </style>
 
-      <nav className="fixed left-0 right-0 top-3 z-[100000]">
+      <nav className="fixed left-0 right-0 top-4 z-[100000]">
         <div className="flex justify-center px-4">
           <div
-            className={`w-full max-w-[800px] rounded-full border border-white/10 shadow-lg
+            className={`w-full max-w-[900px] rounded-full border border-white/10 shadow-lg
                         ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
-                        px-4 py-[4px]`}
+                        px-4 py-[6px]`}
           >
             <div className="flex items-center justify-between flex-wrap relative z-[100001]">
               {/* === LEFT SIDE === */}
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleHamburgerClick}
-                  className="p-[6px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
+                  className="p-[8px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
                   title="Menu"
                 >
-                  <FontAwesomeIcon icon={faBars} className="text-[18px]" />
+                  <FontAwesomeIcon icon={faBars} className="text-[20px]" />
                 </button>
 
                 <Link to="/home" className="flex items-center select-none">
                   <span
-                    className="text-white text-[20px] tracking-wide"
+                    className="text-white text-[22px] font-bold tracking-wide"
                     style={{
                       fontFamily: "'Koulen', sans-serif",
                     }}
@@ -73,66 +74,69 @@ function Navbar() {
                 </Link>
               </div>
 
-              {/* === MIDDLE / RIGHT SECTION === */}
-              <div className="flex items-center gap-5">
+              {/* === MIDDLE SECTION === */}
+              <div className="flex items-center gap-6 flex-1 justify-center min-w-0">
                 {/* Discord */}
                 <a
                   href="#"
-                  className="text-white/80 hover:text-[#5865F2] transition-colors"
+                  className="p-[8px] text-white/80 hover:text-[#5865F2] transition-colors rounded-md"
                   title="Discord"
                 >
-                  <FontAwesomeIcon icon={faDiscord} className="text-[19px]" />
+                  <FontAwesomeIcon icon={faDiscord} className="text-[20px]" />
                 </a>
 
                 {/* Telegram */}
                 <a
                   href="#"
-                  className="text-white/80 hover:text-[#229ED9] transition-colors"
+                  className="p-[8px] text-white/80 hover:text-[#229ED9] transition-colors rounded-md"
                   title="Telegram"
                 >
-                  <FontAwesomeIcon icon={faTelegram} className="text-[19px]" />
+                  <FontAwesomeIcon icon={faTelegram} className="text-[20px]" />
                 </a>
 
-                {/* Search Bar */}
-                <div className="hidden md:block basis-[150px] max-w-[150px] flex-shrink-0">
+                {/* Compact Web Search */}
+                <div className="hidden md:block basis-[170px] max-w-[170px] flex-shrink-0">
                   <WebSearch />
                 </div>
+              </div>
 
+              {/* === RIGHT SIDE === */}
+              <div className="flex items-center gap-6">
                 {/* Random */}
                 <Link
                   to={location.pathname === "/random" ? "#" : "/random"}
                   onClick={handleRandomClick}
-                  className="text-white/80 hover:text-white transition-colors"
+                  className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md"
                   title="Random Anime"
                 >
-                  <FontAwesomeIcon icon={faRandom} className="text-[19px]" />
+                  <FontAwesomeIcon icon={faRandom} className="text-[20px]" />
                 </Link>
 
-                {/* Movie */}
+                {/* Movies */}
                 <Link
                   to="/movie"
-                  className="text-white/80 hover:text-white transition-colors"
+                  className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md"
                   title="Movies"
                 >
-                  <FontAwesomeIcon icon={faFilm} className="text-[19px]" />
+                  <FontAwesomeIcon icon={faFilm} className="text-[20px]" />
                 </Link>
 
                 {/* Popular */}
                 <Link
                   to="/most-popular"
-                  className="text-white/80 hover:text-orange-500 transition-colors"
+                  className="p-[8px] text-white/80 hover:text-orange-500 transition-colors rounded-md"
                   title="Popular Anime"
                 >
-                  <FontAwesomeIcon icon={faFire} className="text-[19px]" />
+                  <FontAwesomeIcon icon={faFire} className="text-[20px]" />
                 </Link>
 
                 {/* Language Toggle */}
-                <div className="hidden md:flex items-center gap-1 bg-[#1f1f1f] rounded-md p-[1px]">
+                <div className="hidden md:flex items-center gap-2 bg-[#1f1f1f] rounded-md p-[2px]">
                   {["EN", "JP"].map((lang) => (
                     <button
                       key={lang}
                       onClick={() => toggleLanguage(lang)}
-                      className={`px-2 py-[1px] text-xs font-medium rounded ${
+                      className={`px-2 py-[2px] text-sm font-medium rounded ${
                         language === lang
                           ? "bg-[#2a2a2a] text-white"
                           : "text-gray-400 hover:text-white"
@@ -147,12 +151,17 @@ function Navbar() {
                 <div className="md:hidden">
                   <button
                     onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-                    className="p-[6px] text-white/70 hover:text-white transition-colors flex items-center justify-center w-[30px] h-[30px]"
+                    className="p-[8px] text-white/70 hover:text-white transition-colors flex items-center justify-center w-[34px] h-[34px]"
                     title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
                   >
                     <FontAwesomeIcon
                       icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
-                      className="w-[16px] h-[16px]"
+                      className="w-[18px] h-[18px]"
+                      style={{
+                        transform: isMobileSearchOpen
+                          ? "rotate(90deg)"
+                          : "rotate(0deg)",
+                      }}
                     />
                   </button>
                 </div>
