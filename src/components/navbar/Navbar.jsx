@@ -42,10 +42,10 @@ function Navbar() {
           <div
             className={`w-full max-w-[1100px] rounded-full border border-white/10 shadow-lg
                         ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
-                        px-4 py-2`}
+                        px-4 py-2 relative overflow-visible`}
           >
-            <div className="flex items-center gap-3 flex-wrap">
-              {/* Left: hamburger + text logo */}
+            <div className="flex items-center gap-4 flex-wrap relative z-[1000001]">
+              {/* Left: hamburger + logo text */}
               <button
                 onClick={handleHamburgerClick}
                 className="p-[8px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
@@ -54,17 +54,17 @@ function Navbar() {
                 <FontAwesomeIcon icon={faBars} className="text-lg" />
               </button>
 
-              <Link to="/home" className="flex items-center mr-1">
+              <Link to="/home" className="flex items-center mr-3">
                 <span
-                  className="text-white text-2xl font-[Bayon] tracking-wide select-none"
-                  style={{ fontFamily: "Bayon, sans-serif" }}
+                  className="text-white text-2xl tracking-wide select-none"
+                  style={{ fontFamily: "'LEMON MILK', sans-serif" }}
                 >
                   Kaito
                 </span>
               </Link>
 
-              {/* Center cluster: icons + compact search */}
-              <div className="flex items-center gap-3 flex-1 min-w-0 justify-center flex-wrap">
+              {/* Center icons & search - shifted left */}
+              <div className="flex items-center gap-4 flex-1 min-w-0 justify-start flex-wrap">
                 <a
                   href="https://discord.gg/YourDiscordInvite"
                   target="_blank"
@@ -85,8 +85,8 @@ function Navbar() {
                   <FontAwesomeIcon icon={faTelegram} className="text-lg" />
                 </a>
 
-                {/* Compact search: smaller width so icons fit */}
-                <div className="hidden md:block basis-[180px] max-w-[180px] flex-shrink">
+                {/* Smaller search bar so icons fit nicely */}
+                <div className="hidden md:block basis-[190px] max-w-[190px] flex-shrink">
                   <WebSearch />
                 </div>
 
@@ -137,7 +137,7 @@ function Navbar() {
               <div className="md:hidden ml-auto">
                 <button
                   onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-                  className="p-[10px] text-white/70 hover:text-white rounded-lg transition-colors flex items-center justify-center w-[38px] h-[38px]"
+                  className="p-[10px] text-white/70 hover:text-white transition-colors flex items-center justify-center w-[38px] h-[38px]"
                   title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
                 >
                   <FontAwesomeIcon
@@ -160,10 +160,10 @@ function Navbar() {
           </div>
         )}
 
-        {/* Sidebar (menu) */}
+        {/* Sidebar */}
         <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
 
-        {/* Blue underline accent */}
+        {/* Blue underline */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-blue-500/60 via-blue-400/60 to-blue-500/60" />
       </nav>
     </SearchProvider>
