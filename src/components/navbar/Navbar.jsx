@@ -21,7 +21,6 @@ function Navbar() {
   const { language, toggleLanguage } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isWebSearchOpen, setIsWebSearchOpen] = useState(false); // State for compact web search
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -36,9 +35,6 @@ function Navbar() {
     if (location.pathname === "/random") window.location.reload();
   };
 
-  // We'll use the existing MobileSearch state for the WebSearch to toggle for simplicity
-  const toggleWebSearch = () => setIsWebSearchOpen(!isWebSearchOpen);
-
   return (
     <SearchProvider>
       {/* Import Koulen Regular font */}
@@ -51,15 +47,15 @@ function Navbar() {
       <nav className="fixed left-0 right-0 top-4 z-[100000]">
         <div className="flex justify-center px-4">
           <div
-            className={`w-full max-w-[800px] rounded-full border border-white/10 shadow-lg
+            className={`w-full max-w-[900px] rounded-full border border-white/10 shadow-lg
                         ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
                         px-4 py-[6px]`}
           >
             <div className="flex items-center justify-between relative z-[100001]">
               
               {/* === LEFT SIDE: Hamburger, KAITO, Social Icons, and Web Search === */}
-              {/* Gap-3 provides a comfortable look now that the search bar is compact */}
-              <div className="flex items-center gap-3"> 
+              {/* Increased gap-2 for better spacing on the crowded left side */}
+              <div className="flex items-center gap-2"> 
                 
                 {/* Hamburger */}
                 <button
@@ -70,7 +66,7 @@ function Navbar() {
                   <FontAwesomeIcon icon={faBars} className="text-[20px]" />
                 </button>
 
-                {/* KAITO Text (mt-1 for better vertical alignment) */}
+                {/* KAITO Text (Adjusted with mt-1 for better vertical alignment) */}
                 <Link to="/home" className="flex items-center select-none">
                   <span
                     className="text-white text-[22px] font-bold tracking-wide mt-1" 
@@ -82,7 +78,7 @@ function Navbar() {
                   </span>
                 </Link>
 
-                {/* Discord */}
+                {/* Discord (MOVED TO LEFT) */}
                 <a
                   href="#"
                   className="p-[8px] text-white/80 hover:text-[#5865F2] transition-colors rounded-md hidden sm:block"
@@ -91,7 +87,7 @@ function Navbar() {
                   <FontAwesomeIcon icon={faDiscord} className="text-[20px]" />
                 </a>
 
-                {/* Telegram */}
+                {/* Telegram (MOVED TO LEFT) */}
                 <a
                   href="#"
                   className="p-[8px] text-white/80 hover:text-[#229ED9] transition-colors rounded-md hidden sm:block"
@@ -100,24 +96,14 @@ function Navbar() {
                   <FontAwesomeIcon icon={faTelegram} className="text-[20px]" />
                 </a>
                 
-                {/* Compact Web Search ICON (New Style) */}
-                {/* This uses an icon to save space, assuming the actual WebSearch component handles the input field expansion */}
-                <div className="hidden md:block">
-                    <button
-                        onClick={toggleWebSearch}
-                        className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md"
-                        title="Search Anime"
-                    >
-                        <FontAwesomeIcon icon={faMagnifyingGlass} className="text-[20px]" />
-                    </button>
+                {/* Compact Web Search (MOVED TO LEFT) */}
+                <div className="hidden md:block basis-[170px] max-w-[170px] flex-shrink-0">
+                  <WebSearch />
                 </div>
-                
-                {/* Fallback/Full Search Bar (Can be conditionally rendered if needed, but removed for space) */}
-                {/* You may need to add conditional rendering logic based on 'isWebSearchOpen' here */}
               </div>
 
               {/* === RIGHT SIDE: Random, Movie, Popular, and Language Toggle === */}
-              {/* Using gap-1 for tight grouping */}
+              {/* Using gap-1 to create minimal space between all the items on the right side. */}
               <div className="flex items-center gap-1"> 
                 
                 {/* Random */}
@@ -188,22 +174,11 @@ function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Search Dropdown (for small screens) */}
+        {/* Mobile Search Dropdown */}
         {isMobileSearchOpen && (
           <div className="md:hidden mx-4 mt-2 bg-black/90 backdrop-blur-md rounded-xl shadow-lg border border-white/10">
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
           </div>
-        )}
-        
-        {/* Web Search Dropdown (for larger screens - you might need to implement this) */}
-        {isWebSearchOpen && (
-            // NOTE: You'll likely need a separate component or logic here 
-            // to show a full search bar/dropdown only on desktop (md:block)
-            <div className="hidden md:flex justify-center mx-4 mt-2">
-                 <div className="w-full max-w-[300px] bg-black/90 backdrop-blur-md rounded-xl shadow-lg border border-white/10 p-2">
-                    <WebSearch />
-                 </div>
-            </div>
         )}
 
         {/* Sidebar */}
