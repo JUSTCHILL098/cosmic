@@ -1,167 +1,164 @@
-import { useState, useCallback, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import "./SplashScreen.css";
-import logoTitle from "@/src/config/logoTitle";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faMagnifyingGlass,
-  faChevronDown,
-  faAngleRight,
-  faVolumeHigh,
-  faVolumeXmark,
-  // ... existing code ...
-  // Add featured icons for visual cards
-} from "@fortawesome/free-solid-svg-icons";
+/* ==============================
+   Base Styles (Lunar-black)
+============================== */
+* { box-sizing: border-box; }
 
-const FAQ_ITEMS = [
-  // ... existing code ...
-];
-
-function SplashScreen() {
-  const navigate = useNavigate();
-  const [search, setSearch] = useState("");
-  const [expandedFaq, setExpandedFaq] = useState(null);
-  const [isMuted, setIsMuted] = useState(true);
-  const videoRef = useRef(null);
-
-  const handleSearchSubmit = useCallback(() => {
-    const trimmedSearch = search.trim();
-    if (!trimmedSearch) return;
-    const queryParam = encodeURIComponent(trimmedSearch);
-    navigate(`/search?keyword=${queryParam}`);
-  }, [search, navigate]);
-
-  const handleKeyDown = useCallback(
-    (e) => {
-      if (e.key === "Enter") {
-        handleSearchSubmit();
-      }
-    },
-    [handleSearchSubmit]
-  );
-
-  const toggleFaq = (index) => {
-    setExpandedFaq(expandedFaq === index ? null : index);
-  };
-
-  const toggleAudio = () => {
-    const video = videoRef.current;
-    if (video) {
-      video.muted = !video.muted;
-      setIsMuted(video.muted);
-    }
-  };
-
-  return (
-    <div className="splash-container">
-      {/* Video Background with local-first fallback and poster */}
-      <video
-        ref={videoRef}
-        autoPlay
-        loop
-        muted={isMuted}
-        playsInline
-        poster="/splash.jpg"
-        className="splash-video"
-      >
-        <source src="/bg-video.mp4" type="video/mp4" />
-        <source src="https://files.catbox.moe/kfq8pz.mp4" type="video/mp4" />
-      </video>
-
-      {/* Gradient Overlay */}
-      <div className="splash-overlay"></div>
-      <div className="splash-gradient"></div>
-
-      {/* Audio Toggle */}
-      <button className="audio-toggle" onClick={toggleAudio}>
-        <FontAwesomeIcon icon={isMuted ? faVolumeXmark : faVolumeHigh} />
-      </button>
-
-      {/* Centered Content */}
-      <div className="content-wrapper">
-        {/* Branding */}
-        <div className="logo-container">
-          <img src="/logo.png" alt={logoTitle} className="logo" />
-        </div>
-
-        {/* Tagline/Subline */}
-        <h1 className="tagline">Watch anime free, fast, and without intrusive ads</h1>
-        <p className="subline">Latest episodes, movies, and timeless classics — all in one place.</p>
-
-        {/* Search */}
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search anime..."
-            className="search-input"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <button
-            className="search-button"
-            onClick={handleSearchSubmit}
-            aria-label="Search"
-          >
-            <FontAwesomeIcon icon={faMagnifyingGlass} />
-          </button>
-        </div>
-
-        {/* Quick Links */}
-        <div className="quick-links">
-          <Link to="/most-popular" className="quick-link">Popular</Link>
-          <Link to="/movie" className="quick-link">Movies</Link>
-          <Link to="/a2z" className="quick-link">A–Z</Link>
-          <Link to="/schedule" className="quick-link">Schedule</Link>
-        </div>
-
-        {/* Enter Homepage CTA */}
-        <Link to="/home" className="enter-button">
-          Enter Homepage <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
-        </Link>
-
-        {/* Feature Cards */}
-        <div className="feature-grid">
-          <div className="feature-card">
-            <div className="feature-title">Fast Streaming</div>
-            <div className="feature-desc">Optimized delivery for smooth playback.</div>
-          </div>
-          <div className="feature-card">
-            <div className="feature-title">No Intrusive Ads</div>
-            <div className="feature-desc">Focus on content, not interruptions.</div>
-          </div>
-          <div className="feature-card">
-            <div className="feature-title">Community & Support</div>
-            <div className="feature-desc">Active channels and prompt help.</div>
-          </div>
-        </div>
-
-        {/* FAQ */}
-        <div className="faq-section">
-          <h2 className="faq-title">Frequently Asked Questions</h2>
-          <div className="faq-list">
-            {FAQ_ITEMS.map((item, index) => (
-              <div key={index} className="faq-item">
-                <button
-                  className="faq-question"
-                  onClick={() => toggleFaq(index)}
-                >
-                  <span>{item.question}</span>
-                  <FontAwesomeIcon
-                    icon={faChevronDown}
-                    className={`faq-toggle ${expandedFaq === index ? "rotate" : ""}`}
-                  />
-                </button>
-                {expandedFaq === index && (
-                  <div className="faq-answer">{item.answer}</div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+body, html {
+  margin: 0; padding: 0; width: 100%; height: 100%;
+  font-family: GeistMono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  background-color: #000000;
+  color: #ffffff;
+  overflow-x: hidden;
 }
 
-export default SplashScreen;
+/* Container & Video */
+.splash-container {
+  position: relative; width: 100%; height: 100vh;
+  display: flex; justify-content: center; align-items: center; overflow: hidden;
+}
+
+.splash-video {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: 0; background: #000;
+}
+
+/* Overlays */
+.splash-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.50); z-index: 1;
+}
+
+/* Subtle gradient glow like Lunar */
+.splash-gradient {
+  position: fixed; inset: 0; z-index: 1;
+  background: radial-gradient(1200px 600px at 50% 20%, rgba(99,102,241,0.08), transparent 70%),
+              linear-gradient(to bottom, rgba(0,0,0,0.00), rgba(0,0,0,0.65));
+}
+
+/* Audio Toggle */
+.audio-toggle {
+  position: fixed; top: 20px; right: 20px; z-index: 3;
+  background: rgba(173,216,230,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: white; padding: 10px 14px; border-radius: 50%;
+  font-size: 18px; cursor: pointer; backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+}
+.audio-toggle:hover {
+  background: rgba(173,216,230,0.25);
+  box-shadow: 0 0 8px rgba(173,216,230,0.35); transform: scale(1.05);
+}
+
+/* Content */
+.content-wrapper {
+  position: relative; z-index: 2; width: 100%; max-width: 820px;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding: 80px 20px;
+}
+
+/* Logo */
+.logo-container { margin-bottom: 24px; }
+.logo { height: 75px; width: auto; }
+
+/* Headings */
+.tagline {
+  font-size: 34px; font-weight: 800; letter-spacing: 0.2px;
+  margin: 6px 0 6px; text-shadow: 0 0 12px rgba(173,216,230,0.25);
+}
+.subline {
+  font-size: 16px; color: rgba(255,255,255,0.80); margin-bottom: 18px;
+}
+
+/* Search */
+.search-container { position: relative; width: 100%; max-width: 520px; margin-bottom: 24px; }
+.search-input {
+  width: 100%; padding: 14px 48px 14px 20px;
+  background: rgba(173,216,230,0.12); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 10px; color: rgba(255,255,255,0.95); font-size: 16px;
+  outline: none; transition: border-color 0.2s; backdrop-filter: blur(10px);
+}
+.search-input::placeholder { color: rgba(255,255,255,0.65); }
+.search-input:focus { border-color: rgba(173,216,230,0.4); }
+.search-button {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: rgba(255,255,255,0.7); font-size: 18px;
+  cursor: pointer; transition: color 0.2s;
+}
+.search-button:hover { color: #add8e6; }
+
+/* Quick Links */
+.quick-links { display: flex; gap: 10px; margin: 10px 0 26px; flex-wrap: wrap; justify-content: center; }
+.quick-link {
+  padding: 10px 14px; border-radius: 999px; text-decoration: none;
+  color: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(173,216,230,0.10); backdrop-filter: blur(10px); transition: all 0.2s ease;
+}
+.quick-link:hover {
+  border-color: rgba(173,216,230,0.35); background: rgba(173,216,230,0.18); box-shadow: 0 0 10px rgba(173,216,230,0.22);
+}
+
+/* CTA */
+.enter-button {
+  background: rgba(173,216,230,0.12); color: rgba(255,255,255,0.95);
+  padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 500;
+  margin: 12px 0 40px; transition: all 0.25s ease; backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2); display: inline-flex; align-items: center; gap: 8px;
+}
+.enter-button:hover { background: rgba(173,216,230,0.22); box-shadow: 0 0 10px rgba(173,216,230,0.25); }
+.enter-button .angle-icon { font-size: 0.9em; width: 8px; transition: transform 0.2s ease; opacity: 0.8; }
+.enter-button:hover .angle-icon { transform: translateX(4px); opacity: 1; }
+
+/* Feature Cards */
+.feature-grid {
+  width: 100%; max-width: 900px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px; margin-bottom: 42px;
+}
+.feature-card {
+  padding: 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(173,216,230,0.10); backdrop-filter: blur(8px);
+}
+.feature-title { font-weight: 700; margin-bottom: 6px; }
+.feature-desc { font-size: 14px; color: rgba(255,255,255,0.80); }
+
+/* FAQ */
+.faq-section { width: 100%; max-width: 700px; }
+.faq-title {
+  font-size: 32px; font-weight: 700; margin-bottom: 40px; color: #add8e6;
+  white-space: nowrap; overflow: hidden; border-right: 2px solid #add8e6;
+  text-shadow: 0 0 6px rgba(173,216,230,0.5), 0 0 12px rgba(173,216,230,0.2);
+  animation: typing 2.5s steps(30, end) forwards, blink 0.8s step-end infinite;
+}
+@keyframes typing { from { width: 0; } to { width: 100%; } }
+@keyframes blink { 0%, 50%, 100% { border-color: #add8e6; } 25%, 75% { border-color: transparent; } }
+.faq-list { display: flex; flex-direction: column; gap: 10px; }
+.faq-item {
+  background: rgba(173,216,230,0.10); border-radius: 12px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+}
+.faq-question {
+  width: 100%; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;
+  background: none; border: none; color: rgba(255,255,255,0.9); font-size: 17px; cursor: pointer; transition: all 0.2s ease;
+}
+.faq-question:hover { background: rgba(173,216,230,0.16); }
+.faq-toggle { font-size: 16px; color: rgba(255,255,255,0.7); transition: all 0.2s ease; }
+.faq-toggle.rotate { transform: rotate(180deg); color: #add8e6; }
+.faq-answer { padding: 0 24px 18px; color: rgba(255,255,255,0.85); font-size: 15px; line-height: 1.6; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .content-wrapper { padding: 60px 15px; }
+  .logo { height: 65px; }
+  .tagline { font-size: 26px; }
+  .subline { font-size: 15px; }
+  .search-input { padding: 12px 40px 12px 16px; font-size: 15px; }
+  .faq-title { font-size: 24px; margin-bottom: 24px; }
+  .feature-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .content-wrapper { padding: 40px 10px; }
+  .logo { height: 55px; }
+  .search-input { padding: 10px 36px 10px 14px; font-size: 14px; }
+  .enter-button { padding: 10px 20px; font-size: 14px; margin-bottom: 32px; }
+  .faq-question { padding: 14px; font-size: 15px; }
+  .faq-answer { padding: 0 14px 14px; font-size: 14px; }
+  .faq-title { font-size: 20px; }
+}
