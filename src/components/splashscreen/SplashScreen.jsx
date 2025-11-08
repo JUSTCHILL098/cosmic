@@ -66,7 +66,7 @@ function SplashScreen() {
 
   return (
     <div className="splash-container">
-      {/* Video Background: use remote link (your setup) */}
+      {/* Remote video only */}
       <video
         ref={videoRef}
         autoPlay
@@ -88,14 +88,14 @@ function SplashScreen() {
         <FontAwesomeIcon icon={isMuted ? faVolumeXmark : faVolumeHigh} />
       </button>
 
-      {/* Centered content — mirrored to Lunar while keeping your structure */}
+      {/* Centered content — kept inside viewport */}
       <div className="content-wrapper">
         {/* Logo */}
         <div className="logo-container">
           <img src="/logo.png" alt={logoTitle} className="logo" />
         </div>
 
-        {/* Optional small pill like Lunar (static example) */}
+        {/* Optional small pill like Lunar */}
         <div className="watching-pill">10 users watching now</div>
 
         {/* Headings */}
@@ -121,7 +121,7 @@ function SplashScreen() {
           </button>
         </div>
 
-        {/* Quick Links (labels aligned to Lunar style) */}
+        {/* Quick Links */}
         <div className="quick-links">
           <Link to="/home" className="quick-link">Home</Link>
           <Link to="#" className="quick-link">Features</Link>
@@ -130,7 +130,7 @@ function SplashScreen() {
           <Link to="/a2z" className="quick-link">View Animes</Link>
         </div>
 
-        {/* CTA Row: Start Watching + Discord */}
+        {/* CTA Row */}
         <div className="button-row">
           <Link to="/home" className="enter-button">
             Start Watching <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
