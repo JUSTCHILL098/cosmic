@@ -37,103 +37,102 @@ function Navbar() {
 
   return (
     <SearchProvider>
-      {/* Import Google Font directly */}
+      {/* Import Koulen font */}
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=LEMON+MILK:wght@400;700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Koulen&display=swap');
         `}
       </style>
 
-      <nav className="fixed left-0 right-0 top-4 z-[1000000]">
+      <nav className="fixed left-0 right-0 top-4 z-[100000]">
         <div className="flex justify-center px-4">
           <div
             className={`w-full max-w-[1100px] rounded-full border border-white/10 shadow-lg
                         ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
-                        px-4 py-2 relative overflow-visible`}
+                        px-4 py-[6px] relative`}
           >
-            <div className="flex items-center gap-4 flex-wrap relative z-[1000001]">
+            <div className="flex items-center gap-3 flex-wrap relative z-[100001]">
               {/* Left: Hamburger + Logo Text */}
               <button
                 onClick={handleHamburgerClick}
-                className="p-[8px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
+                className="p-[6px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
                 title="Menu"
               >
-                <FontAwesomeIcon icon={faBars} className="text-lg" />
+                <FontAwesomeIcon icon={faBars} className="text-[16px]" />
               </button>
 
-              <Link to="/home" className="flex items-center mr-3 select-none">
+              <Link to="/home" className="flex items-center mr-2 select-none">
                 <span
-                  className="text-white text-2xl tracking-wide font-bold"
+                  className="text-white text-[22px] font-bold tracking-wide"
                   style={{
-                    fontFamily: "'LEMON MILK', sans-serif",
-                    textShadow:
-                      "0 0 6px rgba(255,255,255,0.5), 0 0 12px rgba(255,255,255,0.3)",
+                    fontFamily: "'Koulen', sans-serif",
                   }}
                 >
-                  Kaito
+                  KAITO
                 </span>
               </Link>
 
-              {/* Center: Icons + Search, shifted slightly left */}
-              <div className="flex items-center gap-4 flex-1 min-w-0 justify-start flex-wrap">
+              {/* Icons + Search Bar */}
+              <div className="flex items-center gap-3 flex-1 min-w-0 justify-start">
+                {/* Discord */}
                 <a
-                  href="https://discord.gg/YourDiscordInvite"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white/70 hover:text-[#5865F2] transition-colors flex items-center justify-center"
+                  href="#"
+                  className="text-white/80 hover:text-[#5865F2] transition-colors"
                   title="Discord"
                 >
-                  <FontAwesomeIcon icon={faDiscord} className="text-lg" />
+                  <FontAwesomeIcon icon={faDiscord} className="text-[16px]" />
                 </a>
 
+                {/* Telegram */}
                 <a
-                  href="https://t.me/YourTelegramLink"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white/70 hover:text-[#229ED9] transition-colors flex items-center justify-center"
+                  href="#"
+                  className="text-white/80 hover:text-[#229ED9] transition-colors"
                   title="Telegram"
                 >
-                  <FontAwesomeIcon icon={faTelegram} className="text-lg" />
+                  <FontAwesomeIcon icon={faTelegram} className="text-[16px]" />
                 </a>
 
-                {/* Compact Search */}
-                <div className="hidden md:block basis-[190px] max-w-[190px] flex-shrink">
+                {/* Web Search (compact width, shifted left) */}
+                <div className="hidden md:block basis-[180px] max-w-[180px]">
                   <WebSearch />
                 </div>
 
+                {/* Random */}
                 <Link
                   to={location.pathname === "/random" ? "#" : "/random"}
                   onClick={handleRandomClick}
-                  className="text-white/70 hover:text-white transition-colors flex items-center justify-center"
+                  className="text-white/80 hover:text-white transition-colors"
                   title="Random Anime"
                 >
-                  <FontAwesomeIcon icon={faRandom} className="text-lg" />
+                  <FontAwesomeIcon icon={faRandom} className="text-[16px]" />
                 </Link>
 
+                {/* Movies */}
                 <Link
                   to="/movie"
-                  className="text-white/70 hover:text-white transition-colors flex items-center justify-center"
+                  className="text-white/80 hover:text-white transition-colors"
                   title="Movies"
                 >
-                  <FontAwesomeIcon icon={faFilm} className="text-lg" />
+                  <FontAwesomeIcon icon={faFilm} className="text-[16px]" />
                 </Link>
 
+                {/* Popular */}
                 <Link
                   to="/most-popular"
-                  className="text-white/70 hover:text-orange-500 transition-colors flex items-center justify-center"
+                  className="text-white/80 hover:text-orange-500 transition-colors"
                   title="Popular Anime"
                 >
-                  <FontAwesomeIcon icon={faFire} className="text-lg" />
+                  <FontAwesomeIcon icon={faFire} className="text-[16px]" />
                 </Link>
               </div>
 
-              {/* Language Toggle (Desktop) */}
-              <div className="hidden md:flex items-center gap-2 bg-[#1f1f1f] rounded-md p-1 ml-auto">
+              {/* Language Switch */}
+              <div className="hidden md:flex items-center gap-2 bg-[#1f1f1f] rounded-md p-[2px] ml-auto">
                 {["EN", "JP"].map((lang) => (
                   <button
                     key={lang}
                     onClick={() => toggleLanguage(lang)}
-                    className={`px-3 py-1 text-sm font-medium rounded ${
+                    className={`px-2 py-[2px] text-sm font-medium rounded ${
                       language === lang
                         ? "bg-[#2a2a2a] text-white"
                         : "text-gray-400 hover:text-white"
@@ -144,16 +143,16 @@ function Navbar() {
                 ))}
               </div>
 
-              {/* Mobile Search Button */}
+              {/* Mobile Search */}
               <div className="md:hidden ml-auto">
                 <button
                   onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-                  className="p-[10px] text-white/70 hover:text-white transition-colors flex items-center justify-center w-[38px] h-[38px]"
+                  className="p-[8px] text-white/70 hover:text-white transition-colors flex items-center justify-center w-[34px] h-[34px]"
                   title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
                 >
                   <FontAwesomeIcon
                     icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
-                    className="w-[18px] h-[18px] transition-transform duration-200"
+                    className="w-[16px] h-[16px]"
                     style={{
                       transform: isMobileSearchOpen ? "rotate(90deg)" : "rotate(0deg)",
                     }}
@@ -173,9 +172,6 @@ function Navbar() {
 
         {/* Sidebar */}
         <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
-
-        {/* Blue Underline Accent */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-blue-500/60 via-blue-400/60 to-blue-500/60" />
       </nav>
     </SearchProvider>
   );
