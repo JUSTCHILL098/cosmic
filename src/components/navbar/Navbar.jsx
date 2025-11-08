@@ -37,6 +37,13 @@ function Navbar() {
 
   return (
     <SearchProvider>
+      {/* Import Google Font directly */}
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=LEMON+MILK:wght@400;700&display=swap');
+        `}
+      </style>
+
       <nav className="fixed left-0 right-0 top-4 z-[1000000]">
         <div className="flex justify-center px-4">
           <div
@@ -45,7 +52,7 @@ function Navbar() {
                         px-4 py-2 relative overflow-visible`}
           >
             <div className="flex items-center gap-4 flex-wrap relative z-[1000001]">
-              {/* Left: hamburger + logo text */}
+              {/* Left: Hamburger + Logo Text */}
               <button
                 onClick={handleHamburgerClick}
                 className="p-[8px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
@@ -54,16 +61,20 @@ function Navbar() {
                 <FontAwesomeIcon icon={faBars} className="text-lg" />
               </button>
 
-              <Link to="/home" className="flex items-center mr-3">
+              <Link to="/home" className="flex items-center mr-3 select-none">
                 <span
-                  className="text-white text-2xl tracking-wide select-none"
-                  style={{ fontFamily: "'LEMON MILK', sans-serif" }}
+                  className="text-white text-2xl tracking-wide font-bold"
+                  style={{
+                    fontFamily: "'LEMON MILK', sans-serif",
+                    textShadow:
+                      "0 0 6px rgba(255,255,255,0.5), 0 0 12px rgba(255,255,255,0.3)",
+                  }}
                 >
                   Kaito
                 </span>
               </Link>
 
-              {/* Center icons & search - shifted left */}
+              {/* Center: Icons + Search, shifted slightly left */}
               <div className="flex items-center gap-4 flex-1 min-w-0 justify-start flex-wrap">
                 <a
                   href="https://discord.gg/YourDiscordInvite"
@@ -85,7 +96,7 @@ function Navbar() {
                   <FontAwesomeIcon icon={faTelegram} className="text-lg" />
                 </a>
 
-                {/* Smaller search bar so icons fit nicely */}
+                {/* Compact Search */}
                 <div className="hidden md:block basis-[190px] max-w-[190px] flex-shrink">
                   <WebSearch />
                 </div>
@@ -116,7 +127,7 @@ function Navbar() {
                 </Link>
               </div>
 
-              {/* Language toggle (desktop) */}
+              {/* Language Toggle (Desktop) */}
               <div className="hidden md:flex items-center gap-2 bg-[#1f1f1f] rounded-md p-1 ml-auto">
                 {["EN", "JP"].map((lang) => (
                   <button
@@ -133,7 +144,7 @@ function Navbar() {
                 ))}
               </div>
 
-              {/* Mobile search toggle */}
+              {/* Mobile Search Button */}
               <div className="md:hidden ml-auto">
                 <button
                   onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
@@ -153,7 +164,7 @@ function Navbar() {
           </div>
         </div>
 
-        {/* Mobile search dropdown */}
+        {/* Mobile Search Dropdown */}
         {isMobileSearchOpen && (
           <div className="md:hidden mx-4 mt-2 bg-black/90 backdrop-blur-md rounded-xl shadow-lg border border-white/10">
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
@@ -163,7 +174,7 @@ function Navbar() {
         {/* Sidebar */}
         <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
 
-        {/* Blue underline */}
+        {/* Blue Underline Accent */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-blue-500/60 via-blue-400/60 to-blue-500/60" />
       </nav>
     </SearchProvider>
