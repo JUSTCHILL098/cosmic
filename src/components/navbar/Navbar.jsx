@@ -21,6 +21,7 @@ function Navbar() {
   const { language, toggleLanguage } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isWebSearchOpen, setIsWebSearchOpen] = useState(false); // State for compact web search
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -34,6 +35,9 @@ function Navbar() {
   const handleRandomClick = () => {
     if (location.pathname === "/random") window.location.reload();
   };
+
+  // We'll use the existing MobileSearch state for the WebSearch to toggle for simplicity
+  const toggleWebSearch = () => setIsWebSearchOpen(!isWebSearchOpen);
 
   return (
     <SearchProvider>
@@ -54,7 +58,8 @@ function Navbar() {
             <div className="flex items-center justify-between relative z-[100001]">
               
               {/* === LEFT SIDE: Hamburger, KAITO, Social Icons, and Web Search === */}
-              <div className="flex items-center gap-4"> 
+              {/* Gap-3 provides a comfortable look now that the search bar is compact */}
+              <div className="flex items-center gap-3"> 
                 
                 {/* Hamburger */}
                 <button
@@ -77,7 +82,7 @@ function Navbar() {
                   </span>
                 </Link>
 
-                {/* Discord (MOVED TO LEFT) */}
+                {/* Discord */}
                 <a
                   href="#"
                   className="p-[8px] text-white/80 hover:text-[#5865F2] transition-colors rounded-md hidden sm:block"
@@ -86,7 +91,7 @@ function Navbar() {
                   <FontAwesomeIcon icon={faDiscord} className="text-[20px]" />
                 </a>
 
-                {/* Telegram (MOVED TO LEFT) */}
+                {/* Telegram */}
                 <a
                   href="#"
                   className="p-[8px] text-white/80 hover:text-[#229ED9] transition-colors rounded-md hidden sm:block"
@@ -95,13 +100,24 @@ function Navbar() {
                   <FontAwesomeIcon icon={faTelegram} className="text-[20px]" />
                 </a>
                 
-                {/* Compact Web Search (WIDTH REDUCED: 100px -> 80px, added mr-4) */}
-                <div className="hidden md:block basis-[80px] max-w-[80px] flex-shrink-0 mr-4">
-                  <WebSearch />
+                {/* Compact Web Search ICON (New Style) */}
+                {/* This uses an icon to save space, assuming the actual WebSearch component handles the input field expansion */}
+                <div className="hidden md:block">
+                    <button
+                        onClick={toggleWebSearch}
+                        className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md"
+                        title="Search Anime"
+                    >
+                        <FontAwesomeIcon icon={faMagnifyingGlass} className="text-[20px]" />
+                    </button>
                 </div>
+                
+                {/* Fallback/Full Search Bar (Can be conditionally rendered if needed, but removed for space) */}
+                {/* You may need to add conditional rendering logic based on 'isWebSearchOpen' here */}
               </div>
 
               {/* === RIGHT SIDE: Random, Movie, Popular, and Language Toggle === */}
+              {/* Using gap-1 for tight grouping */}
               <div className="flex items-center gap-1"> 
                 
                 {/* Random */}
@@ -172,11 +188,22 @@ function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Search Dropdown */}
+        {/* Mobile Search Dropdown (for small screens) */}
         {isMobileSearchOpen && (
           <div className="md:hidden mx-4 mt-2 bg-black/90 backdrop-blur-md rounded-xl shadow-lg border border-white/10">
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
           </div>
+        )}
+        
+        {/* Web Search Dropdown (for larger screens - you might need to implement this) */}
+        {isWebSearchOpen && (
+            // NOTE: You'll likely need a separate component or logic here 
+            // to show a full search bar/dropdown only on desktop (md:block)
+            <div className="hidden md:flex justify-center mx-4 mt-2">
+                 <div className="w-full max-w-[300px] bg-black/90 backdrop-blur-md rounded-xl shadow-lg border border-white/10 p-2">
+                    <WebSearch />
+                 </div>
+            </div>
         )}
 
         {/* Sidebar */}
