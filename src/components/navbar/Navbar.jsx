@@ -95,8 +95,8 @@ function Navbar() {
                   <FontAwesomeIcon icon={faTelegram} className="text-[20px]" />
                 </a>
                 
-                {/* Compact Web Search (WIDTH REDUCED: 140px -> 100px) */}
-                <div className="hidden md:block basis-[100px] max-w-[100px] flex-shrink-0">
+                {/* Compact Web Search (WIDTH REDUCED: 100px -> 80px, added mr-4) */}
+                <div className="hidden md:block basis-[80px] max-w-[80px] flex-shrink-0 mr-4">
                   <WebSearch />
                 </div>
               </div>
