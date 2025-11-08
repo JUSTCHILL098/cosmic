@@ -60,13 +60,11 @@ function Footer() {
           {/* Legal Text */}
           <div className="space-y-2 text-sm text-white/40 text-center sm:text-left">
             <p className="max-w-4xl mx-auto sm:mx-0">
-              {website_name} ᴅᴏᴇꜱ ɴᴏᴛ ʜᴏꜱᴛ ᴀɴʏ ꜰɪʟᴇꜱ, ɪᴛ ᴍᴇʀᴇʟʏ ᴘᴜʟʟꜱ ꜱᴛʀᴇᴀᴍꜱ ꜰʀᴏᴍ  
-              3ʀᴅ ᴘᴀʀᴛʏ ꜱᴇʀᴠɪᴄᴇꜱ. ʟᴇɢᴀʟ ɪꜱꜱᴜᴇꜱ ꜱʜᴏᴜʟᴅ ʙᴇ ᴛᴀᴋᴇɴ ᴜᴘ ᴡɪᴛʜ ᴛʜᴇ ꜰɪʟᴇ  
-              ʜᴏꜱᴛꜱ ᴀɴᴅ ᴘʀᴏᴠɪᴅᴇʀꜱ. {website_name} ɪꜱ ɴᴏᴛ ʀᴇꜱᴘᴏɴꜱɪʙʟᴇ ꜰᴏʀ ᴀɴʏ ᴍᴇᴅɪᴀ  
-              ꜰɪʟᴇꜱ ꜱʜᴏᴡɴ ʙʏ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴘʀᴏᴠɪᴅᴇʀꜱ.
-
-
-            </p>
+              {website_name} does not host any files, it merely pulls streams from 3rd party services. Legal 
+              issues should be taken up with the file hosts and providers. {website_name} is not responsible 
+              for any media files shown by the video providers.
+              
+             </p>
             <p>© {website_name}. All rights reserved.</p>
           </div>
         </div>
