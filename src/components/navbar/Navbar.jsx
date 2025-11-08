@@ -40,7 +40,7 @@ function Navbar() {
       {/* Import Koulen Regular font */}
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=Koulen&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Staatliches&display=swap');
         `}
       </style>
 
