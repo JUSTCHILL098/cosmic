@@ -47,7 +47,7 @@ function Navbar() {
       <nav className="fixed left-0 right-0 top-4 z-[100000]">
         <div className="flex justify-center px-4">
           <div
-            className={`w-full max-w-[1100px] rounded-full border border-white/10 shadow-lg
+            className={`w-full max-w-[900px] rounded-full border border-white/10 shadow-lg
                         ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
                         px-4 py-[6px]`}
           >
@@ -59,7 +59,7 @@ function Navbar() {
                   className="p-[8px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
                   title="Menu"
                 >
-                  <FontAwesomeIcon icon={faBars} className="text-[18px]" />
+                  <FontAwesomeIcon icon={faBars} className="text-[20px]" />
                 </button>
 
                 <Link to="/home" className="flex items-center select-none">
@@ -75,14 +75,14 @@ function Navbar() {
               </div>
 
               {/* === MIDDLE SECTION === */}
-              <div className="flex items-center gap-5 flex-1 justify-center min-w-0">
+              <div className="flex items-center gap-6 flex-1 justify-center min-w-0">
                 {/* Discord */}
                 <a
                   href="#"
                   className="p-[8px] text-white/80 hover:text-[#5865F2] transition-colors rounded-md"
                   title="Discord"
                 >
-                  <FontAwesomeIcon icon={faDiscord} className="text-[18px]" />
+                  <FontAwesomeIcon icon={faDiscord} className="text-[20px]" />
                 </a>
 
                 {/* Telegram */}
@@ -91,17 +91,17 @@ function Navbar() {
                   className="p-[8px] text-white/80 hover:text-[#229ED9] transition-colors rounded-md"
                   title="Telegram"
                 >
-                  <FontAwesomeIcon icon={faTelegram} className="text-[18px]" />
+                  <FontAwesomeIcon icon={faTelegram} className="text-[20px]" />
                 </a>
 
                 {/* Compact Web Search */}
-                <div className="hidden md:block basis-[200px] max-w-[200px]">
+                <div className="hidden md:block basis-[170px] max-w-[170px] flex-shrink-0">
                   <WebSearch />
                 </div>
               </div>
 
               {/* === RIGHT SIDE === */}
-              <div className="flex items-center gap-5">
+              <div className="flex items-center gap-6">
                 {/* Random */}
                 <Link
                   to={location.pathname === "/random" ? "#" : "/random"}
@@ -109,7 +109,7 @@ function Navbar() {
                   className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md"
                   title="Random Anime"
                 >
-                  <FontAwesomeIcon icon={faRandom} className="text-[18px]" />
+                  <FontAwesomeIcon icon={faRandom} className="text-[20px]" />
                 </Link>
 
                 {/* Movies */}
@@ -118,7 +118,7 @@ function Navbar() {
                   className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md"
                   title="Movies"
                 >
-                  <FontAwesomeIcon icon={faFilm} className="text-[18px]" />
+                  <FontAwesomeIcon icon={faFilm} className="text-[20px]" />
                 </Link>
 
                 {/* Popular */}
@@ -127,7 +127,7 @@ function Navbar() {
                   className="p-[8px] text-white/80 hover:text-orange-500 transition-colors rounded-md"
                   title="Popular Anime"
                 >
-                  <FontAwesomeIcon icon={faFire} className="text-[18px]" />
+                  <FontAwesomeIcon icon={faFire} className="text-[20px]" />
                 </Link>
 
                 {/* Language Toggle */}
