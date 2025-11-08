@@ -66,7 +66,7 @@ function SplashScreen() {
 
   return (
     <div className="splash-container">
-      {/* Video Background: local-first with poster for reliability */}
+      {/* Video Background: use remote link (your setup) */}
       <video
         ref={videoRef}
         autoPlay
@@ -76,7 +76,7 @@ function SplashScreen() {
         poster="/splash.jpg"
         className="splash-video"
       >
-        <source src="/bg-video.mp4" type="video/mp4" />
+        <source src="https://files.catbox.moe/kfq8pz.mp4" type="video/mp4" />
       </video>
 
       {/* Overlays */}
@@ -88,15 +88,19 @@ function SplashScreen() {
         <FontAwesomeIcon icon={isMuted ? faVolumeXmark : faVolumeHigh} />
       </button>
 
+      {/* Centered content — mirrored to Lunar while keeping your structure */}
       <div className="content-wrapper">
         {/* Logo */}
         <div className="logo-container">
           <img src="/logo.png" alt={logoTitle} className="logo" />
         </div>
 
-        {/* Tagline / Subline to mirror Lunar’s black theme */}
-        <h1 className="tagline">Watch anime free, fast, and without intrusive ads</h1>
-        <p className="subline">Latest episodes, movies, and timeless classics — all in one place.</p>
+        {/* Optional small pill like Lunar (static example) */}
+        <div className="watching-pill">10 users watching now</div>
+
+        {/* Headings */}
+        <h1 className="tagline">Your Complete Anime Entertainment Platform</h1>
+        <p className="subline">Thousands of series — free and fast streaming.</p>
 
         {/* Search */}
         <div className="search-container">
@@ -117,36 +121,31 @@ function SplashScreen() {
           </button>
         </div>
 
-        {/* Quick Links */}
+        {/* Quick Links (labels aligned to Lunar style) */}
         <div className="quick-links">
-          <Link to="/most-popular" className="quick-link">Popular</Link>
-          <Link to="/movie" className="quick-link">Movies</Link>
-          <Link to="/a2z" className="quick-link">A–Z</Link>
-          <Link to="/schedule" className="quick-link">Schedule</Link>
+          <Link to="/home" className="quick-link">Home</Link>
+          <Link to="#" className="quick-link">Features</Link>
+          <Link to="#" className="quick-link">Changelog</Link>
+          <Link to="/contact" className="quick-link">Contact</Link>
+          <Link to="/a2z" className="quick-link">View Animes</Link>
         </div>
 
-        {/* Enter Homepage */}
-        <Link to="/home" className="enter-button">
-          Enter Homepage <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
-        </Link>
-
-        {/* Small Feature Grid (visual parity without extra features) */}
-        <div className="feature-grid">
-          <div className="feature-card">
-            <div className="feature-title">Fast Streaming</div>
-            <div className="feature-desc">Optimized delivery for smooth playback.</div>
-          </div>
-          <div className="feature-card">
-            <div className="feature-title">No Intrusive Ads</div>
-            <div className="feature-desc">Focus on content, not interruptions.</div>
-          </div>
-          <div className="feature-card">
-            <div className="feature-title">Community & Support</div>
-            <div className="feature-desc">Active channels and prompt help.</div>
-          </div>
+        {/* CTA Row: Start Watching + Discord */}
+        <div className="button-row">
+          <Link to="/home" className="enter-button">
+            Start Watching <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
+          </Link>
+          <a
+            href="https://discord.gg/YourDiscordInvite"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="secondary-button"
+          >
+            Discord
+          </a>
         </div>
 
-        {/* FAQ */}
+        {/* FAQ (kept same data) */}
         <div className="faq-section">
           <h2 className="faq-title">Frequently Asked Questions</h2>
           <div className="faq-list">
