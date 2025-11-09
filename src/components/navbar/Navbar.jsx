@@ -49,7 +49,7 @@ function Navbar() {
           <div
             className={`w-full max-w-[750px] rounded-full border border-white/10 shadow-lg
                         ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
-                        px-3 py-[5px]`}
+                        px-3 py-[6px]`}
           >
             <div className="flex items-center justify-between relative z-[100001]">
               
@@ -68,7 +68,7 @@ function Navbar() {
                 {/* KAITO Logo Text */}
                 <Link to="/home" className="flex items-center select-none">
                   <span
-                    className="text-white text-[18px] font-bold tracking-wide"
+                    className="text-white text-[22px] font-bold tracking-wide leading-none"
                     style={{
                       fontFamily: "'Bayon', sans-serif",
                       letterSpacing: "0.5px",
@@ -97,7 +97,7 @@ function Navbar() {
                 </a>
                 
                 {/* Web Search */}
-                <div className="hidden md:block basis-[150px] max-w-[150px] flex-shrink-0">
+                <div className="hidden md:block basis-[120px] max-w-[120px] flex-shrink-0">
                   <WebSearch />
                 </div>
               </div>
