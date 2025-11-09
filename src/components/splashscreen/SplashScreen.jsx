@@ -13,14 +13,14 @@ import {
 
 const FAQ_ITEMS = [
   {
-    question: "Is JustAnime safe?",
+    question: "Is kaito safe?",
     answer:
-      "Yes, JustAnime is completely safe to use. We ensure all content is properly scanned and secured for our users."
+      "Yes, kaito is completely safe to use. We ensure all content is properly scanned and secured for our users."
   },
   {
-    question: "What makes JustAnime the best site to watch anime free online?",
+    question: "What makes kaito the best site to watch anime free online?",
     answer:
-      "JustAnime offers high-quality streaming, a vast library of anime, no intrusive ads, and a user-friendly interface - all completely free."
+      "kaito offers high-quality streaming, a vast library of anime, no intrusive ads, and a user-friendly interface - all completely free."
   },
   {
     question: "How do I request an anime?",
@@ -93,8 +93,8 @@ function SplashScreen() {
         </div>
 
         {/* Headline */}
-        <h1 className="headline">Unlimited Anime, Free</h1>
-        <p className="subheadline">Watch, search, and dive deep — no compromises.</p>
+        <p className="subheadline">Your Complete Anime Entertainment Platform</p>
+        <p className="subheadline">Thousands of series in English & Japanese and more</p>
 
         {/* Search */}
         <div className="search-container">
