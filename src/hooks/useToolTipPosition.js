@@ -1,10 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 
+const TOOLTIP_WIDTH = 320;
+const VIEWPORT_PADDING = 8;
+
 const useToolTipPosition = (hoveredItem, data) => {
   const cardRefs = useRef([]);
-  const [tooltipPosition, setTooltipPosition] = useState("top-1/2");
-  const [tooltipHorizontalPosition, setTooltipHorizontalPosition] =
-    useState("left-1/2");
+  const [tooltipStyle, setTooltipStyle] = useState({
+    top: 0,
+    left: 0,
+    transform: "translateY(-50%)",
+    position: "fixed",
+    zIndex: 100000,
+    pointerEvents: "auto",
+  });
 
   const updateToolTipPosition = () => {
     if (hoveredItem !== null) {
@@ -13,37 +21,51 @@ const useToolTipPosition = (hoveredItem, data) => {
       );
       const ref = cardRefs.current[refIndex];
       if (ref) {
-        const { top, height, left, width } = ref.getBoundingClientRect();
-        const adjustedTop = top + height / 2 - 64;
-        const bottomY = window.innerHeight - adjustedTop;
-        if (adjustedTop < bottomY) {
-          setTooltipPosition("top-1/2");
+        const rect = ref.getBoundingClientRect();
+        const centerY = rect.top + rect.height / 2;
+        const gap = 12;
+
+        let left;
+        const spaceRight = window.innerWidth - rect.right;
+        if (spaceRight >= TOOLTIP_WIDTH + gap + VIEWPORT_PADDING) {
+          left = rect.right + gap;
+        } else if (rect.left >= TOOLTIP_WIDTH + gap + VIEWPORT_PADDING) {
+          left = rect.left - TOOLTIP_WIDTH - gap;
         } else {
-          setTooltipPosition("bottom-1/2");
+          left = Math.max(
+            VIEWPORT_PADDING,
+            Math.min(
+              window.innerWidth - TOOLTIP_WIDTH - VIEWPORT_PADDING,
+              rect.left + rect.width / 2 - TOOLTIP_WIDTH / 2
+            )
+          );
         }
-        const adjustedLeft = left + width / 2;
-        const spaceRight = window.innerWidth - adjustedLeft;
-        if (spaceRight > 320) {
-          setTooltipHorizontalPosition("left-1/2");
-        } else {
-          setTooltipHorizontalPosition("right-1/2");
-        }
+
+        setTooltipStyle({
+          position: "fixed",
+          top: centerY,
+          left,
+          transform: "translateY(-50%)",
+          zIndex: 100000,
+          pointerEvents: "auto",
+        });
       }
     }
   };
 
   useEffect(() => {
     updateToolTipPosition();
-    const handleScroll = () => {
-      updateToolTipPosition();
-    };
+    const handleScroll = () => updateToolTipPosition();
+    const handleResize = () => updateToolTipPosition();
     window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleResize);
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
     };
   }, [hoveredItem, data]);
 
-  return { tooltipPosition, tooltipHorizontalPosition, cardRefs };
+  return { tooltipStyle, cardRefs };
 };
 
 export default useToolTipPosition;
