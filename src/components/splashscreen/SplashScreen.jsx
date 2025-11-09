@@ -94,7 +94,7 @@ function SplashScreen() {
 
         {/* Headline */}
         <p className="subheadline">Your Complete Anime Entertainment Platform</p>
-        <p className="subheadline">Thousands of series in English & Japanese and more</p>
+        
 
         {/* Search */}
         <div className="search-container">
