@@ -47,14 +47,14 @@ function Navbar() {
       <nav className="fixed left-0 right-0 top-3 z-[100000]">
         <div className="flex justify-center px-4">
           <div
-            className={`w-full max-w-[750px] rounded-full border border-white/10 shadow-lg
+            className={`w-full max-w-[700px] rounded-full border border-white/10 shadow-lg
                         ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
-                        px-3 py-[6px]`}
+                        px-3 py-[5px]`}
           >
             <div className="flex items-center justify-between relative z-[100001]">
               
               {/* LEFT SIDE */}
-              <div className="flex items-center gap-2"> 
+              <div className="flex items-center gap-[6px] min-w-0"> 
                 
                 {/* Hamburger */}
                 <button
@@ -68,7 +68,7 @@ function Navbar() {
                 {/* KAITO Logo Text */}
                 <Link to="/home" className="flex items-center select-none">
                   <span
-                    className="text-white text-[22px] font-bold tracking-wide leading-none"
+                    className="text-white text-[22px] font-bold leading-none"
                     style={{
                       fontFamily: "'Bayon', sans-serif",
                       letterSpacing: "0.5px",
@@ -96,14 +96,14 @@ function Navbar() {
                   <FontAwesomeIcon icon={faTelegram} className="text-[19px]" />
                 </a>
                 
-                {/* Web Search */}
-                <div className="hidden md:block basis-[120px] max-w-[120px] flex-shrink-0">
+                {/* Web Search (smaller and flexible) */}
+                <div className="hidden md:block flex-shrink min-w-0 basis-[100px] max-w-[100px] overflow-hidden">
                   <WebSearch />
                 </div>
               </div>
 
               {/* RIGHT SIDE */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-[4px] flex-shrink-0">
                 
                 {/* Random */}
                 <Link
@@ -134,7 +134,7 @@ function Navbar() {
                 </Link>
 
                 {/* Language Toggle */}
-                <div className="hidden md:flex items-center gap-1 bg-[#1f1f1f] rounded-md p-[2px] ml-1">
+                <div className="hidden md:flex items-center gap-[2px] bg-[#1f1f1f] rounded-md p-[2px] ml-1">
                   {["EN", "JP"].map((lang) => (
                     <button
                       key={lang}
