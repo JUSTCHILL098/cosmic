@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -37,109 +38,110 @@ function Navbar() {
 
   return (
     <SearchProvider>
-      {/* Import Bayon Regular font */}
+      {/* Import Koulen Regular font */}
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=Bayon&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Staatliches&display=swap');
         `}
       </style>
 
-      <nav className="fixed left-0 right-0 top-3 z-[100000]">
+      <nav className="fixed left-0 right-0 top-4 z-[100000]">
         <div className="flex justify-center px-4">
           <div
-            className={`w-full max-w-[700px] rounded-full border border-white/10 shadow-lg
+            className={`w-full max-w-[900px] rounded-full border border-white/10 shadow-lg
                         ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
-                        px-3 py-[5px]`}
+                        px-4 py-[6px]`}
           >
             <div className="flex items-center justify-between relative z-[100001]">
               
-              {/* LEFT SIDE */}
-              <div className="flex items-center gap-[6px] min-w-0"> 
+              {/* === LEFT SIDE: Hamburger, KAITO, Social Icons, and Web Search === */}
+              {/* Increased gap-2 for better spacing on the crowded left side */}
+              <div className="flex items-center gap-2"> 
                 
                 {/* Hamburger */}
                 <button
                   onClick={handleHamburgerClick}
-                  className="p-[6px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
+                  className="p-[8px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
                   title="Menu"
                 >
-                  <FontAwesomeIcon icon={faBars} className="text-[19px]" />
+                  <FontAwesomeIcon icon={faBars} className="text-[20px]" />
                 </button>
 
-                {/* KAITO Logo Text */}
+                {/* KAITO Text (Adjusted with mt-1 for better vertical alignment) */}
                 <Link to="/home" className="flex items-center select-none">
                   <span
-                    className="text-white text-[22px] font-bold leading-none"
+                    className="text-white text-[22px] font-bold tracking-wide mt-1" 
                     style={{
-                      fontFamily: "'Bayon', sans-serif",
-                      letterSpacing: "0.5px",
+                      fontFamily: "'Koulen', sans-serif",
                     }}
                   >
                     KAITO
                   </span>
                 </Link>
 
-                {/* Discord */}
+                {/* Discord (MOVED TO LEFT) */}
                 <a
                   href="#"
-                  className="p-[6px] text-white/80 hover:text-[#5865F2] transition-colors rounded-md hidden sm:block"
+                  className="p-[8px] text-white/80 hover:text-[#5865F2] transition-colors rounded-md hidden sm:block"
                   title="Discord"
                 >
-                  <FontAwesomeIcon icon={faDiscord} className="text-[19px]" />
+                  <FontAwesomeIcon icon={faDiscord} className="text-[20px]" />
                 </a>
 
-                {/* Telegram */}
+                {/* Telegram (MOVED TO LEFT) */}
                 <a
                   href="#"
-                  className="p-[6px] text-white/80 hover:text-[#229ED9] transition-colors rounded-md hidden sm:block"
+                  className="p-[8px] text-white/80 hover:text-[#229ED9] transition-colors rounded-md hidden sm:block"
                   title="Telegram"
                 >
-                  <FontAwesomeIcon icon={faTelegram} className="text-[19px]" />
+                  <FontAwesomeIcon icon={faTelegram} className="text-[20px]" />
                 </a>
                 
-                {/* Web Search (smaller and flexible) */}
-                <div className="hidden md:block flex-shrink min-w-0 basis-[100px] max-w-[100px] overflow-hidden">
+                {/* Compact Web Search (MOVED TO LEFT) */}
+                <div className="hidden md:block basis-[170px] max-w-[170px] flex-shrink-0">
                   <WebSearch />
                 </div>
               </div>
 
-              {/* RIGHT SIDE */}
-              <div className="flex items-center gap-[4px] flex-shrink-0">
+              {/* === RIGHT SIDE: Random, Movie, Popular, and Language Toggle === */}
+              {/* Using gap-1 to create minimal space between all the items on the right side. */}
+              <div className="flex items-center gap-1"> 
                 
                 {/* Random */}
                 <Link
                   to={location.pathname === "/random" ? "#" : "/random"}
                   onClick={handleRandomClick}
-                  className="p-[6px] text-white/80 hover:text-white transition-colors rounded-md"
+                  className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md"
                   title="Random Anime"
                 >
-                  <FontAwesomeIcon icon={faRandom} className="text-[19px]" />
+                  <FontAwesomeIcon icon={faRandom} className="text-[20px]" />
                 </Link>
 
                 {/* Movies */}
                 <Link
                   to="/movie"
-                  className="p-[6px] text-white/80 hover:text-white transition-colors rounded-md hidden sm:block"
+                  className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md hidden sm:block"
                   title="Movies"
                 >
-                  <FontAwesomeIcon icon={faFilm} className="text-[19px]" />
+                  <FontAwesomeIcon icon={faFilm} className="text-[20px]" />
                 </Link>
 
                 {/* Popular */}
                 <Link
                   to="/most-popular"
-                  className="p-[6px] text-white/80 hover:text-orange-500 transition-colors rounded-md hidden sm:block"
+                  className="p-[8px] text-white/80 hover:text-orange-500 transition-colors rounded-md hidden sm:block"
                   title="Popular Anime"
                 >
-                  <FontAwesomeIcon icon={faFire} className="text-[19px]" />
+                  <FontAwesomeIcon icon={faFire} className="text-[20px]" />
                 </Link>
 
                 {/* Language Toggle */}
-                <div className="hidden md:flex items-center gap-[2px] bg-[#1f1f1f] rounded-md p-[2px] ml-1">
+                <div className="hidden md:flex items-center gap-2 bg-[#1f1f1f] rounded-md p-[2px] ml-1">
                   {["EN", "JP"].map((lang) => (
                     <button
                       key={lang}
                       onClick={() => toggleLanguage(lang)}
-                      className={`px-2 py-[1px] text-sm font-medium rounded ${
+                      className={`px-2 py-[2px] text-sm font-medium rounded ${
                         language === lang
                           ? "bg-[#2a2a2a] text-white"
                           : "text-gray-400 hover:text-white"
@@ -154,12 +156,12 @@ function Navbar() {
                 <div className="md:hidden">
                   <button
                     onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-                    className="p-[6px] text-white/70 hover:text-white transition-colors flex items-center justify-center w-[32px] h-[32px]"
+                    className="p-[8px] text-white/70 hover:text-white transition-colors flex items-center justify-center w-[34px] h-[34px]"
                     title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
                   >
                     <FontAwesomeIcon
                       icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
-                      className="w-[17px] h-[17px]"
+                      className="w-[18px] h-[18px]"
                       style={{
                         transform: isMobileSearchOpen
                           ? "rotate(90deg)"
