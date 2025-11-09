@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./SplashScreen.css";
 import logoTitle from "@/src/config/logoTitle";
@@ -33,7 +33,7 @@ function SplashScreen() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [expandedFaq, setExpandedFaq] = useState(null);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(false); // 🔊 Audio ON by default
   const videoRef = useRef(null);
 
   const handleSearchSubmit = useCallback(() => {
@@ -63,6 +63,12 @@ function SplashScreen() {
       setIsMuted(video.muted);
     }
   };
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = false; // Ensure video starts with audio on
+    }
+  }, []);
 
   return (
     <div className="splash-container">
@@ -94,7 +100,6 @@ function SplashScreen() {
 
         {/* Headline */}
         <p className="subheadline">Your Complete Anime Entertainment Platform</p>
-        
 
         {/* Search */}
         <div className="search-container">
@@ -117,7 +122,7 @@ function SplashScreen() {
         </div>
 
         {/* Enter Homepage */}
-        <Link to="/home" className="enter-button">
+        <Link to="/home" className="enter-button normal-text">
           Enter Homepage <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
         </Link>
 
