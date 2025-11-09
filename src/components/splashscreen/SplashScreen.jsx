@@ -78,10 +78,11 @@ function SplashScreen() {
         <source src="https://files.catbox.moe/kfq8pz.mp4" type="video/mp4" />
       </video>
 
-      <div className="splash-overlay"></div>
+      {/* Overlay */}
+      <div className="splash-overlay" />
 
       {/* Audio Button */}
-      <button className="audio-toggle" onClick={toggleAudio}>
+      <button className="audio-toggle" onClick={toggleAudio} aria-label="Toggle audio">
         <FontAwesomeIcon icon={isMuted ? faVolumeXmark : faVolumeHigh} />
       </button>
 
@@ -90,6 +91,10 @@ function SplashScreen() {
         <div className="logo-container">
           <img src="/logo.png" alt={logoTitle} className="logo" />
         </div>
+
+        {/* Headline */}
+        <h1 className="headline">Unlimited Anime, Free</h1>
+        <p className="subheadline">Watch, search, and dive deep — no compromises.</p>
 
         {/* Search */}
         <div className="search-container">
@@ -100,6 +105,7 @@ function SplashScreen() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={handleKeyDown}
+            aria-label="Search anime"
           />
           <button
             className="search-button"
@@ -112,8 +118,7 @@ function SplashScreen() {
 
         {/* Enter Homepage */}
         <Link to="/home" className="enter-button">
-          Enter Homepage{" "}
-          <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
+          Enter Homepage <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
         </Link>
 
         {/* FAQ */}
@@ -129,9 +134,7 @@ function SplashScreen() {
                   <span>{item.question}</span>
                   <FontAwesomeIcon
                     icon={faChevronDown}
-                    className={`faq-toggle ${
-                      expandedFaq === index ? "rotate" : ""
-                    }`}
+                    className={`faq-toggle ${expandedFaq === index ? "rotate" : ""}`}
                   />
                 </button>
                 {expandedFaq === index && (
