@@ -11,7 +11,23 @@ import {
   faVolumeXmark
 } from "@fortawesome/free-solid-svg-icons";
 
-// ... (FAQ_ITEMS remains the same)
+const FAQ_ITEMS = [
+  {
+    question: "Is JustAnime safe?",
+    answer:
+      "Yes, JustAnime is completely safe to use. We ensure all content is properly scanned and secured for our users."
+  },
+  {
+    question: "What makes JustAnime the best site to watch anime free online?",
+    answer:
+      "JustAnime offers high-quality streaming, a vast library of anime, no intrusive ads, and a user-friendly interface - all completely free."
+  },
+  {
+    question: "How do I request an anime?",
+    answer:
+      "You can submit anime requests through our contact form or by reaching out to our support team."
+  }
+];
 
 function SplashScreen() {
   const navigate = useNavigate();
@@ -50,49 +66,33 @@ function SplashScreen() {
 
   return (
     <div className="splash-container">
-      {/* Remote video ONLY (as requested) */}
+      {/* Video Background */}
       <video
         ref={videoRef}
         autoPlay
         loop
         muted={isMuted}
         playsInline
-        poster="/splash.jpg"
         className="splash-video"
       >
         <source src="https://files.catbox.moe/kfq8pz.mp4" type="video/mp4" />
       </video>
 
-      {/* Overlays */}
       <div className="splash-overlay"></div>
-      <div className="splash-gradient"></div>
 
       {/* Audio Button */}
       <button className="audio-toggle" onClick={toggleAudio}>
         <FontAwesomeIcon icon={isMuted ? faVolumeXmark : faVolumeHigh} />
       </button>
 
-      {/* Centered content — kept within viewport */}
-      {/* ADDED: A max-width class and padding to ensure content doesn't stretch too wide on any screen */}
-      <div className="content-wrapper w-full max-w-4xl px-4 mx-auto"> 
+      <div className="content-wrapper">
         {/* Logo */}
-        {/* ASSUMPTION: Logo size is managed by CSS, but if it's too big, you may need a max-width here */}
         <div className="logo-container">
           <img src="/logo.png" alt={logoTitle} className="logo" />
         </div>
 
-        {/* Status pill like Lunar */}
-        <div className="watching-pill">10 users watching now</div>
-
-        {/* Headings */}
-        {/* ADJUSTED: Used common responsive text classes (text-5xl for desktop, text-3xl for mobile) 
-             Note: These classes should be defined in your CSS/Tailwind config. If you are using plain CSS,
-             you will need to implement media queries for the .tagline and .subline classes. */}
-        <h1 className="tagline text-5xl md:text-6xl text-center mx-auto">Your Complete Anime Entertainment Platform</h1>
-        <p className="subline text-lg text-center mx-auto">Thousands of series — free and fast streaming.</p>
-
         {/* Search */}
-        <div className="search-container w-full max-w-lg mx-auto"> 
+        <div className="search-container">
           <input
             type="text"
             placeholder="Search anime..."
@@ -110,23 +110,14 @@ function SplashScreen() {
           </button>
         </div>
 
-        {/* CTA Row */}
-        <div className="button-row flex justify-center mt-6"> 
-          <Link to="/home" className="enter-button">
-            Start Watching <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
-          </Link>
-          <a
-            href="https://discord.gg/YourDiscordInvite"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="secondary-button ml-4"
-          >
-            Discord
-          </a>
-        </div>
+        {/* Enter Homepage */}
+        <Link to="/home" className="enter-button">
+          Enter Homepage{" "}
+          <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
+        </Link>
 
         {/* FAQ */}
-        <div className="faq-section mt-10 w-full max-w-xl mx-auto"> 
+        <div className="faq-section">
           <h2 className="faq-title">Frequently Asked Questions</h2>
           <div className="faq-list">
             {FAQ_ITEMS.map((item, index) => (
@@ -138,7 +129,9 @@ function SplashScreen() {
                   <span>{item.question}</span>
                   <FontAwesomeIcon
                     icon={faChevronDown}
-                    className={`faq-toggle ${expandedFaq === index ? "rotate" : ""}`}
+                    className={`faq-toggle ${
+                      expandedFaq === index ? "rotate" : ""
+                    }`}
                   />
                 </button>
                 {expandedFaq === index && (
