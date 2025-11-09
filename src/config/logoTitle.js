@@ -1,3 +1,3 @@
-const logoTitle="Z-ANIME"
+const logoTitle="kaito"
 
 export default logoTitle;
