@@ -47,14 +47,14 @@ function Navbar() {
       <nav className="fixed left-0 right-0 top-3 z-[100000]">
         <div className="flex justify-center px-4">
           <div
-            className={`w-full max-w-[900px] rounded-full border border-white/10 shadow-lg
+            className={`w-full max-w-[750px] rounded-full border border-white/10 shadow-lg
                         ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
-                        px-3 py-[4px]`}
+                        px-3 py-[5px]`}
           >
             <div className="flex items-center justify-between relative z-[100001]">
               
               {/* LEFT SIDE */}
-              <div className="flex items-center gap-1.5"> 
+              <div className="flex items-center gap-2"> 
                 
                 {/* Hamburger */}
                 <button
@@ -62,7 +62,7 @@ function Navbar() {
                   className="p-[6px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
                   title="Menu"
                 >
-                  <FontAwesomeIcon icon={faBars} className="text-[17px]" />
+                  <FontAwesomeIcon icon={faBars} className="text-[19px]" />
                 </button>
 
                 {/* KAITO Logo Text */}
@@ -71,7 +71,7 @@ function Navbar() {
                     className="text-white text-[18px] font-bold tracking-wide"
                     style={{
                       fontFamily: "'Bayon', sans-serif",
-                      letterSpacing: "1px",
+                      letterSpacing: "0.5px",
                     }}
                   >
                     KAITO
@@ -84,7 +84,7 @@ function Navbar() {
                   className="p-[6px] text-white/80 hover:text-[#5865F2] transition-colors rounded-md hidden sm:block"
                   title="Discord"
                 >
-                  <FontAwesomeIcon icon={faDiscord} className="text-[17px]" />
+                  <FontAwesomeIcon icon={faDiscord} className="text-[19px]" />
                 </a>
 
                 {/* Telegram */}
@@ -93,11 +93,11 @@ function Navbar() {
                   className="p-[6px] text-white/80 hover:text-[#229ED9] transition-colors rounded-md hidden sm:block"
                   title="Telegram"
                 >
-                  <FontAwesomeIcon icon={faTelegram} className="text-[17px]" />
+                  <FontAwesomeIcon icon={faTelegram} className="text-[19px]" />
                 </a>
                 
                 {/* Web Search */}
-                <div className="hidden md:block basis-[160px] max-w-[160px] flex-shrink-0">
+                <div className="hidden md:block basis-[150px] max-w-[150px] flex-shrink-0">
                   <WebSearch />
                 </div>
               </div>
@@ -112,7 +112,7 @@ function Navbar() {
                   className="p-[6px] text-white/80 hover:text-white transition-colors rounded-md"
                   title="Random Anime"
                 >
-                  <FontAwesomeIcon icon={faRandom} className="text-[17px]" />
+                  <FontAwesomeIcon icon={faRandom} className="text-[19px]" />
                 </Link>
 
                 {/* Movies */}
@@ -121,7 +121,7 @@ function Navbar() {
                   className="p-[6px] text-white/80 hover:text-white transition-colors rounded-md hidden sm:block"
                   title="Movies"
                 >
-                  <FontAwesomeIcon icon={faFilm} className="text-[17px]" />
+                  <FontAwesomeIcon icon={faFilm} className="text-[19px]" />
                 </Link>
 
                 {/* Popular */}
@@ -130,7 +130,7 @@ function Navbar() {
                   className="p-[6px] text-white/80 hover:text-orange-500 transition-colors rounded-md hidden sm:block"
                   title="Popular Anime"
                 >
-                  <FontAwesomeIcon icon={faFire} className="text-[17px]" />
+                  <FontAwesomeIcon icon={faFire} className="text-[19px]" />
                 </Link>
 
                 {/* Language Toggle */}
@@ -154,12 +154,12 @@ function Navbar() {
                 <div className="md:hidden">
                   <button
                     onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-                    className="p-[6px] text-white/70 hover:text-white transition-colors flex items-center justify-center w-[30px] h-[30px]"
+                    className="p-[6px] text-white/70 hover:text-white transition-colors flex items-center justify-center w-[32px] h-[32px]"
                     title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
                   >
                     <FontAwesomeIcon
                       icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
-                      className="w-[16px] h-[16px]"
+                      className="w-[17px] h-[17px]"
                       style={{
                         transform: isMobileSearchOpen
                           ? "rotate(90deg)"
