@@ -1,3 +1,5 @@
+// Updated Navbar.jsx with KAITO text set to 48px width x 24px height container and 16px font size
+
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -37,120 +39,91 @@ function Navbar() {
 
   return (
     <SearchProvider>
-      {/* Import Geist Mono Bold 700 font */}
-      <style>
-        {`
-          @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@700&display=swap');
-        `}
-      </style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@700&display=swap');
+      `}</style>
 
       <nav className="fixed left-0 right-0 top-4 z-[100000]">
         <div className="flex justify-center px-4">
           <div
-            className={`w-full max-w-[900px] rounded-full border border-white/10 shadow-lg
-                             ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
-                             px-4 py-[6px]`}
+            className={`w-full max-w-[900px] rounded-full border border-white/10 shadow-lg ${
+              isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"
+            } px-4 py-[6px]`}
           >
             <div className="flex items-center justify-between relative z-[100001]">
-              
-              {/* === LEFT SIDE: Hamburger, KAITO, Social Icons, and Web Search === */}
-              {/* Increased gap-2 for better spacing on the crowded left side */}
-              <div className="flex items-center gap-2"> 
-                
-                {/* Hamburger */}
+
+              {/* LEFT SIDE */}
+              <div className="flex items-center gap-2">
                 <button
                   onClick={handleHamburgerClick}
                   className="p-[8px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
-                  title="Menu"
                 >
                   <FontAwesomeIcon icon={faBars} className="text-[20px]" />
                 </button>
 
-                {/* KAITO Text (Adjusted with mt-1 for better vertical alignment) */}
+                {/* === KAITO FIXED 48x24 CONTAINER + 16PX TEXT === */}
                 <Link to="/home" className="flex items-center select-none">
-                  <span
-                    // The text size is set to 22px here. If you need 48px, change text-[22px] to text-[48px].
-                    // The font weight is set to bold (700) here.
-                    className="text-white text-[22px] font-bold tracking-wide mt-1" 
-                    style={{
-                      // Set font to Geist Mono
-                      fontFamily: "'Geist Mono', monospace",
-                      // Set the line-height explicitly to 16px (1rem) for tight vertical spacing
-                      lineHeight: "16px",
-                      // The 48x24px refers to a background or container size, 
-                      // but if you want the font size to be 48px, use text-[48px] in the className.
-                    }}
+                  <div
+                    className="flex items-center justify-center bg-transparent"
+                    style={{ width: "48px", height: "24px" }}
                   >
-                    KAITO
-                  </span>
+                    <span
+                      className="text-white font-bold tracking-wide"
+                      style={{
+                        fontFamily: "'Geist Mono', monospace",
+                        fontSize: "16px",
+                        lineHeight: "16px",
+                      }}
+                    >
+                      KAITO
+                    </span>
+                  </div>
                 </Link>
 
-                {/* Discord (MOVED TO LEFT) */}
-                <a
-                  href="#"
-                  className="p-[8px] text-white/80 hover:text-[#5865F2] transition-colors rounded-md hidden sm:block"
-                  title="Discord"
-                >
+                <a href="#" className="p-[8px] text-white/80 hover:text-[#5865F2] transition-colors hidden sm:block">
                   <FontAwesomeIcon icon={faDiscord} className="text-[20px]" />
                 </a>
 
-                {/* Telegram (MOVED TO LEFT) */}
-                <a
-                  href="#"
-                  className="p-[8px] text-white/80 hover:text-[#229ED9] transition-colors rounded-md hidden sm:block"
-                  title="Telegram"
-                >
+                <a href="#" className="p-[8px] text-white/80 hover:text-[#229ED9] transition-colors hidden sm:block">
                   <FontAwesomeIcon icon={faTelegram} className="text-[20px]" />
                 </a>
-                
-                {/* Compact Web Search (MOVED TO LEFT) */}
+
                 <div className="hidden md:block basis-[170px] max-w-[170px] flex-shrink-0">
                   <WebSearch />
                 </div>
               </div>
 
-              {/* === RIGHT SIDE: Random, Movie, Popular, and Language Toggle === */}
-              {/* Using gap-1 to create minimal space between all the items on the right side. */}
-              <div className="flex items-center gap-1"> 
-                
-                {/* Random */}
+              {/* RIGHT SIDE */}
+              <div className="flex items-center gap-1">
                 <Link
                   to={location.pathname === "/random" ? "#" : "/random"}
                   onClick={handleRandomClick}
-                  className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md"
-                  title="Random Anime"
+                  className="p-[8px] text-white/80 hover:text-white transition-colors"
                 >
                   <FontAwesomeIcon icon={faRandom} className="text-[20px]" />
                 </Link>
 
-                {/* Movies */}
                 <Link
                   to="/movie"
-                  className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md hidden sm:block"
-                  title="Movies"
+                  className="p-[8px] text-white/80 hover:text-white hidden sm:block"
                 >
                   <FontAwesomeIcon icon={faFilm} className="text-[20px]" />
                 </Link>
 
-                {/* Popular */}
                 <Link
                   to="/most-popular"
-                  className="p-[8px] text-white/80 hover:text-orange-500 transition-colors rounded-md hidden sm:block"
-                  title="Popular Anime"
+                  className="p-[8px] text-white/80 hover:text-orange-500 hidden sm:block"
                 >
                   <FontAwesomeIcon icon={faFire} className="text-[20px]" />
                 </Link>
 
-                {/* Language Toggle */}
                 <div className="hidden md:flex items-center gap-2 bg-[#1f1f1f] rounded-md p-[2px] ml-1">
-                  {["EN", "JP"].map((lang) => (
+                  {['EN', 'JP'].map((lang) => (
                     <button
                       key={lang}
                       onClick={() => toggleLanguage(lang)}
                       className={`px-2 py-[2px] text-sm font-medium rounded ${
-                        language === lang
-                          ? "bg-[#2a2a2a] text-white"
-                          : "text-gray-400 hover:text-white"
+                        language === lang ? "bg-[#2a2a2a] text-white" : "text-gray-400 hover:text-white"
                       }`}
                     >
                       {lang}
@@ -158,21 +131,15 @@ function Navbar() {
                   ))}
                 </div>
 
-                {/* Mobile Search */}
                 <div className="md:hidden">
                   <button
                     onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-                    className="p-[8px] text-white/70 hover:text-white transition-colors flex items-center justify-center w-[34px] h-[34px]"
-                    title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
+                    className="p-[8px] text-white/70 hover:text-white w-[34px] h-[34px]"
                   >
                     <FontAwesomeIcon
                       icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
                       className="w-[18px] h-[18px]"
-                      style={{
-                        transform: isMobileSearchOpen
-                          ? "rotate(90deg)"
-                          : "rotate(0deg)",
-                      }}
+                      style={{ transform: isMobileSearchOpen ? "rotate(90deg)" : "rotate(0deg)" }}
                     />
                   </button>
                 </div>
@@ -181,14 +148,12 @@ function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Search Dropdown */}
         {isMobileSearchOpen && (
           <div className="md:hidden mx-4 mt-2 bg-black/90 backdrop-blur-md rounded-xl shadow-lg border border-white/10">
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
           </div>
         )}
 
-        {/* Sidebar */}
         <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
       </nav>
     </SearchProvider>
