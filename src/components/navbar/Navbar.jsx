@@ -106,7 +106,7 @@ export default function Navbar() {
           <div
             style={{
               fontFamily: "var(--geist)",
-              fontWeight: 600,              // FIXED: not bulky now
+              fontWeight: 700,              // FIXED: not bulky now
               fontSize: "16px",
               color: "#fff",
             }}
