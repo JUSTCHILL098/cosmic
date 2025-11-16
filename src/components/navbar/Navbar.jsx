@@ -25,7 +25,7 @@ export default function Navbar() {
     const navRect = navRef.current.getBoundingClientRect();
 
     const centerX = rect.left + rect.width / 2 + window.scrollX;
-    const top = navRect.top + window.scrollY + 10;
+    const top = navRect.top + window.scrollY + 10; // doll lowered perfectly
 
     setDollStyle({
       left: centerX,
@@ -52,10 +52,9 @@ export default function Navbar() {
 
   return (
     <>
+      {/* FONT */}
       <style>{`
-        :root {
-          --geist: "Geist Mono", "Geist Mono Fallback", monospace;
-        }
+        :root { --geist: 'Geist Mono', 'Geist Mono Fallback', monospace; }
       `}</style>
 
       {/* DOLL */}
@@ -88,37 +87,45 @@ export default function Navbar() {
         <div
           style={{
             width: "100%",
-            maxWidth: "680px",           // wider so LUNAR fits cleanly
-            height: "66px",              // taller for proper vertical centering
+            maxWidth: "700px",     // slightly bigger so LUNAR fits perfectly
+            height: "66px",
             marginTop: "24px",
             background: "rgba(0,0,0,0.62)",
             backdropFilter: "blur(12px)",
             border: "1px solid rgba(255,255,255,0.10)",
             borderRadius: "999px",
-            padding: "0 20px",           // increased to give breathing room
+            padding: "0 20px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
           }}
         >
-          {/* LOGO */}
-          <div
-            style={{
-              fontFamily: "var(--geist)",
-              fontWeight: 700,
-              fontSize: "16px",
-              color: "white",
-            }}
-          >
-            LUNAR
-          </div>
+          {/* ⭐ EXACT PERFECT LUNAR TEXT INSERTED HERE ⭐ */}
+          <Link to="/home" className="flex items-center select-none">
+            <div
+              className="flex items-center justify-center bg-transparent"
+              style={{ width: "48px", height: "24px" }}
+            >
+              <span
+                className="text-white font-bold tracking-wide"
+                style={{
+                  fontFamily: "'Geist Mono', monospace",
+                  fontSize: "16px",
+                  fontWeight: 700,
+                  lineHeight: "16px",
+                }}
+              >
+                LUNAR
+              </span>
+            </div>
+          </Link>
 
           {/* MENU */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "8px", // little bit of space between texts
+              gap: "10px", // slight gap between texts
             }}
           >
             {navItems.map((item) => {
@@ -137,20 +144,20 @@ export default function Navbar() {
                     color: active ? "#fff" : "rgba(255,255,255,0.78)",
                     fontFamily: "var(--geist)",
                     fontWeight: 500,
-                    fontSize: "16px",   // stronger text, not timid
+                    fontSize: "16px",
                     textDecoration: "none",
                     transition: "color 150ms ease",
                   }}
                 >
-                  {/* TRUE Lunar Inner Glow */}
+                  {/* TRUE INNER GLOW (not outside) */}
                   {active && (
                     <span
                       style={{
                         position: "absolute",
                         inset: 0,
                         borderRadius: "999px",
-                        background: "rgba(255,255,255,0.14)",  
-                        backdropFilter: "blur(10px)",          // perfect frosted effect
+                        background: "rgba(255,255,255,0.14)",
+                        backdropFilter: "blur(10px)",
                         zIndex: 0,
                       }}
                     />
