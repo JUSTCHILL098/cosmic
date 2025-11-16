@@ -1,81 +1,74 @@
-// src/components/navbar/Navbar.jsx
+// Navbar.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 /**
- * Lunar-style Navbar (compact)
- * - Small height (~46px)
- * - Tabs spread across the center (Layout C)
- * - Mascot floats ABOVE the active tab (positioned inside the nav container)
- * - Text-only tabs (no icons)
+ * Robust Lunar navbar: mascot positioned INSIDE navbar container to avoid jitter.
+ * - Mascot is absolutely positioned inside the nav (navRef) using offset inside nav.
+ * - Updates are throttled via requestAnimationFrame.
+ * - Active tab shows inner frosted pill (no outer glow).
  *
  * Requirements:
- * - framer-motion installed
- * - Geist Mono loaded in your app (your @font-face earlier)
- *
- * Paste this file as Navbar.jsx and import where needed.
+ * - framer-motion installed (or remove motion/AnimatePresence if you don't want it)
+ * - Geist Mono loaded in your app
  */
 
 const NAV_ITEMS = [
-  { name: "HOME", path: "/home" },
-  { name: "POPULAR", path: "/popular" },
-  { name: "MOVIE", path: "/movie" },
-  { name: "RANDOM", path: "/random" },
-  { name: "SHEDULE", path: "/shedule" },
+  { name: "Home", path: "/home" },
+  { name: "Features", path: "/features" },
+  { name: "Changelog", path: "/changelog" },
+  { name: "Contact", path: "/contact" },
+  { name: "View Animes", path: "/animes" },
 ];
 
 export default function Navbar() {
   const location = useLocation();
-  const navigate = useNavigate();
   const navRef = useRef(null);
   const itemRefs = useRef({});
   const rafRef = useRef(null);
 
-  // mascot left offset (px) inside navRef
+  // left offset in pixels inside navRef where mascot centers
   const [mascotLeft, setMascotLeft] = useState(null);
   const [mounted, setMounted] = useState(false);
   const [hovering, setHovering] = useState(null);
-  const activeName =
-    NAV_ITEMS.find((it) => it.path === location.pathname)?.name || NAV_ITEMS[0].name;
 
-  // constants for compact layout
-  const NAV_HEIGHT = 46; // px - small compact
-  const MASCOT_SIZE = 40; // px
-  const MASCOT_OFFSET_Y = -Math.round(MASCOT_SIZE / 2) + 8; // sits above the nav, adjusted so head not cut off
+  const activeItem = NAV_ITEMS.find((i) => i.path === location.pathname) || NAV_ITEMS[0];
 
-  // compute mascot position relative to nav container
-  function updateMascotPos(targetName = activeName) {
+  // Compute mascot position relative to nav container
+  function updateMascotPosition(targetName) {
     const navEl = navRef.current;
     if (!navEl) return;
-    const targetEl = itemRefs.current[targetName];
-    if (!targetEl) {
-      // fallback center
+
+    const target = itemRefs.current[targetName];
+    if (!target) {
+      // fallback: center
       setMascotLeft(navEl.clientWidth / 2);
       return;
     }
 
     const navRect = navEl.getBoundingClientRect();
-    const tRect = targetEl.getBoundingClientRect();
+    const tRect = target.getBoundingClientRect();
 
     // offset inside nav: (target.left - nav.left) + half target width
-    const offsetInsideNav = tRect.left - navRect.left + tRect.width / 2;
+    const offsetInsideNav = (tRect.left - navRect.left) + tRect.width / 2;
+
     setMascotLeft(offsetInsideNav);
   }
 
-  // throttle updates via requestAnimationFrame
-  function scheduleUpdate(name) {
+  // schedule update via RAF (throttle)
+  function scheduleUpdate(targetName = activeItem.name) {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => updateMascotPos(name));
+    rafRef.current = requestAnimationFrame(() => updateMascotPosition(targetName));
   }
 
   useEffect(() => {
     setMounted(true);
-    // initial placement shortly after mount
-    const id = setTimeout(() => scheduleUpdate(activeName), 60);
+    // initial placement after small delay so layout stable
+    const id = setTimeout(() => scheduleUpdate(activeItem.name), 60);
 
-    const onResize = () => scheduleUpdate(activeName);
-    const onScroll = () => scheduleUpdate(activeName);
+    const onResize = () => scheduleUpdate(activeItem.name);
+    const onScroll = () => scheduleUpdate(activeItem.name);
 
     window.addEventListener("resize", onResize);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -89,17 +82,16 @@ export default function Navbar() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // reposition when active route changes
+  // reposition when route changes (active tab changes)
   useEffect(() => {
-    scheduleUpdate(activeName);
+    scheduleUpdate(activeItem.name);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
-  // helper to navigate SPA
-  function goTo(path) {
-    // use React Router navigate to avoid full reload
-    navigate(path);
-  }
+  // small helper styling values
+  const NAV_HEIGHT = 66;     // px
+  const MASCOT_SIZE = 52;    // px (diameter)
+  const MASCOT_OFFSET_Y = -Math.round(MASCOT_SIZE / 2) + 8; // move slightly down so not cut off
 
   return (
     <>
@@ -110,30 +102,30 @@ export default function Navbar() {
       <nav
         ref={navRef}
         className="fixed left-0 right-0 z-[9999] flex justify-center select-none pointer-events-none"
-        style={{ top: 18 }}
+        style={{ top: 20 }}
       >
         <div
           className="pointer-events-auto"
           style={{
             width: "100%",
-            maxWidth: 720,
+            maxWidth: 700,
             height: NAV_HEIGHT,
-            marginTop: 20,
-            background: "rgba(0,0,0,0.60)",
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
+            marginTop: 24,
+            background: "rgba(0,0,0,0.62)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
             border: "1px solid rgba(255,255,255,0.10)",
             borderRadius: 999,
-            padding: "0 18px",
+            padding: "0 20px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            position: "relative", // mascot positioned relative to this container
-            boxShadow: "0 6px 20px rgba(0,0,0,0.45)",
+            position: "relative", // IMPORTANT: mascot positioned relative to this container
+            boxShadow: "0 6px 20px rgba(0,0,0,0.55)",
           }}
         >
-          {/* LEFT: LUNAR (exact block) */}
-          <Link to="/home" className="flex items-center select-none" onClick={(e) => e.preventDefault() || goTo("/home")}>
+          {/* LUNAR text (exact block) */}
+          <Link to="/home" className="flex items-center select-none" style={{ textDecoration: "none" }}>
             <div style={{ width: 48, height: 24 }} className="flex items-center justify-center">
               <span
                 style={{
@@ -156,50 +148,41 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* CENTER: spread tabs (Layout C) */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flex: 1,
-              gap: 8,
-              pointerEvents: "auto",
-            }}
-          >
+          {/* Menu items center */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, pointerEvents: "auto" }}>
             {NAV_ITEMS.map((it) => {
-              const isActive = it.name === activeName;
+              const isActive = it.name === activeItem.name;
               return (
-                <button
+                <a
                   key={it.name}
+                  href={it.path}
                   ref={(el) => (itemRefs.current[it.name] = el)}
-                  onClick={() => goTo(it.path)}
-                  onMouseEnter={() => {
-                    setHovering(it.name);
-                    // optional: show mascot wobble when hovering
+                  onClick={(e) => {
+                    e.preventDefault();
+                    // use location change via window for simplicity - adapt to your router if needed
+                    window.location.href = it.path;
                   }}
+                  onMouseEnter={() => setHovering(it.name)}
                   onMouseLeave={() => setHovering(null)}
                   style={{
                     position: "relative",
-                    padding: "8px 14px",
+                    padding: "10px 18px",
                     borderRadius: 999,
                     color: isActive ? "#fff" : "rgba(255,255,255,0.78)",
                     fontFamily: "var(--geist)",
                     fontWeight: 500,
-                    fontSize: 15.5,
-                    letterSpacing: "-0.2px",
+                    fontSize: 16,
                     textDecoration: "none",
                     transition: "color 140ms ease",
                     cursor: "pointer",
-                    background: "transparent",
                     zIndex: 2,
-                    minWidth: 60,
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
+                    gap: 8,
                   }}
                 >
-                  {/* inner frosted pill if active */}
+                  {/* inner frosted pill if active (no outer glow) */}
                   <AnimatePresence>
                     {isActive && (
                       <motion.span
@@ -222,28 +205,27 @@ export default function Navbar() {
                   </AnimatePresence>
 
                   <span style={{ position: "relative", zIndex: 3 }}>{it.name}</span>
-                </button>
+                </a>
               );
             })}
           </div>
 
-          {/* RIGHT spacer for symmetry (same width as left LUNAR block) */}
+          {/* right spacer to keep layout balanced */}
           <div style={{ width: 48 }} />
-
-          {/* Mascot inside nav container (absolute) */}
+          
+          {/* Mascot positioned INSIDE the nav container */}
           {mounted && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: mascotLeft === null ? 0 : 1 }}
-              transition={{ duration: 0.18 }}
+            <div
+              aria-hidden
               style={{
                 position: "absolute",
-                top: MASCOT_OFFSET_Y,
+                top: MASCOT_OFFSET_Y, // above the pill
                 left: mascotLeft !== null ? mascotLeft : "50%",
                 transform: "translateX(-50%)",
-                transition: "left 260ms cubic-bezier(.25,.8,.25,1), top 160ms ease",
+                transition: "left 260ms cubic-bezier(.25,.8,.25,1), top 160ms ease, opacity 180ms",
                 pointerEvents: "none",
                 zIndex: 2000,
+                opacity: mascotLeft === null ? 0 : 1,
                 width: MASCOT_SIZE,
                 height: MASCOT_SIZE,
                 display: "flex",
@@ -251,25 +233,22 @@ export default function Navbar() {
                 justifyContent: "center",
               }}
             >
-              <motion.div
-                animate={hovering === activeName ? { rotate: [0, -6, 6, 0], y: [0, -4, 0] } : { y: [0, -3, 0] }}
-                transition={hovering === activeName ? { duration: 0.6 } : { duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                style={{ width: 40, height: 40, borderRadius: 999, background: "#fff", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}
-              >
+              {/* Mascot (white face) */}
+              <div style={{ width: 40, height: 40, borderRadius: 999, background: "#fff", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 {/* eyes */}
                 <div style={{ width: 6, height: 6, borderRadius: 999, background: "#000", position: "absolute", left: "28%", top: "36%" }} />
                 <div style={{ width: 6, height: 6, borderRadius: 999, background: "#000", position: "absolute", right: "28%", top: "36%" }} />
                 {/* mouth */}
-                <svg viewBox="0 0 24 24" width="20" height="10" style={{ position: "absolute", bottom: "26%" }}>
+                <svg viewBox="0 0 24 24" width="20" height="10" style={{ position: "absolute", bottom: "28%" }}>
                   <path d="M8 6 Q12 9 16 6" stroke="#000" strokeWidth="1.6" strokeLinecap="round" fill="none" transform="scale(1,-1) translate(0,-12)" />
                 </svg>
-              </motion.div>
-
-              {/* pointer diamond */}
-              <div style={{ position: "absolute", bottom: -6, left: "50%", transform: "translateX(-50%)", width: 12, height: 12 }}>
-                <div style={{ width: "100%", height: "100%", background: "#fff", transform: "rotate(45deg)" }} />
               </div>
-            </motion.div>
+
+              {/* small pointer diamond under mascot */}
+              <div style={{ position: "absolute", bottom: -6, left: "50%", transform: "translateX(-50%)", width: 12, height: 12 }}>
+                <div style={{ width: "100%", height: "100%", background: "#fff", transform: "rotate(45deg)", margin: 0 }} />
+              </div>
+            </div>
           )}
         </div>
       </nav>
