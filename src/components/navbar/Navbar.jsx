@@ -17,7 +17,7 @@ export default function Navbar() {
 
   function moveDollTo(el) {
     if (!el || !navRef.current) {
-      setDollStyle({ ...dollStyle, opacity: 0 });
+      setDollStyle((s) => ({ ...s, opacity: 0 }));
       return;
     }
 
@@ -26,12 +26,12 @@ export default function Navbar() {
 
     const centerX = rect.left + rect.width / 2 + window.scrollX;
 
-    // LOWERED MORE SO IT'S FULLY VISIBLE
-    const top = navRect.top + window.scrollY + 12;
+    // BIGGER DOLL + LOWERED PROPERLY
+    const top = navRect.top + window.scrollY + 6;
 
     setDollStyle({
       left: centerX,
-      top: top,
+      top,
       opacity: 1,
     });
   }
@@ -39,6 +39,7 @@ export default function Navbar() {
   useEffect(() => {
     let active = navItems.find((i) => i.path === location.pathname) || navItems[0];
     const el = menuRefs.current[active.name];
+
     requestAnimationFrame(() => moveDollTo(el));
 
     const onResize = () => moveDollTo(el);
@@ -54,30 +55,31 @@ export default function Navbar() {
   return (
     <>
       <style>{`
-        :root { --geist: 'Geist Mono', 'Geist Mono Fallback', monospace; }
+        :root { --geist: "Geist Mono", "Geist Mono Fallback", monospace; }
       `}</style>
 
-      {/* DOLL */}
+      {/* DOLL (BIG + CENTERED + NOT CUT OFF) */}
       <div
         style={{
           position: "absolute",
           left: dollStyle.left,
           top: dollStyle.top,
           transform: "translateX(-50%)",
-          transition: "left 280ms cubic-bezier(.25,.8,.25,1), top 180ms ease, opacity 200ms",
+          transition: "left 260ms cubic-bezier(.25,.8,.25,1), top 160ms ease",
           pointerEvents: "none",
           zIndex: 200002,
           opacity: dollStyle.opacity,
         }}
       >
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" fill="#ffffff" />
-          <circle cx="9" cy="10" r="1.3" fill="#000000" />
-          <circle cx="15" cy="10" r="1.3" fill="#000000" />
-          <path d="M8 15 Q12 18 16 15" stroke="#000" strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" fill="#fff" />
+          <circle cx="9" cy="10" r="1.4" fill="#000" />
+          <circle cx="15" cy="10" r="1.4" fill="#000" />
+          <path d="M8 15 Q12 18 16 15" stroke="#000" strokeWidth="1.7" strokeLinecap="round" />
         </svg>
       </div>
 
+      {/* NAVBAR */}
       <nav
         ref={navRef}
         className="fixed left-0 right-0 flex justify-center select-none"
@@ -86,25 +88,25 @@ export default function Navbar() {
         <div
           style={{
             width: "100%",
-            maxWidth: "760px",
+            maxWidth: "680px",   // SMALLER WIDTH
             height: "60px",
-            margin: "24px auto 0 auto",
+            marginTop: "24px",
             background: "rgba(0,0,0,0.60)",
             backdropFilter: "blur(12px)",
             border: "1px solid rgba(255,255,255,0.10)",
             borderRadius: "999px",
-            boxShadow: "0 6px 20px rgba(0,0,0,0.50)",
-            padding: "0 24px",
+            padding: "0 20px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            boxShadow: "0 6px 20px rgba(0,0,0,0.5)",
           }}
         >
           {/* LUNAR */}
           <div
             style={{
               fontFamily: "var(--geist)",
-              fontWeight: 700,   // FIXED
+              fontWeight: 700,   // YOU REQUESTED 700
               fontSize: "16px",
               color: "#fff",
             }}
@@ -112,13 +114,12 @@ export default function Navbar() {
             LUNAR
           </div>
 
-          {/* MENU */}
+          {/* MENU (tight spacing, no padding/margin) */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "16px",
-              marginLeft: "8px",
+              gap: "10px",   // TIGHT LIKE BEFORE
             }}
           >
             {navItems.map((item) => {
@@ -132,7 +133,7 @@ export default function Navbar() {
                   onClick={() => moveDollTo(menuRefs.current[item.name])}
                   style={{
                     position: "relative",
-                    padding: "12px 24px",
+                    padding: "8px 14px",  // natural small Lunar paddings
                     borderRadius: "999px",
                     color: active ? "#fff" : "rgba(255,255,255,0.80)",
                     fontFamily: "var(--geist)",
@@ -159,7 +160,6 @@ export default function Navbar() {
               );
             })}
           </div>
-
         </div>
       </nav>
     </>
