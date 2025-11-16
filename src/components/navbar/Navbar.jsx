@@ -37,10 +37,10 @@ function Navbar() {
 
   return (
     <SearchProvider>
-      {/* Import Geist Mono Bold 700 font */}
+      {/* Import Staatliches Regular font (This highly resembles the "LUNAR" text) */}
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Staatliches&display=swap');
         `}
       </style>
 
@@ -71,8 +71,8 @@ function Navbar() {
                   <span
                     className="text-white text-[22px] font-bold tracking-wide mt-1" 
                     style={{
-                      // CHANGED FONT FAMILY TO GEIST MONO
-                      fontFamily: "'Geist Mono', monospace",
+                      // CHANGED FONT FAMILY TO STAATLICIES to match the blocky, wide style of "LUNAR"
+                      fontFamily: "'Staatliches', sans-serif",
                     }}
                   >
                     KAITO
