@@ -1,174 +1,88 @@
-import { useState, useEffect } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faBars,
-  faRandom,
-  faMagnifyingGlass,
-  faXmark,
-  faFilm,
-  faFire,
-} from "@fortawesome/free-solid-svg-icons";
-import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
-import { useLanguage } from "@/src/context/LanguageContext";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import Sidebar from "../sidebar/Sidebar";
-import { SearchProvider } from "@/src/context/SearchContext";
-import WebSearch from "../searchbar/WebSearch";
-import MobileSearch from "../searchbar/MobileSearch";
 
 export default function Navbar() {
   const location = useLocation();
-  const { language, toggleLanguage } = useLanguage();
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 0);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const navItems = [
+    { name: "Home", path: "/home" },
+    { name: "Features", path: "/features" },
+    { name: "Changelog", path: "/changelog" },
+    { name: "Contact", path: "/contact" },
+    { name: "View Animes", path: "/animes" },
+  ];
 
   return (
-    <SearchProvider>
+    <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
       `}</style>
 
-      <nav className="fixed left-0 right-0 top-4 z-[200000] select-none">
-        <div className="flex justify-center px-4">
-
-          {/* Adjusted height, padding, shadow, blur */}
+      <nav className="fixed top-6 left-0 right-0 flex justify-center z-[99999] select-none">
+        <div
+          className="
+            w-full max-w-[1150px] 
+            h-[56px] 
+            bg-black/60 
+            backdrop-blur-xl
+            border border-white/10
+            rounded-full 
+            flex items-center justify-between 
+            px-6
+            shadow-[0_0_25px_rgba(0,0,0,0.6)]
+          "
+        >
+          {/* LEFT: LUNAR */}
           <div
-            className={`
-              w-full max-w-[900px] h-[64px]  /* INCREASED height */
-              rounded-full border border-white/10
-              shadow-[0_0_35px_rgba(0,0,0,0.8)]
-              flex items-center justify-between
-              transition-all duration-300 px-6  /* a little more horizontal padding */
-              ${isScrolled
-                ? "bg-black/90 backdrop-blur-2xl scale-[0.985]"
-                : "bg-black/75 backdrop-blur-xl scale-100"
-              }
-            `}
+            className="font-semibold text-white tracking-wide"
+            style={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "17px",
+            }}
           >
-            <div className="flex items-center justify-between w-full">
+            LUNAR
+          </div>
 
-              {/* LEFT */}
-              <div className="flex items-center gap-[8px]">  {/* slightly more gap */}
-                
-                {/* Hamburger */}
-                <button
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="w-[36px] h-[36px] flex items-center justify-center text-white/80 hover:text-white transition"
+          {/* CENTER MENU */}
+          <div className="flex items-center gap-5 mx-auto">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path;
+
+              return (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  className={`
+                    relative px-4 py-1 rounded-full transition
+                    text-white/80 hover:text-white
+                    ${isActive ? "text-white" : ""}
+                  `}
+                  style={{ fontFamily: "Inter, sans-serif", fontSize: "15px" }}
                 >
-                  <FontAwesomeIcon icon={faBars} className="text-[18px]" />
-                </button>
-
-                {/* Logo 48×24 */}
-                <Link to="/home" className="flex items-center">
-                  <div
-                    className="flex items-center justify-center"
-                    style={{ width: 48, height: 24 }}
-                  >
+                  {/* Active tab pill */}
+                  {isActive && (
                     <span
-                      className="text-white font-bold tracking-[0.5px]"
-                      style={{
-                        fontFamily: "'Geist Mono', monospace",
-                        fontSize: 16,
-                        lineHeight: "16px",
-                      }}
-                    >
-                      LUNAR
-                    </span>
-                  </div>
+                      className="
+                        absolute inset-0 
+                        bg-white/10 
+                        backdrop-blur-sm 
+                        rounded-full
+                      "
+                    ></span>
+                  )}
+
+                  <span className={isActive ? "relative z-10" : ""}>
+                    {item.name}
+                  </span>
                 </Link>
-
-                {/* Discord */}
-                <a
-                  href="#"
-                  className="hidden sm:flex w-[36px] h-[36px] items-center justify-center text-white/80 hover:text-[#5865F2] transition"
-                >
-                  <FontAwesomeIcon icon={faDiscord} className="text-[18px]" />
-                </a>
-
-                {/* Telegram */}
-                <a
-                  href="#"
-                  className="hidden sm:flex w-[36px] h-[36px] items-center justify-center text-white/80 hover:text-[#229ED9] transition"
-                >
-                  <FontAwesomeIcon icon={faTelegram} className="text-[18px]" />
-                </a>
-
-                {/* Search (desktop) */}
-                <div className="hidden md:flex w-[170px] max-w-[170px] ml-[6px]">
-                  <WebSearch />
-                </div>
-              </div>
-
-              {/* RIGHT */}
-              <div className="flex items-center gap-[5px]">  {/* tighter gap */}
-                
-                <Link
-                  to={location.pathname === "/random" ? "#" : "/random"}
-                  onClick={() => location.pathname === "/random" && window.location.reload()}
-                  className="w-[36px] h-[36px] flex items-center justify-center text-white/80 hover:text-white transition"
-                >
-                  <FontAwesomeIcon icon={faRandom} className="text-[18px]" />
-                </Link>
-
-                <Link
-                  to="/movie"
-                  className="hidden sm:flex w-[36px] h-[36px] items-center justify-center text-white/80 hover:text-white transition"
-                >
-                  <FontAwesomeIcon icon={faFilm} className="text-[18px]" />
-                </Link>
-
-                <Link
-                  to="/most-popular"
-                  className="hidden sm:flex w-[36px] h-[36px] items-center justify-center text-white/80 hover:text-orange-400 transition"
-                >
-                  <FontAwesomeIcon icon={faFire} className="text-[18px]" />
-                </Link>
-
-                <div className="hidden md:flex items-center gap-[4px] bg-[#1f1f1f] rounded-md p-[2px] border border-[#2a2a2a] ml-[4px]">
-                  {["EN", "JP"].map((lang) => (
-                    <button
-                      key={lang}
-                      onClick={() => toggleLanguage(lang)}
-                      className={`px-2 py-[2px] text-sm rounded transition leading-none ${
-                        language === lang ? "bg-[#2a2a2a] text-white" : "text-gray-400 hover:text-white"
-                      }`}
-                    >
-                      {lang}
-                    </button>
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-                  className="md:hidden w-[36px] h-[36px] flex items-center justify-center text-white/70 hover:text-white transition"
-                >
-                  <FontAwesomeIcon
-                    icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
-                    className="text-[18px] transition-transform duration-200"
-                    style={{ transform: isMobileSearchOpen ? "rotate(90deg)" : "rotate(0deg)" }}
-                  />
-                </button>
-              </div>
-            </div>
+              );
+            })}
           </div>
+
+          {/* EMPTY right side (for perfect centering like screenshot) */}
+          <div className="w-[60px]"></div>
         </div>
-
-        {/* MOBILE SEARCH DROPDOWN */}
-        {isMobileSearchOpen && (
-          <div className="md:hidden mx-4 mt-2 bg-black/90 backdrop-blur-xl rounded-xl shadow-lg border border-white/10 p-2">
-            <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
-          </div>
-        )}
-
-        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       </nav>
-    </SearchProvider>
+    </>
   );
 }
