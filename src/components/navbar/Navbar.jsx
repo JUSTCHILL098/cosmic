@@ -1,250 +1,278 @@
-// LunarNavbar.jsx
-import React, { useState, useEffect } from "react";
+// src/components/navbar/Navbar.jsx
+import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
-// SVG mascot used by the real LunarAnime navbar
-function Mascot({ hovering }) {
-  return (
-    <div className="relative w-12 h-12">
-      <motion.div
-        className="absolute w-10 h-10 bg-white rounded-full left-1/2 -translate-x-1/2"
-        animate={
-          hovering
-            ? { scale: [1, 1.1, 1], rotate: [0, -5, 5, 0] }
-            : { y: [0, -3, 0] }
-        }
-        transition={
-          hovering
-            ? { duration: 0.5, ease: "easeInOut" }
-            : { duration: 2, repeat: Infinity, ease: "easeInOut" }
-        }
-      >
-        {/* EYES */}
-        <motion.div
-          className="absolute w-2 h-2 bg-black rounded-full"
-          style={{ left: "25%", top: "40%" }}
-          animate={
-            hovering
-              ? { scaleY: [1, 0.2, 1] }
-              : {}
-          }
-        />
-        <motion.div
-          className="absolute w-2 h-2 bg-black rounded-full"
-          style={{ right: "25%", top: "40%" }}
-          animate={
-            hovering
-              ? { scaleY: [1, 0.2, 1] }
-              : {}
-          }
-        />
+/**
+ * Lunar-style Navbar (compact)
+ * - Small height (~46px)
+ * - Tabs spread across the center (Layout C)
+ * - Mascot floats ABOVE the active tab (positioned inside the nav container)
+ * - Text-only tabs (no icons)
+ *
+ * Requirements:
+ * - framer-motion installed
+ * - Geist Mono loaded in your app (your @font-face earlier)
+ *
+ * Paste this file as Navbar.jsx and import where needed.
+ */
 
-        {/* Blush */}
-        <motion.div
-          className="absolute w-2 h-1.5 bg-pink-300 rounded-full"
-          style={{ left: "15%", top: "55%" }}
-          animate={{ opacity: hovering ? 0.8 : 0.6 }}
-        />
-        <motion.div
-          className="absolute w-2 h-1.5 bg-pink-300 rounded-full"
-          style={{ right: "15%", top: "55%" }}
-          animate={{ opacity: hovering ? 0.8 : 0.6 }}
-        />
+const NAV_ITEMS = [
+  { name: "HOME", path: "/home" },
+  { name: "POPULAR", path: "/popular" },
+  { name: "MOVIE", path: "/movie" },
+  { name: "RANDOM", path: "/random" },
+  { name: "SHEDULE", path: "/shedule" },
+];
 
-        {/* Mouth */}
-        <motion.div
-          className="absolute w-4 h-2 border-b-2 border-black rounded-full"
-          style={{ left: "30%", top: "60%" }}
-          animate={
-            hovering
-              ? { scaleY: 1.5, y: -1 }
-              : { scaleY: 1, y: 0 }
-          }
-        />
+export default function Navbar() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const navRef = useRef(null);
+  const itemRefs = useRef({});
+  const rafRef = useRef(null);
 
-        {/* Sparkles when hovering */}
-        <AnimatePresence>
-          {hovering && (
-            <>
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0 }}
-                className="absolute -top-1 -right-1 w-2 h-2 text-yellow-300"
-              >
-                ✨
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0 }}
-                transition={{ delay: 0.1 }}
-                className="absolute -top-2 left-0 w-2 h-2 text-yellow-300"
-              >
-                ✨
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
-      </motion.div>
-
-      {/* Pointer diamond under mascot */}
-      <motion.div
-        className="absolute -bottom-1 left-1/2 w-4 h-4 -translate-x-1/2"
-        animate={
-          hovering
-            ? { y: [0, -4, 0], transition: { duration: 0.3, repeat: Infinity, repeatType: "reverse" } }
-            : { y: [0, 2, 0], transition: { duration: 1, repeat: Infinity, ease: "easeInOut", delay: 0.5 } }
-        }
-      >
-        <div className="w-full h-full bg-white rotate-45" />
-      </motion.div>
-    </div>
-  );
-}
-
-export default function LunarNavbar() {
-  const items = [
-    { name: "Home", url: "/home" },
-    { name: "Features", url: "/features" },
-    { name: "Changelog", url: "/changelog" },
-    { name: "Contact", url: "/contact" },
-    { name: "View Anime", url: "/view-anime" },
-  ];
-
-  const [active, setActive] = useState("Home");
+  // mascot left offset (px) inside navRef
+  const [mascotLeft, setMascotLeft] = useState(null);
+  const [mounted, setMounted] = useState(false);
   const [hovering, setHovering] = useState(null);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const activeName =
+    NAV_ITEMS.find((it) => it.path === location.pathname)?.name || NAV_ITEMS[0].name;
+
+  // constants for compact layout
+  const NAV_HEIGHT = 46; // px - small compact
+  const MASCOT_SIZE = 40; // px
+  const MASCOT_OFFSET_Y = -Math.round(MASCOT_SIZE / 2) + 8; // sits above the nav, adjusted so head not cut off
+
+  // compute mascot position relative to nav container
+  function updateMascotPos(targetName = activeName) {
+    const navEl = navRef.current;
+    if (!navEl) return;
+    const targetEl = itemRefs.current[targetName];
+    if (!targetEl) {
+      // fallback center
+      setMascotLeft(navEl.clientWidth / 2);
+      return;
+    }
+
+    const navRect = navEl.getBoundingClientRect();
+    const tRect = targetEl.getBoundingClientRect();
+
+    // offset inside nav: (target.left - nav.left) + half target width
+    const offsetInsideNav = tRect.left - navRect.left + tRect.width / 2;
+    setMascotLeft(offsetInsideNav);
+  }
+
+  // throttle updates via requestAnimationFrame
+  function scheduleUpdate(name) {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => updateMascotPos(name));
+  }
+
+  useEffect(() => {
+    setMounted(true);
+    // initial placement shortly after mount
+    const id = setTimeout(() => scheduleUpdate(activeName), 60);
+
+    const onResize = () => scheduleUpdate(activeName);
+    const onScroll = () => scheduleUpdate(activeName);
+
+    window.addEventListener("resize", onResize);
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      clearTimeout(id);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("scroll", onScroll);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // reposition when active route changes
+  useEffect(() => {
+    scheduleUpdate(activeName);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
+  // helper to navigate SPA
+  function goTo(path) {
+    // use React Router navigate to avoid full reload
+    navigate(path);
+  }
 
   return (
     <>
       <style>{`
-        :root { --geist: 'Geist Mono', monospace; }
+        :root { --geist: 'Geist Mono', 'Geist Mono Fallback', monospace; }
       `}</style>
 
-      <div className="fixed left-0 right-0 top-5 z-[9999] flex justify-center select-none pointer-events-none">
-        <div className="flex justify-center pointer-events-auto pt-6">
-          <motion.div
-            className="flex items-center gap-3 bg-black/50 border border-white/10 backdrop-blur-lg shadow-lg w-auto py-2 px-2 rounded-full"
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          >
-            {/* Mascot Left */}
-            <motion.div
-              animate={
-                hovering
-                  ? { y: [0, -5, 0], rotate: [0, 5, 0, -5, 0] }
-                  : { y: [0, -5, 0] }
-              }
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
-            >
-              <Mascot hovering={hovering} />
-            </motion.div>
-
-            {/* LUNAR text EXACT */}
-            <span
-              className="font-bold text-base sm:text-lg text-white"
-              style={{
-                fontFamily: "var(--geist)",
-                fontWeight: 700,
-                letterSpacing: "-0.6px",
-                fontVariationSettings: "'wght' 700'",
-              }}
-            >
-              LUNAR
-            </span>
-
-            {/* Desktop items */}
-            <div className="hidden md:flex items-center space-x-2 ml-3">
-              {items.map((item) => {
-                const isActive = item.name === active;
-                const isHover = hovering === item.name;
-
-                return (
-                  <motion.a
-                    key={item.name}
-                    href={item.url}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setActive(item.name);
-                      window.location.href = item.url;
-                    }}
-                    onMouseEnter={() => setHovering(item.name)}
-                    onMouseLeave={() => setHovering(null)}
-                    className="relative cursor-pointer text-sm font-semibold px-6 py-3 rounded-full transition-all duration-300 text-white/70 hover:text-white"
-                  >
-                    {/* Active glowing pill */}
-                    <AnimatePresence>
-                      {isActive && (
-                        <motion.div
-                          layoutId="active-pill"
-                          className="absolute inset-0 rounded-full -z-10 overflow-hidden"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                        >
-                          <div className="absolute inset-0 bg-white/15 rounded-full blur-md" />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    <motion.span
-                      className="relative z-10"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {item.name}
-                    </motion.span>
-                  </motion.a>
-                );
-              })}
-            </div>
-
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden text-white p-1.5"
-            >
-              {mobileOpen ? "✖" : "☰"}
-            </button>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Mobile slide menu */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ type: "spring", stiffness: 260, damping: 22 }}
-            className="fixed inset-x-4 top-24 z-[9998] rounded-2xl bg-black/95 backdrop-blur-xl border border-white/20 shadow-2xl p-4 md:hidden"
-          >
-            {items.map((item) => (
-              <a
-                key={item.name}
-                href={item.url}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setActive(item.name);
-                  window.location.href = item.url;
+      <nav
+        ref={navRef}
+        className="fixed left-0 right-0 z-[9999] flex justify-center select-none pointer-events-none"
+        style={{ top: 18 }}
+      >
+        <div
+          className="pointer-events-auto"
+          style={{
+            width: "100%",
+            maxWidth: 720,
+            height: NAV_HEIGHT,
+            marginTop: 20,
+            background: "rgba(0,0,0,0.60)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            border: "1px solid rgba(255,255,255,0.10)",
+            borderRadius: 999,
+            padding: "0 18px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            position: "relative", // mascot positioned relative to this container
+            boxShadow: "0 6px 20px rgba(0,0,0,0.45)",
+          }}
+        >
+          {/* LEFT: LUNAR (exact block) */}
+          <Link to="/home" className="flex items-center select-none" onClick={(e) => e.preventDefault() || goTo("/home")}>
+            <div style={{ width: 48, height: 24 }} className="flex items-center justify-center">
+              <span
+                style={{
+                  fontFamily: "var(--geist)",
+                  fontSize: 16,
+                  lineHeight: "16px",
+                  fontWeight: 700,
+                  fontVariationSettings: "'wght' 700",
+                  letterSpacing: "-0.6px",
+                  WebkitFontSmoothing: "antialiased",
+                  MozOsxFontSmoothing: "grayscale",
+                  textRendering: "optimizeLegibility",
+                  transform: "translateY(0.4px)",
+                  color: "#fff",
+                  display: "inline-block",
                 }}
-                className="block px-4 py-3 rounded-lg text-white/80 hover:text-white hover:bg-white/10"
               >
-                {item.name}
-              </a>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+                LUNAR
+              </span>
+            </div>
+          </Link>
+
+          {/* CENTER: spread tabs (Layout C) */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flex: 1,
+              gap: 8,
+              pointerEvents: "auto",
+            }}
+          >
+            {NAV_ITEMS.map((it) => {
+              const isActive = it.name === activeName;
+              return (
+                <button
+                  key={it.name}
+                  ref={(el) => (itemRefs.current[it.name] = el)}
+                  onClick={() => goTo(it.path)}
+                  onMouseEnter={() => {
+                    setHovering(it.name);
+                    // optional: show mascot wobble when hovering
+                  }}
+                  onMouseLeave={() => setHovering(null)}
+                  style={{
+                    position: "relative",
+                    padding: "8px 14px",
+                    borderRadius: 999,
+                    color: isActive ? "#fff" : "rgba(255,255,255,0.78)",
+                    fontFamily: "var(--geist)",
+                    fontWeight: 500,
+                    fontSize: 15.5,
+                    letterSpacing: "-0.2px",
+                    textDecoration: "none",
+                    transition: "color 140ms ease",
+                    cursor: "pointer",
+                    background: "transparent",
+                    zIndex: 2,
+                    minWidth: 60,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {/* inner frosted pill if active */}
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.span
+                        layoutId="active-pill"
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.98 }}
+                        transition={{ type: "spring", stiffness: 260, damping: 30 }}
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          borderRadius: 999,
+                          background: "rgba(255,255,255,0.14)",
+                          backdropFilter: "blur(8px)",
+                          WebkitBackdropFilter: "blur(8px)",
+                          zIndex: 0,
+                        }}
+                      />
+                    )}
+                  </AnimatePresence>
+
+                  <span style={{ position: "relative", zIndex: 3 }}>{it.name}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* RIGHT spacer for symmetry (same width as left LUNAR block) */}
+          <div style={{ width: 48 }} />
+
+          {/* Mascot inside nav container (absolute) */}
+          {mounted && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: mascotLeft === null ? 0 : 1 }}
+              transition={{ duration: 0.18 }}
+              style={{
+                position: "absolute",
+                top: MASCOT_OFFSET_Y,
+                left: mascotLeft !== null ? mascotLeft : "50%",
+                transform: "translateX(-50%)",
+                transition: "left 260ms cubic-bezier(.25,.8,.25,1), top 160ms ease",
+                pointerEvents: "none",
+                zIndex: 2000,
+                width: MASCOT_SIZE,
+                height: MASCOT_SIZE,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <motion.div
+                animate={hovering === activeName ? { rotate: [0, -6, 6, 0], y: [0, -4, 0] } : { y: [0, -3, 0] }}
+                transition={hovering === activeName ? { duration: 0.6 } : { duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                style={{ width: 40, height: 40, borderRadius: 999, background: "#fff", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                {/* eyes */}
+                <div style={{ width: 6, height: 6, borderRadius: 999, background: "#000", position: "absolute", left: "28%", top: "36%" }} />
+                <div style={{ width: 6, height: 6, borderRadius: 999, background: "#000", position: "absolute", right: "28%", top: "36%" }} />
+                {/* mouth */}
+                <svg viewBox="0 0 24 24" width="20" height="10" style={{ position: "absolute", bottom: "26%" }}>
+                  <path d="M8 6 Q12 9 16 6" stroke="#000" strokeWidth="1.6" strokeLinecap="round" fill="none" transform="scale(1,-1) translate(0,-12)" />
+                </svg>
+              </motion.div>
+
+              {/* pointer diamond */}
+              <div style={{ position: "absolute", bottom: -6, left: "50%", transform: "translateX(-50%)", width: 12, height: 12 }}>
+                <div style={{ width: "100%", height: "100%", background: "#fff", transform: "rotate(45deg)" }} />
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </nav>
     </>
   );
 }
