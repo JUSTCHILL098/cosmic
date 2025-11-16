@@ -26,8 +26,7 @@ export default function Navbar() {
 
     const centerX = rect.left + rect.width / 2 + window.scrollX;
 
-    // Doll — big + lowered
-    const top = navRect.top + window.scrollY + 6;
+    const top = navRect.top + window.scrollY + 8; // lowered 2px more
 
     setDollStyle({
       left: centerX,
@@ -42,13 +41,13 @@ export default function Navbar() {
 
     requestAnimationFrame(() => moveDollTo(el));
 
-    const onResize = () => moveDollTo(el);
-    window.addEventListener("resize", onResize);
-    window.addEventListener("scroll", onResize);
+    const update = () => moveDollTo(el);
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update);
 
     return () => {
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("scroll", onResize);
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update);
     };
   }, [location.pathname]);
 
@@ -68,16 +67,16 @@ export default function Navbar() {
           left: dollStyle.left,
           top: dollStyle.top,
           transform: "translateX(-50%)",
-          transition: "left 260ms cubic-bezier(.25,.8,.25,1), top 160ms ease",
+          transition: "left 230ms cubic-bezier(.25,.8,.25,1), top 150ms ease",
           pointerEvents: "none",
           zIndex: 200002,
           opacity: dollStyle.opacity,
         }}
       >
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="10" fill="#fff" />
-          <circle cx="9" cy="10" r="1.4" fill="#000" />
-          <circle cx="15" cy="10" r="1.4" fill="#000" />
+          <circle cx="9" cy="10" r="1.5" fill="#000" />
+          <circle cx="15" cy="10" r="1.5" fill="#000" />
           <path d="M8 15 Q12 18 16 15" stroke="#000" strokeWidth="1.7" strokeLinecap="round" />
         </svg>
       </div>
@@ -91,7 +90,7 @@ export default function Navbar() {
         <div
           style={{
             width: "100%",
-            maxWidth: "660px",   // SMALLER TIGHT WIDTH
+            maxWidth: "620px", // MUCH SMALLER WIDTH
             height: "60px",
             marginTop: "24px",
             background: "rgba(0,0,0,0.60)",
@@ -102,18 +101,16 @@ export default function Navbar() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            boxShadow: "0 6px 20px rgba(0,0,0,0.5)",
           }}
         >
-          
-          {/* LOGO "KAITO" / "LUNAR" — tighter spacing */}
+          {/* LOGO KAITO – tighter spacing */}
           <div
             style={{
               fontFamily: "var(--geist)",
               fontWeight: 700,
-              fontSize: "16px",
+              fontSize: "17px",
               color: "#fff",
-              marginRight: "6px",   // SUPER TIGHT (no big gap)
+              marginRight: "2px", // SUPER TIGHT (2px)
             }}
           >
             LUNAR
@@ -124,7 +121,8 @@ export default function Navbar() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "6px",   // TIGHT LIKE LUNAR
+              gap: "4px", // ULTRA TIGHT (4px)
+              marginLeft: "auto", // pushes menu RIGHT
             }}
           >
             {navItems.map((item) => {
@@ -138,41 +136,28 @@ export default function Navbar() {
                   onClick={() => moveDollTo(menuRefs.current[item.name])}
                   style={{
                     position: "relative",
-                    padding: "8px 14px",
+                    padding: "8px 16px",
                     borderRadius: "999px",
-                    color: active ? "#fff" : "rgba(255,255,255,0.78)",
+                    color: active ? "#fff" : "rgba(255,255,255,0.75)",
                     fontFamily: "var(--geist)",
-                    fontWeight: 400,
-                    fontSize: "14px",
+                    fontWeight: 500, // STRONG text
+                    fontSize: "15.5px", // larger & more powerful
                     textDecoration: "none",
                     transition: "color 150ms ease",
                   }}
                 >
-                  {/* ACTIVE GLOW like LunarAnime */}
+                  {/* ACTIVE INNER GLOW ONLY */}
                   {active && (
-                    <>
-                      <span
-                        style={{
-                          position: "absolute",
-                          inset: 0,
-                          borderRadius: "999px",
-                          background: "rgba(255,255,255,0.10)",
-                          backdropFilter: "blur(6px)",
-                          zIndex: 0,
-                        }}
-                      />
-
-                      {/* Subtle outer glow */}
-                      <span
-                        style={{
-                          position: "absolute",
-                          inset: 0,
-                          borderRadius: "999px",
-                          boxShadow: "0 0 12px rgba(255,255,255,0.35)",
-                          zIndex: 0,
-                        }}
-                      />
-                    </>
+                    <span
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        borderRadius: "999px",
+                        background: "rgba(255,255,255,0.15)",
+                        backdropFilter: "blur(8px)",
+                        zIndex: 0,
+                      }}
+                    />
                   )}
 
                   <span style={{ position: "relative", zIndex: 1 }}>{item.name}</span>
