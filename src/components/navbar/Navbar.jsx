@@ -106,11 +106,11 @@ export default function Navbar() {
             style={{
               fontFamily: "var(--geist)",
               fontWeight: 700,
-              fontSize: "17.5px",
+              fontSize: "16px",
               color: "white",
             }}
           >
-            KAITO
+            LUNAR
           </div>
 
           {/* MENU */}
