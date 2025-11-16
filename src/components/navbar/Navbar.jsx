@@ -26,7 +26,7 @@ export default function Navbar() {
 
     const centerX = rect.left + rect.width / 2 + window.scrollX;
 
-    // BIGGER DOLL + LOWERED PROPERLY
+    // Doll — big + lowered
     const top = navRect.top + window.scrollY + 6;
 
     setDollStyle({
@@ -54,11 +54,14 @@ export default function Navbar() {
 
   return (
     <>
-      <style>{`
-        :root { --geist: "Geist Mono", "Geist Mono Fallback", monospace; }
-      `}</style>
+      {/* FONT */}
+      <style>
+        {`
+          :root { --geist: "Geist Mono", "Geist Mono Fallback", monospace; }
+        `}
+      </style>
 
-      {/* DOLL (BIG + CENTERED + NOT CUT OFF) */}
+      {/* DOLL */}
       <div
         style={{
           position: "absolute",
@@ -88,38 +91,40 @@ export default function Navbar() {
         <div
           style={{
             width: "100%",
-            maxWidth: "680px",   // SMALLER WIDTH
+            maxWidth: "660px",   // SMALLER TIGHT WIDTH
             height: "60px",
             marginTop: "24px",
             background: "rgba(0,0,0,0.60)",
             backdropFilter: "blur(12px)",
             border: "1px solid rgba(255,255,255,0.10)",
             borderRadius: "999px",
-            padding: "0 20px",
+            padding: "0 16px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             boxShadow: "0 6px 20px rgba(0,0,0,0.5)",
           }}
         >
-          {/* LUNAR */}
+          
+          {/* LOGO "KAITO" / "LUNAR" — tighter spacing */}
           <div
             style={{
               fontFamily: "var(--geist)",
-              fontWeight: 700,   // YOU REQUESTED 700
+              fontWeight: 700,
               fontSize: "16px",
               color: "#fff",
+              marginRight: "6px",   // SUPER TIGHT (no big gap)
             }}
           >
             LUNAR
           </div>
 
-          {/* MENU (tight spacing, no padding/margin) */}
+          {/* MENU */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "10px",   // TIGHT LIKE BEFORE
+              gap: "6px",   // TIGHT LIKE LUNAR
             }}
           >
             {navItems.map((item) => {
@@ -133,9 +138,9 @@ export default function Navbar() {
                   onClick={() => moveDollTo(menuRefs.current[item.name])}
                   style={{
                     position: "relative",
-                    padding: "8px 14px",  // natural small Lunar paddings
+                    padding: "8px 14px",
                     borderRadius: "999px",
-                    color: active ? "#fff" : "rgba(255,255,255,0.80)",
+                    color: active ? "#fff" : "rgba(255,255,255,0.78)",
                     fontFamily: "var(--geist)",
                     fontWeight: 400,
                     fontSize: "14px",
@@ -143,18 +148,33 @@ export default function Navbar() {
                     transition: "color 150ms ease",
                   }}
                 >
+                  {/* ACTIVE GLOW like LunarAnime */}
                   {active && (
-                    <span
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        borderRadius: "999px",
-                        background: "rgba(255,255,255,0.08)",
-                        backdropFilter: "blur(4px)",
-                        zIndex: 0,
-                      }}
-                    />
+                    <>
+                      <span
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          borderRadius: "999px",
+                          background: "rgba(255,255,255,0.10)",
+                          backdropFilter: "blur(6px)",
+                          zIndex: 0,
+                        }}
+                      />
+
+                      {/* Subtle outer glow */}
+                      <span
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          borderRadius: "999px",
+                          boxShadow: "0 0 12px rgba(255,255,255,0.35)",
+                          zIndex: 0,
+                        }}
+                      />
+                    </>
                   )}
+
                   <span style={{ position: "relative", zIndex: 1 }}>{item.name}</span>
                 </Link>
               );
