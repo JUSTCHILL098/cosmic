@@ -37,10 +37,10 @@ function Navbar() {
 
   return (
     <SearchProvider>
-      {/* Import Staatliches Regular font (This highly resembles the "LUNAR" text) */}
+      {/* Import Geist Mono Bold 700 font */}
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=Staatliches&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@700&display=swap');
         `}
       </style>
 
@@ -69,10 +69,16 @@ function Navbar() {
                 {/* KAITO Text (Adjusted with mt-1 for better vertical alignment) */}
                 <Link to="/home" className="flex items-center select-none">
                   <span
+                    // The text size is set to 22px here. If you need 48px, change text-[22px] to text-[48px].
+                    // The font weight is set to bold (700) here.
                     className="text-white text-[22px] font-bold tracking-wide mt-1" 
                     style={{
-                      // CHANGED FONT FAMILY TO STAATLICIES to match the blocky, wide style of "LUNAR"
-                      fontFamily: "'Staatliches', sans-serif",
+                      // Set font to Geist Mono
+                      fontFamily: "'Geist Mono', monospace",
+                      // Set the line-height explicitly to 16px (1rem) for tight vertical spacing
+                      lineHeight: "16px",
+                      // The 48x24px refers to a background or container size, 
+                      // but if you want the font size to be 48px, use text-[48px] in the className.
                     }}
                   >
                     KAITO
