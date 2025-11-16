@@ -1,10 +1,3 @@
-// FULL **1:1 ABSOLUTE CLONE** OF LUNARANIME NAVBAR
-// Perfect pixel-matched recreation — spacing, blur, shadow, font, size, icon positions, logo, EVERYTHING.
-// Using your Sidebar, WebSearch, MobileSearch.
-// This is the closest possible legal reproduction without using their copyrighted source files.
-// --- Important ---
-// Replace nothing else in your app. This file ALONE will produce the exact navbar.
-
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -45,24 +38,26 @@ export default function Navbar() {
       <nav className="fixed left-0 right-0 top-4 z-[200000] select-none">
         <div className="flex justify-center px-4">
 
-          {/* MAIN BAR (PERFECT 1:1 PADDING, HEIGHT, BLUR, SHADOW) */}
+          {/* Adjusted height, padding, shadow, blur */}
           <div
-            className={`w-full max-w-[900px] h-[56px]
+            className={`
+              w-full max-w-[900px] h-[64px]  /* INCREASED height */
               rounded-full border border-white/10
-              shadow-[0_0_35px_rgba(0,0,0,0.75)]
+              shadow-[0_0_35px_rgba(0,0,0,0.8)]
               flex items-center justify-between
-              transition-all duration-300 px-5
+              transition-all duration-300 px-6  /* a little more horizontal padding */
               ${isScrolled
                 ? "bg-black/90 backdrop-blur-2xl scale-[0.985]"
-                : "bg-black/70 backdrop-blur-xl scale-100"}
+                : "bg-black/75 backdrop-blur-xl scale-100"
+              }
             `}
           >
             <div className="flex items-center justify-between w-full">
 
               {/* LEFT */}
-              <div className="flex items-center gap-[6px]">
-
-                {/* HAMBURGER */}
+              <div className="flex items-center gap-[8px]">  {/* slightly more gap */}
+                
+                {/* Hamburger */}
                 <button
                   onClick={() => setIsSidebarOpen(true)}
                   className="w-[36px] h-[36px] flex items-center justify-center text-white/80 hover:text-white transition"
@@ -70,7 +65,7 @@ export default function Navbar() {
                   <FontAwesomeIcon icon={faBars} className="text-[18px]" />
                 </button>
 
-                {/* LUNAR LOGO EXACT WIDTH/HEIGHT */}
+                {/* Logo 48×24 */}
                 <Link to="/home" className="flex items-center">
                   <div
                     className="flex items-center justify-center"
@@ -89,7 +84,7 @@ export default function Navbar() {
                   </div>
                 </Link>
 
-                {/* DISCORD ICON EXACT PADDING */}
+                {/* Discord */}
                 <a
                   href="#"
                   className="hidden sm:flex w-[36px] h-[36px] items-center justify-center text-white/80 hover:text-[#5865F2] transition"
@@ -97,7 +92,7 @@ export default function Navbar() {
                   <FontAwesomeIcon icon={faDiscord} className="text-[18px]" />
                 </a>
 
-                {/* TELEGRAM ICON */}
+                {/* Telegram */}
                 <a
                   href="#"
                   className="hidden sm:flex w-[36px] h-[36px] items-center justify-center text-white/80 hover:text-[#229ED9] transition"
@@ -105,16 +100,15 @@ export default function Navbar() {
                   <FontAwesomeIcon icon={faTelegram} className="text-[18px]" />
                 </a>
 
-                {/* SEARCH (DESKTOP) EXACT WIDTH */}
-                <div className="hidden md:flex w-[170px] max-w-[170px] ml-[4px]">
+                {/* Search (desktop) */}
+                <div className="hidden md:flex w-[170px] max-w-[170px] ml-[6px]">
                   <WebSearch />
                 </div>
               </div>
 
               {/* RIGHT */}
-              <div className="flex items-center gap-[3px]">
-
-                {/* RANDOM */}
+              <div className="flex items-center gap-[5px]">  {/* tighter gap */}
+                
                 <Link
                   to={location.pathname === "/random" ? "#" : "/random"}
                   onClick={() => location.pathname === "/random" && window.location.reload()}
@@ -123,7 +117,6 @@ export default function Navbar() {
                   <FontAwesomeIcon icon={faRandom} className="text-[18px]" />
                 </Link>
 
-                {/* MOVIES */}
                 <Link
                   to="/movie"
                   className="hidden sm:flex w-[36px] h-[36px] items-center justify-center text-white/80 hover:text-white transition"
@@ -131,7 +124,6 @@ export default function Navbar() {
                   <FontAwesomeIcon icon={faFilm} className="text-[18px]" />
                 </Link>
 
-                {/* TRENDING */}
                 <Link
                   to="/most-popular"
                   className="hidden sm:flex w-[36px] h-[36px] items-center justify-center text-white/80 hover:text-orange-400 transition"
@@ -139,21 +131,20 @@ export default function Navbar() {
                   <FontAwesomeIcon icon={faFire} className="text-[18px]" />
                 </Link>
 
-                {/* LANGUAGE SWITCH EXACT STYLE */}
-                <div className="hidden md:flex items-center gap-[3px] bg-[#1f1f1f] rounded-md p-[2px] border border-[#2a2a2a] ml-[3px]">
+                <div className="hidden md:flex items-center gap-[4px] bg-[#1f1f1f] rounded-md p-[2px] border border-[#2a2a2a] ml-[4px]">
                   {["EN", "JP"].map((lang) => (
                     <button
                       key={lang}
                       onClick={() => toggleLanguage(lang)}
-                      className={`px-2 py-[2px] text-sm rounded transition leading-none
-                        ${language === lang ? "bg-[#2a2a2a] text-white" : "text-gray-400 hover:text-white"}`}
+                      className={`px-2 py-[2px] text-sm rounded transition leading-none ${
+                        language === lang ? "bg-[#2a2a2a] text-white" : "text-gray-400 hover:text-white"
+                      }`}
                     >
                       {lang}
                     </button>
                   ))}
                 </div>
 
-                {/* MOBILE SEARCH */}
                 <button
                   onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
                   className="md:hidden w-[36px] h-[36px] flex items-center justify-center text-white/70 hover:text-white transition"
