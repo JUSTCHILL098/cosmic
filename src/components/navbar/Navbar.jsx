@@ -25,8 +25,7 @@ export default function Navbar() {
     const navRect = navRef.current.getBoundingClientRect();
 
     const centerX = rect.left + rect.width / 2 + window.scrollX;
-
-    const top = navRect.top + window.scrollY + 8; // lowered 2px more
+    const top = navRect.top + window.scrollY + 10;
 
     setDollStyle({
       left: centerX,
@@ -53,12 +52,11 @@ export default function Navbar() {
 
   return (
     <>
-      {/* FONT */}
-      <style>
-        {`
-          :root { --geist: "Geist Mono", "Geist Mono Fallback", monospace; }
-        `}
-      </style>
+      <style>{`
+        :root {
+          --geist: "Geist Mono", "Geist Mono Fallback", monospace;
+        }
+      `}</style>
 
       {/* DOLL */}
       <div
@@ -67,17 +65,17 @@ export default function Navbar() {
           left: dollStyle.left,
           top: dollStyle.top,
           transform: "translateX(-50%)",
-          transition: "left 230ms cubic-bezier(.25,.8,.25,1), top 150ms ease",
+          transition: "left 250ms cubic-bezier(.25,.8,.25,1), top 150ms ease",
           pointerEvents: "none",
           zIndex: 200002,
           opacity: dollStyle.opacity,
         }}
       >
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" fill="#fff" />
-          <circle cx="9" cy="10" r="1.5" fill="#000" />
-          <circle cx="15" cy="10" r="1.5" fill="#000" />
-          <path d="M8 15 Q12 18 16 15" stroke="#000" strokeWidth="1.7" strokeLinecap="round" />
+        <svg width="52" height="52" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="white" />
+          <circle cx="9" cy="10" r="1.5" fill="black" />
+          <circle cx="15" cy="10" r="1.5" fill="black" />
+          <path d="M8 15 Q12 18 16 15" stroke="black" strokeWidth="1.7" strokeLinecap="round" />
         </svg>
       </div>
 
@@ -90,30 +88,29 @@ export default function Navbar() {
         <div
           style={{
             width: "100%",
-            maxWidth: "620px", // MUCH SMALLER WIDTH
-            height: "60px",
+            maxWidth: "680px",           // wider so LUNAR fits cleanly
+            height: "66px",              // taller for proper vertical centering
             marginTop: "24px",
-            background: "rgba(0,0,0,0.60)",
+            background: "rgba(0,0,0,0.62)",
             backdropFilter: "blur(12px)",
             border: "1px solid rgba(255,255,255,0.10)",
             borderRadius: "999px",
-            padding: "0 16px",
+            padding: "0 20px",           // increased to give breathing room
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
           }}
         >
-          {/* LOGO KAITO – tighter spacing */}
+          {/* LOGO */}
           <div
             style={{
               fontFamily: "var(--geist)",
               fontWeight: 700,
-              fontSize: "17px",
-              color: "#fff",
-              marginRight: "2px", // SUPER TIGHT (2px)
+              fontSize: "17.5px",
+              color: "white",
             }}
           >
-            LUNAR
+            KAITO
           </div>
 
           {/* MENU */}
@@ -121,8 +118,7 @@ export default function Navbar() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "4px", // ULTRA TIGHT (4px)
-              marginLeft: "auto", // pushes menu RIGHT
+              gap: "8px", // little bit of space between texts
             }}
           >
             {navItems.map((item) => {
@@ -136,25 +132,25 @@ export default function Navbar() {
                   onClick={() => moveDollTo(menuRefs.current[item.name])}
                   style={{
                     position: "relative",
-                    padding: "8px 16px",
+                    padding: "10px 18px",
                     borderRadius: "999px",
-                    color: active ? "#fff" : "rgba(255,255,255,0.75)",
+                    color: active ? "#fff" : "rgba(255,255,255,0.78)",
                     fontFamily: "var(--geist)",
-                    fontWeight: 500, // STRONG text
-                    fontSize: "15.5px", // larger & more powerful
+                    fontWeight: 500,
+                    fontSize: "16px",   // stronger text, not timid
                     textDecoration: "none",
                     transition: "color 150ms ease",
                   }}
                 >
-                  {/* ACTIVE INNER GLOW ONLY */}
+                  {/* TRUE Lunar Inner Glow */}
                   {active && (
                     <span
                       style={{
                         position: "absolute",
                         inset: 0,
                         borderRadius: "999px",
-                        background: "rgba(255,255,255,0.15)",
-                        backdropFilter: "blur(8px)",
+                        background: "rgba(255,255,255,0.14)",  
+                        backdropFilter: "blur(10px)",          // perfect frosted effect
                         zIndex: 0,
                       }}
                     />
