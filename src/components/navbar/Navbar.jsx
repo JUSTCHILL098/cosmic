@@ -26,8 +26,8 @@ export default function Navbar() {
 
     const centerX = rect.left + rect.width / 2 + window.scrollX;
 
-    // LOWERED the doll so it is fully visible
-    const top = navRect.top + window.scrollY - 4;
+    // LOWERED MORE SO IT'S FULLY VISIBLE
+    const top = navRect.top + window.scrollY + 12;
 
     setDollStyle({
       left: centerX,
@@ -39,7 +39,6 @@ export default function Navbar() {
   useEffect(() => {
     let active = navItems.find((i) => i.path === location.pathname) || navItems[0];
     const el = menuRefs.current[active.name];
-
     requestAnimationFrame(() => moveDollTo(el));
 
     const onResize = () => moveDollTo(el);
@@ -58,7 +57,7 @@ export default function Navbar() {
         :root { --geist: 'Geist Mono', 'Geist Mono Fallback', monospace; }
       `}</style>
 
-      {/* DOLL ABOVE ACTIVE ITEM */}
+      {/* DOLL */}
       <div
         style={{
           position: "absolute",
@@ -79,7 +78,6 @@ export default function Navbar() {
         </svg>
       </div>
 
-      {/* NAVBAR */}
       <nav
         ref={navRef}
         className="fixed left-0 right-0 flex justify-center select-none"
@@ -88,8 +86,8 @@ export default function Navbar() {
         <div
           style={{
             width: "100%",
-            maxWidth: "760px",             // FIXED: smaller width
-            height: "60px",                // increased height slightly
+            maxWidth: "760px",
+            height: "60px",
             margin: "24px auto 0 auto",
             background: "rgba(0,0,0,0.60)",
             backdropFilter: "blur(12px)",
@@ -102,11 +100,11 @@ export default function Navbar() {
             justifyContent: "space-between",
           }}
         >
-          {/* LUNAR (lighter font-weight) */}
+          {/* LUNAR */}
           <div
             style={{
               fontFamily: "var(--geist)",
-              fontWeight: 700,              // FIXED: not bulky now
+              fontWeight: 700,   // FIXED
               fontSize: "16px",
               color: "#fff",
             }}
@@ -119,8 +117,8 @@ export default function Navbar() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "16px",                   // S2 spacing but tighter
-              marginLeft: "8px",             // less space after LUNAR
+              gap: "16px",
+              marginLeft: "8px",
             }}
           >
             {navItems.map((item) => {
@@ -134,7 +132,7 @@ export default function Navbar() {
                   onClick={() => moveDollTo(menuRefs.current[item.name])}
                   style={{
                     position: "relative",
-                    padding: "12px 24px",     // user requested
+                    padding: "12px 24px",
                     borderRadius: "999px",
                     color: active ? "#fff" : "rgba(255,255,255,0.80)",
                     fontFamily: "var(--geist)",
@@ -161,6 +159,7 @@ export default function Navbar() {
               );
             })}
           </div>
+
         </div>
       </nav>
     </>
