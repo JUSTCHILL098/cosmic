@@ -1,242 +1,192 @@
-// LunarNavbar.jsx
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 
-// === Mascot Component (unchanged) ===
-function Mascot({ hovering }) {
-  return (
-    <div className="relative w-12 h-12">
-      <motion.div
-        className="absolute w-10 h-10 bg-white rounded-full left-1/2 -translate-x-1/2"
-        animate={
-          hovering
-            ? { scale: [1, 1.1, 1], rotate: [0, -5, 5, 0] }
-            : { y: [0, -3, 0] }
-        }
-        transition={
-          hovering
-            ? { duration: 0.5, ease: "easeInOut" }
-            : { duration: 2, repeat: Infinity, ease: "easeInOut" }
-        }
-      >
-        {/* Eyes */}
-        <motion.div
-          className="absolute w-2 h-2 bg-black rounded-full"
-          style={{ left: "25%", top: "40%" }}
-          animate={hovering ? { scaleY: [1, 0.2, 1] } : {}}
-        />
-        <motion.div
-          className="absolute w-2 h-2 bg-black rounded-full"
-          style={{ right: "25%", top: "40%" }}
-          animate={hovering ? { scaleY: [1, 0.2, 1] } : {}}
-        />
+import { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBars,
+  faRandom,
+  faMagnifyingGlass,
+  faXmark,
+  faFilm,
+  faFire,
+} from "@fortawesome/free-solid-svg-icons";
+import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
+import { useLanguage } from "@/src/context/LanguageContext";
+import { Link, useLocation } from "react-router-dom";
+import Sidebar from "../sidebar/Sidebar";
+import { SearchProvider } from "@/src/context/SearchContext";
+import WebSearch from "../searchbar/WebSearch";
+import MobileSearch from "../searchbar/MobileSearch";
 
-        {/* Blush */}
-        <motion.div
-          className="absolute w-2 h-1.5 bg-pink-300 rounded-full"
-          style={{ left: "15%", top: "55%" }}
-          animate={{ opacity: hovering ? 0.8 : 0.6 }}
-        />
-        <motion.div
-          className="absolute w-2 h-1.5 bg-pink-300 rounded-full"
-          style={{ right: "15%", top: "55%" }}
-          animate={{ opacity: hovering ? 0.8 : 0.6 }}
-        />
+function Navbar() {
+  const location = useLocation();
+  const { language, toggleLanguage } = useLanguage();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
-        {/* Mouth */}
-        <motion.div
-          className="absolute w-4 h-2 border-b-2 border-black rounded-full"
-          style={{ left: "30%", top: "60%" }}
-          animate={
-            hovering
-              ? { scaleY: 1.5, y: -1 }
-              : { scaleY: 1, y: 0 }
-          }
-        />
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 0);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-        {/* Hover sparkles */}
-        <AnimatePresence>
-          {hovering && (
-            <>
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0 }}
-                className="absolute -top-1 -right-1 w-2 h-2 text-yellow-300"
-              >
-                ✨
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0 }}
-                transition={{ delay: 0.1 }}
-                className="absolute -top-2 left-0 w-2 h-2 text-yellow-300"
-              >
-                ✨
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
-      </motion.div>
-
-      {/* Pointer diamond */}
-      <motion.div
-        className="absolute -bottom-1 left-1/2 w-4 h-4 -translate-x-1/2"
-        animate={
-          hovering
-            ? { y: [0, -4, 0], transition: { duration: 0.3, repeat: Infinity, repeatType: "reverse" } }
-            : { y: [0, 2, 0], transition: { duration: 1, repeat: Infinity, ease: "easeInOut", delay: 0.5 } }
-        }
-      >
-        <div className="w-full h-full bg-white rotate-45" />
-      </motion.div>
-    </div>
-  );
-}
-
-// === FULL NAVBAR ===
-export default function LunarNavbar() {
-  // REPLACED your items with YOUR list
-  const items = [
-    { name: "HOME", url: "/home" },
-    { name: "POPULAR", url: "/popular" },
-    { name: "MOVIE", url: "/movie" },
-    { name: "RANDOM", url: "/random" },
-    { name: "SHEDULE", url: "/shedule" },
-  ];
-
-  const [active, setActive] = useState("HOME");
-  const [hovering, setHovering] = useState(null);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const handleHamburgerClick = () => setIsSidebarOpen(true);
+  const handleCloseSidebar = () => setIsSidebarOpen(false);
+  const handleRandomClick = () => {
+    if (location.pathname === "/random") window.location.reload();
+  };
 
   return (
-    <>
-      <style>{`
-        :root { --geist: 'Geist Mono', monospace; }
-      `}</style>
+    <SearchProvider>
+      {/* Import Koulen Regular font */}
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Staatliches&display=swap');
+        `}
+      </style>
 
-      <div className="fixed left-0 right-0 top-5 z-[9999] flex justify-center select-none pointer-events-none">
-        <div className="flex justify-center pointer-events-auto pt-6 relative">
-
-          {/* ⭐⭐⭐ NEW: MASCOT ABOVE ACTIVE TAB ⭐⭐⭐ */}
-          <AnimatePresence>
-            <motion.div
-              key={active}
-              className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-[200]"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            >
-              <Mascot hovering={hovering} />
-            </motion.div>
-          </AnimatePresence>
-
-          {/* NAV BAR FRAME */}
-          <motion.div
-            className="flex items-center gap-3 bg-black/50 border border-white/10 backdrop-blur-lg shadow-lg w-auto py-2 px-2 rounded-full"
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+      <nav className="fixed left-0 right-0 top-4 z-[100000]">
+        <div className="flex justify-center px-4">
+          <div
+            className={`w-full max-w-[900px] rounded-full border border-white/10 shadow-lg
+                        ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
+                        px-4 py-[6px]`}
           >
-            {/* LUNAR TEXT */}
-            <span
-              className="font-bold text-base sm:text-lg text-white"
-              style={{
-                fontFamily: "var(--geist)",
-                fontWeight: 700,
-                letterSpacing: "-0.6px",
-              }}
-            >
-              LUNAR
-            </span>
+            <div className="flex items-center justify-between relative z-[100001]">
+              
+              {/* === LEFT SIDE: Hamburger, KAITO, Social Icons, and Web Search === */}
+              {/* Increased gap-2 for better spacing on the crowded left side */}
+              <div className="flex items-center gap-2"> 
+                
+                {/* Hamburger */}
+                <button
+                  onClick={handleHamburgerClick}
+                  className="p-[8px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
+                  title="Menu"
+                >
+                  <FontAwesomeIcon icon={faBars} className="text-[20px]" />
+                </button>
 
-            {/* DESKTOP TABS */}
-            <div className="hidden md:flex items-center space-x-2 ml-3">
-              {items.map((item) => {
-                const isActive = item.name === active;
-
-                return (
-                  <motion.a
-                    key={item.name}
-                    href={item.url}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setActive(item.name);
-                      window.location.href = item.url;
+                {/* KAITO Text (Adjusted with mt-1 for better vertical alignment) */}
+                <Link to="/home" className="flex items-center select-none">
+                  <span
+                    className="text-white text-[22px] font-bold tracking-wide mt-1" 
+                    style={{
+                      fontFamily: "'Koulen', sans-serif",
                     }}
-                    onMouseEnter={() => setHovering(item.name)}
-                    onMouseLeave={() => setHovering(null)}
-                    className="relative cursor-pointer text-sm font-semibold px-6 py-3 rounded-full transition-all duration-300 text-white/70 hover:text-white"
                   >
-                    {/* ACTIVE GLOW */}
-                    <AnimatePresence>
-                      {isActive && (
-                        <motion.div
-                          layoutId="active-pill"
-                          className="absolute inset-0 rounded-full -z-10 overflow-hidden"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                        >
-                          <div className="absolute inset-0 bg-white/15 rounded-full blur-md" />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    KAITO
+                  </span>
+                </Link>
 
-                    <motion.span
-                      className="relative z-10"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.2 }}
+                {/* Discord (MOVED TO LEFT) */}
+                <a
+                  href="#"
+                  className="p-[8px] text-white/80 hover:text-[#5865F2] transition-colors rounded-md hidden sm:block"
+                  title="Discord"
+                >
+                  <FontAwesomeIcon icon={faDiscord} className="text-[20px]" />
+                </a>
+
+                {/* Telegram (MOVED TO LEFT) */}
+                <a
+                  href="#"
+                  className="p-[8px] text-white/80 hover:text-[#229ED9] transition-colors rounded-md hidden sm:block"
+                  title="Telegram"
+                >
+                  <FontAwesomeIcon icon={faTelegram} className="text-[20px]" />
+                </a>
+                
+                {/* Compact Web Search (MOVED TO LEFT) */}
+                <div className="hidden md:block basis-[170px] max-w-[170px] flex-shrink-0">
+                  <WebSearch />
+                </div>
+              </div>
+
+              {/* === RIGHT SIDE: Random, Movie, Popular, and Language Toggle === */}
+              {/* Using gap-1 to create minimal space between all the items on the right side. */}
+              <div className="flex items-center gap-1"> 
+                
+                {/* Random */}
+                <Link
+                  to={location.pathname === "/random" ? "#" : "/random"}
+                  onClick={handleRandomClick}
+                  className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md"
+                  title="Random Anime"
+                >
+                  <FontAwesomeIcon icon={faRandom} className="text-[20px]" />
+                </Link>
+
+                {/* Movies */}
+                <Link
+                  to="/movie"
+                  className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md hidden sm:block"
+                  title="Movies"
+                >
+                  <FontAwesomeIcon icon={faFilm} className="text-[20px]" />
+                </Link>
+
+                {/* Popular */}
+                <Link
+                  to="/most-popular"
+                  className="p-[8px] text-white/80 hover:text-orange-500 transition-colors rounded-md hidden sm:block"
+                  title="Popular Anime"
+                >
+                  <FontAwesomeIcon icon={faFire} className="text-[20px]" />
+                </Link>
+
+                {/* Language Toggle */}
+                <div className="hidden md:flex items-center gap-2 bg-[#1f1f1f] rounded-md p-[2px] ml-1">
+                  {["EN", "JP"].map((lang) => (
+                    <button
+                      key={lang}
+                      onClick={() => toggleLanguage(lang)}
+                      className={`px-2 py-[2px] text-sm font-medium rounded ${
+                        language === lang
+                          ? "bg-[#2a2a2a] text-white"
+                          : "text-gray-400 hover:text-white"
+                      }`}
                     >
-                      {item.name}
-                    </motion.span>
-                  </motion.a>
-                );
-              })}
+                      {lang}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Mobile Search */}
+                <div className="md:hidden">
+                  <button
+                    onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+                    className="p-[8px] text-white/70 hover:text-white transition-colors flex items-center justify-center w-[34px] h-[34px]"
+                    title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
+                  >
+                    <FontAwesomeIcon
+                      icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
+                      className="w-[18px] h-[18px]"
+                      style={{
+                        transform: isMobileSearchOpen
+                          ? "rotate(90deg)"
+                          : "rotate(0deg)",
+                      }}
+                    />
+                  </button>
+                </div>
+              </div>
             </div>
-
-            {/* MOBILE ICON */}
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden text-white p-1.5"
-            >
-              {mobileOpen ? "✖" : "☰"}
-            </button>
-          </motion.div>
+          </div>
         </div>
-      </div>
 
-      {/* MOBILE MENU */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ type: "spring", stiffness: 260, damping: 22 }}
-            className="fixed inset-x-4 top-24 z-[9998] rounded-2xl bg-black/95 backdrop-blur-xl border border-white/20 shadow-2xl p-4 md:hidden"
-          >
-            {items.map((item) => (
-              <a
-                key={item.name}
-                href={item.url}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setActive(item.name);
-                  window.location.href = item.url;
-                }}
-                className="block px-4 py-3 rounded-lg text-white/80 hover:text-white hover:bg-white/10"
-              >
-                {item.name}
-              </a>
-            ))}
-          </motion.div>
+        {/* Mobile Search Dropdown */}
+        {isMobileSearchOpen && (
+          <div className="md:hidden mx-4 mt-2 bg-black/90 backdrop-blur-md rounded-xl shadow-lg border border-white/10">
+            <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
+          </div>
         )}
-      </AnimatePresence>
-    </>
+
+        {/* Sidebar */}
+        <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
+      </nav>
+    </SearchProvider>
   );
 }
+
+export default Navbar;
