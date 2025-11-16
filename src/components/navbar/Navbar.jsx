@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -38,10 +37,10 @@ function Navbar() {
 
   return (
     <SearchProvider>
-      {/* Import Koulen Regular font */}
+      {/* Import Geist Mono Bold 700 font */}
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=Staatliches&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@700&display=swap');
         `}
       </style>
 
@@ -49,8 +48,8 @@ function Navbar() {
         <div className="flex justify-center px-4">
           <div
             className={`w-full max-w-[900px] rounded-full border border-white/10 shadow-lg
-                        ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
-                        px-4 py-[6px]`}
+                             ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
+                             px-4 py-[6px]`}
           >
             <div className="flex items-center justify-between relative z-[100001]">
               
@@ -72,7 +71,8 @@ function Navbar() {
                   <span
                     className="text-white text-[22px] font-bold tracking-wide mt-1" 
                     style={{
-                      fontFamily: "'Koulen', sans-serif",
+                      // CHANGED FONT FAMILY TO GEIST MONO
+                      fontFamily: "'Geist Mono', monospace",
                     }}
                   >
                     KAITO
