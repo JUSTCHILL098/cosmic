@@ -145,4 +145,3 @@ export default function Navbar() {
     </SearchProvider>
   );
 }
-export default Navbar;
