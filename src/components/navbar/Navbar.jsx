@@ -1,8 +1,8 @@
 // LunarNavbar.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// SVG mascot used by the real LunarAnime navbar
+// === Mascot Component (unchanged) ===
 function Mascot({ hovering }) {
   return (
     <div className="relative w-12 h-12">
@@ -19,24 +19,16 @@ function Mascot({ hovering }) {
             : { duration: 2, repeat: Infinity, ease: "easeInOut" }
         }
       >
-        {/* EYES */}
+        {/* Eyes */}
         <motion.div
           className="absolute w-2 h-2 bg-black rounded-full"
           style={{ left: "25%", top: "40%" }}
-          animate={
-            hovering
-              ? { scaleY: [1, 0.2, 1] }
-              : {}
-          }
+          animate={hovering ? { scaleY: [1, 0.2, 1] } : {}}
         />
         <motion.div
           className="absolute w-2 h-2 bg-black rounded-full"
           style={{ right: "25%", top: "40%" }}
-          animate={
-            hovering
-              ? { scaleY: [1, 0.2, 1] }
-              : {}
-          }
+          animate={hovering ? { scaleY: [1, 0.2, 1] } : {}}
         />
 
         {/* Blush */}
@@ -62,7 +54,7 @@ function Mascot({ hovering }) {
           }
         />
 
-        {/* Sparkles when hovering */}
+        {/* Hover sparkles */}
         <AnimatePresence>
           {hovering && (
             <>
@@ -89,7 +81,7 @@ function Mascot({ hovering }) {
         </AnimatePresence>
       </motion.div>
 
-      {/* Pointer diamond under mascot */}
+      {/* Pointer diamond */}
       <motion.div
         className="absolute -bottom-1 left-1/2 w-4 h-4 -translate-x-1/2"
         animate={
@@ -104,16 +96,18 @@ function Mascot({ hovering }) {
   );
 }
 
+// === FULL NAVBAR ===
 export default function LunarNavbar() {
+  // REPLACED your items with YOUR list
   const items = [
-    { name: "Home", url: "/home" },
-    { name: "Features", url: "/features" },
-    { name: "Changelog", url: "/changelog" },
-    { name: "Contact", url: "/contact" },
-    { name: "View Anime", url: "/view-anime" },
+    { name: "HOME", url: "/home" },
+    { name: "POPULAR", url: "/popular" },
+    { name: "MOVIE", url: "/movie" },
+    { name: "RANDOM", url: "/random" },
+    { name: "SHEDULE", url: "/shedule" },
   ];
 
-  const [active, setActive] = useState("Home");
+  const [active, setActive] = useState("HOME");
   const [hovering, setHovering] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -124,47 +118,45 @@ export default function LunarNavbar() {
       `}</style>
 
       <div className="fixed left-0 right-0 top-5 z-[9999] flex justify-center select-none pointer-events-none">
-        <div className="flex justify-center pointer-events-auto pt-6">
+        <div className="flex justify-center pointer-events-auto pt-6 relative">
+
+          {/* ⭐⭐⭐ NEW: MASCOT ABOVE ACTIVE TAB ⭐⭐⭐ */}
+          <AnimatePresence>
+            <motion.div
+              key={active}
+              className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-[200]"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ type: "spring", stiffness: 260, damping: 20 }}
+            >
+              <Mascot hovering={hovering} />
+            </motion.div>
+          </AnimatePresence>
+
+          {/* NAV BAR FRAME */}
           <motion.div
             className="flex items-center gap-3 bg-black/50 border border-white/10 backdrop-blur-lg shadow-lg w-auto py-2 px-2 rounded-full"
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
           >
-            {/* Mascot Left */}
-            <motion.div
-              animate={
-                hovering
-                  ? { y: [0, -5, 0], rotate: [0, 5, 0, -5, 0] }
-                  : { y: [0, -5, 0] }
-              }
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
-            >
-              <Mascot hovering={hovering} />
-            </motion.div>
-
-            {/* LUNAR text EXACT */}
+            {/* LUNAR TEXT */}
             <span
               className="font-bold text-base sm:text-lg text-white"
               style={{
                 fontFamily: "var(--geist)",
                 fontWeight: 700,
                 letterSpacing: "-0.6px",
-                fontVariationSettings: "'wght' 700'",
               }}
             >
               LUNAR
             </span>
 
-            {/* Desktop items */}
+            {/* DESKTOP TABS */}
             <div className="hidden md:flex items-center space-x-2 ml-3">
               {items.map((item) => {
                 const isActive = item.name === active;
-                const isHover = hovering === item.name;
 
                 return (
                   <motion.a
@@ -179,7 +171,7 @@ export default function LunarNavbar() {
                     onMouseLeave={() => setHovering(null)}
                     className="relative cursor-pointer text-sm font-semibold px-6 py-3 rounded-full transition-all duration-300 text-white/70 hover:text-white"
                   >
-                    {/* Active glowing pill */}
+                    {/* ACTIVE GLOW */}
                     <AnimatePresence>
                       {isActive && (
                         <motion.div
@@ -207,7 +199,7 @@ export default function LunarNavbar() {
               })}
             </div>
 
-            {/* Mobile hamburger */}
+            {/* MOBILE ICON */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className="md:hidden text-white p-1.5"
@@ -218,7 +210,7 @@ export default function LunarNavbar() {
         </div>
       </div>
 
-      {/* Mobile slide menu */}
+      {/* MOBILE MENU */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
