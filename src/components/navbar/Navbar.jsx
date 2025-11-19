@@ -1,5 +1,5 @@
 // LunarNavbar.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // SVG mascot used by the real LunarAnime navbar
@@ -23,20 +23,12 @@ function Mascot({ hovering }) {
         <motion.div
           className="absolute w-2 h-2 bg-black rounded-full"
           style={{ left: "25%", top: "40%" }}
-          animate={
-            hovering
-              ? { scaleY: [1, 0.2, 1] }
-              : {}
-          }
+          animate={hovering ? { scaleY: [1, 0.2, 1] } : {}}
         />
         <motion.div
           className="absolute w-2 h-2 bg-black rounded-full"
           style={{ right: "25%", top: "40%" }}
-          animate={
-            hovering
-              ? { scaleY: [1, 0.2, 1] }
-              : {}
-          }
+          animate={hovering ? { scaleY: [1, 0.2, 1] } : {}}
         />
 
         {/* Blush */}
@@ -55,14 +47,10 @@ function Mascot({ hovering }) {
         <motion.div
           className="absolute w-4 h-2 border-b-2 border-black rounded-full"
           style={{ left: "30%", top: "60%" }}
-          animate={
-            hovering
-              ? { scaleY: 1.5, y: -1 }
-              : { scaleY: 1, y: 0 }
-          }
+          animate={hovering ? { scaleY: 1.5, y: -1 } : { scaleY: 1, y: 0 }}
         />
 
-        {/* Sparkles when hovering */}
+        {/* Sparkles */}
         <AnimatePresence>
           {hovering && (
             <>
@@ -94,8 +82,14 @@ function Mascot({ hovering }) {
         className="absolute -bottom-1 left-1/2 w-4 h-4 -translate-x-1/2"
         animate={
           hovering
-            ? { y: [0, -4, 0], transition: { duration: 0.3, repeat: Infinity, repeatType: "reverse" } }
-            : { y: [0, 2, 0], transition: { duration: 1, repeat: Infinity, ease: "easeInOut", delay: 0.5 } }
+            ? {
+                y: [0, -4, 0],
+                transition: { duration: 0.3, repeat: Infinity, repeatType: "reverse" },
+              }
+            : {
+                y: [0, 2, 0],
+                transition: { duration: 1, repeat: Infinity, ease: "easeInOut", delay: 0.5 },
+              }
         }
       >
         <div className="w-full h-full bg-white rotate-45" />
@@ -119,11 +113,8 @@ export default function LunarNavbar() {
 
   return (
     <>
-      <style>{`
-        :root { --geist: 'Geist Mono', monospace; }
-      `}</style>
-
-      <div className="fixed left-0 right-0 top-5 z-[9999] flex justify-center select-none pointer-events-none">
+      {/* Navbar LOWERED so mascot head isn't cut */}
+      <div className="fixed left-0 right-0 top-[45px] z-[9999] flex justify-center select-none pointer-events-none">
         <div className="flex justify-center pointer-events-auto pt-6">
           <motion.div
             className="flex items-center gap-3 bg-black/50 border border-white/10 backdrop-blur-lg shadow-lg w-auto py-2 px-2 rounded-full"
@@ -131,21 +122,7 @@ export default function LunarNavbar() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
           >
-            {/* Mascot Left */}
-            <motion.div
-              animate={
-                hovering
-                  ? { y: [0, -5, 0], rotate: [0, 5, 0, -5, 0] }
-                  : { y: [0, -5, 0] }
-              }
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
-            >
-              <Mascot hovering={hovering} />
-            </motion.div>
+            {/* REMOVE LEFT MASCOT – MOVED TO ACTIVE TAB */}
 
             {/* LUNAR text EXACT */}
             <span
@@ -193,6 +170,17 @@ export default function LunarNavbar() {
                         </motion.div>
                       )}
                     </AnimatePresence>
+
+                    {/* MASCOT NOW ON TOP OF ACTIVE TAB */}
+                    {isActive && (
+                      <motion.div
+                        layoutId="mascot"
+                        className="absolute -top-[65px] left-1/2 -translate-x-1/2"
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      >
+                        <Mascot hovering={isHover} />
+                      </motion.div>
+                    )}
 
                     <motion.span
                       className="relative z-10"
