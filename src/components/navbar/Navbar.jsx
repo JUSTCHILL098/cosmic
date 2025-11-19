@@ -1,14 +1,12 @@
-// LunarNavbar.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// ------------------- MASCOT COMPONENT -------------------
+// ---------------------- MASCOT ----------------------
 function Mascot({ hovering }) {
   return (
-    <div className="relative w-14 h-14">
-      {/* MAIN FACE */}
+    <div className="relative w-12 h-12 pointer-events-none">
       <motion.div
-        className="absolute w-12 h-12 bg-white rounded-full left-1/2 -translate-x-1/2"
+        className="absolute w-10 h-10 bg-white rounded-full left-1/2 -translate-x-1/2"
         animate={
           hovering
             ? { scale: [1, 1.1, 1], rotate: [0, -5, 5, 0] }
@@ -20,42 +18,38 @@ function Mascot({ hovering }) {
             : { duration: 2, repeat: Infinity, ease: "easeInOut" }
         }
       >
-        {/* EYES */}
+        {/* Eyes */}
         <motion.div
           className="absolute w-2 h-2 bg-black rounded-full"
-          style={{ left: "25%", top: "38%" }}
+          style={{ left: "25%", top: "40%" }}
           animate={hovering ? { scaleY: [1, 0.2, 1] } : {}}
         />
         <motion.div
           className="absolute w-2 h-2 bg-black rounded-full"
-          style={{ right: "25%", top: "38%" }}
+          style={{ right: "25%", top: "40%" }}
           animate={hovering ? { scaleY: [1, 0.2, 1] } : {}}
         />
 
-        {/* BLUSH FIXED (now visible) */}
+        {/* Blush FIXED */}
         <motion.div
           className="absolute w-3 h-2 bg-pink-300 rounded-full opacity-70"
-          style={{ left: "12%", top: "58%" }}
+          style={{ left: "13%", top: "57%" }}
           animate={{ opacity: hovering ? 1 : 0.7 }}
         />
         <motion.div
           className="absolute w-3 h-2 bg-pink-300 rounded-full opacity-70"
-          style={{ right: "12%", top: "58%" }}
+          style={{ right: "13%", top: "57%" }}
           animate={{ opacity: hovering ? 1 : 0.7 }}
         />
 
-        {/* MOUTH */}
+        {/* Mouth */}
         <motion.div
-          className="absolute w-5 h-2 border-b-2 border-black rounded-full"
-          style={{ left: "33%", top: "65%" }}
-          animate={
-            hovering
-              ? { scaleY: 1.4, y: -1 }
-              : { scaleY: 1, y: 0 }
-          }
+          className="absolute w-4 h-2 border-b-2 border-black rounded-full"
+          style={{ left: "30%", top: "62%" }}
+          animate={hovering ? { scaleY: 1.5, y: -1 } : { scaleY: 1, y: 0 }}
         />
 
-        {/* SPARKLES */}
+        {/* Sparkles */}
         <AnimatePresence>
           {hovering && (
             <>
@@ -67,6 +61,7 @@ function Mascot({ hovering }) {
               >
                 ✨
               </motion.div>
+
               <motion.div
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -81,9 +76,9 @@ function Mascot({ hovering }) {
         </AnimatePresence>
       </motion.div>
 
-      {/* POINTER DIAMOND */}
+      {/* Pointer diamond */}
       <motion.div
-        className="absolute -bottom-1 left-1/2 w-4 h-4 -translate-x-1/2"
+        className="absolute -bottom-1 left-1/2 w-3 h-3 -translate-x-1/2"
         animate={
           hovering
             ? { y: [0, -4, 0], transition: { duration: 0.3, repeat: Infinity, repeatType: "reverse" } }
@@ -96,14 +91,14 @@ function Mascot({ hovering }) {
   );
 }
 
-// ------------------- NAVBAR -------------------
+// ---------------------- NAVBAR ----------------------
 export default function LunarNavbar() {
   const items = [
     { name: "Home", url: "/home" },
     { name: "Popular", url: "/popular" },
     { name: "Movie", url: "/movie" },
     { name: "Random", url: "/random" },
-    { name: "Schedule", url: "/schedule" }
+    { name: "Schedule", url: "/schedule" },
   ];
 
   const [active, setActive] = useState("Home");
@@ -111,85 +106,77 @@ export default function LunarNavbar() {
 
   return (
     <>
-      {/* FONT FOR LUNAR */}
-      <style>{`
-        :root { --geist: 'Geist Mono', monospace; }
-      `}</style>
+      {/* Navbar LOWERED so head is fully visible */}
+      <div className="fixed left-0 right-0 top-[26px] z-[9999] flex justify-center select-none pointer-events-none">
 
-      {/* LOWERED NAVBAR SO HEAD IS VISIBLE */}
-      <div className="fixed left-0 right-0 top-[20px] z-[9999] flex justify-center select-none pointer-events-none">
-
-        <div className="flex justify-center pointer-events-auto pt-4">
-          <motion.div
-            className="flex items-center gap-4 bg-black/50 border border-white/10 backdrop-blur-lg shadow-lg w-auto py-3 px-4 rounded-full"
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        <motion.div
+          className="flex items-center gap-3 bg-black/50 border border-white/10 backdrop-blur-lg shadow-lg py-2.5 px-3 rounded-full pointer-events-auto"
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        >
+          {/* LUNAR text */}
+          <span
+            className="font-bold text-base text-white"
+            style={{
+              fontFamily: "'Geist Mono', monospace",
+              fontWeight: 700,
+            }}
           >
-            {/* LUNAR TEXT */}
-            <span
-              className="font-bold text-lg text-white"
-              style={{
-                fontFamily: "var(--geist)",
-                fontWeight: 700,
-                letterSpacing: "-0.7px",
-              }}
-            >
-              LUNAR
-            </span>
+            LUNAR
+          </span>
 
-            {/* MENU ITEMS */}
-            <div className="hidden md:flex items-center space-x-2 ml-2">
-              {items.map((item) => {
-                const isActive = item.name === active;
-                const isHover = hovering === item.name;
+          {/* NAV ITEMS */}
+          <div className="flex items-center space-x-1 ml-2">
+            {items.map((item) => {
+              const isActive = item.name === active;
+              const hover = hovering === item.name;
 
-                return (
-                  <motion.a
-                    key={item.name}
-                    href={item.url}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setActive(item.name);
-                      window.location.href = item.url;
-                    }}
-                    onMouseEnter={() => setHovering(item.name)}
-                    onMouseLeave={() => setHovering(null)}
-                    className="relative cursor-pointer text-sm px-6 py-3 rounded-full text-white/70 hover:text-white transition-all"
-                  >
-                    {/* ACTIVE GLOW */}
-                    <AnimatePresence>
-                      {isActive && (
-                        <motion.div
-                          layoutId="active-pill"
-                          className="absolute inset-0 rounded-full -z-10 overflow-visible"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                        >
-                          <div className="absolute inset-0 bg-white/15 rounded-full blur-md" />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    {/* MASCOT ON TOP OF ACTIVE TAB */}
+              return (
+                <motion.a
+                  key={item.name}
+                  href={item.url}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActive(item.name);
+                    window.location.href = item.url;
+                  }}
+                  onMouseEnter={() => setHovering(item.name)}
+                  onMouseLeave={() => setHovering(null)}
+                  className="relative cursor-pointer text-sm px-5 py-2.5 rounded-full text-white/70 hover:text-white"
+                >
+                  {/* Active Glow */}
+                  <AnimatePresence>
                     {isActive && (
                       <motion.div
-                        layoutId="mascot"
-                        className="absolute -top-[66px] left-1/2 -translate-x-1/2"
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        layoutId="active-pill"
+                        className="absolute inset-0 rounded-full -z-10 overflow-visible"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
                       >
-                        <Mascot hovering={isHover} />
+                        <div className="absolute inset-0 bg-white/15 rounded-full blur-md" />
                       </motion.div>
                     )}
+                  </AnimatePresence>
 
-                    <span className="relative z-10">{item.name}</span>
-                  </motion.a>
-                );
-              })}
-            </div>
-          </motion.div>
-        </div>
+                  {/* MASCOT ON TOP OF THIS TAB EXACTLY */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="mascot"
+                      className="absolute -top-[62px] left-1/2 -translate-x-1/2"
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    >
+                      <Mascot hovering={hover} />
+                    </motion.div>
+                  )}
+
+                  <span className="relative z-10">{item.name}</span>
+                </motion.a>
+              );
+            })}
+          </div>
+        </motion.div>
       </div>
     </>
   );
