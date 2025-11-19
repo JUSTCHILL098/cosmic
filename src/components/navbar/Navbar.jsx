@@ -1,16 +1,17 @@
 // LunarNavbar.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Smaller mascot
+// Mascot Component (smaller + centered above active tab)
 function Mascot({ hovering }) {
   return (
     <div className="relative w-10 h-10">
+      {/* Head */}
       <motion.div
         className="absolute w-8 h-8 bg-white rounded-full left-1/2 -translate-x-1/2"
         animate={
           hovering
-            ? { scale: [1, 1.1, 1], rotate: [0, -5, 5, 0] }
+            ? { scale: [1, 1.1, 1], rotate: [0, -4, 4, 0] }
             : { y: [0, -3, 0] }
         }
         transition={
@@ -19,7 +20,7 @@ function Mascot({ hovering }) {
             : { duration: 2, repeat: Infinity, ease: "easeInOut" }
         }
       >
-        {/* EYES */}
+        {/* Eyes */}
         <motion.div
           className="absolute w-1.5 h-1.5 bg-black rounded-full"
           style={{ left: "25%", top: "40%" }}
@@ -31,23 +32,23 @@ function Mascot({ hovering }) {
           animate={hovering ? { scaleY: [1, 0.2, 1] } : {}}
         />
 
-        {/* BLUSH */}
+        {/* Blush FIXED */}
         <motion.div
-          className="absolute w-1.5 h-1 bg-pink-300 rounded-full"
-          style={{ left: "15%", top: "55%" }}
-          animate={{ opacity: hovering ? 0.8 : 0.6 }}
+          className="absolute w-2 h-1 bg-pink-300 rounded-full"
+          style={{ left: "17%", top: "58%" }}
+          animate={{ opacity: hovering ? 0.9 : 0.55 }}
         />
         <motion.div
-          className="absolute w-1.5 h-1 bg-pink-300 rounded-full"
-          style={{ right: "15%", top: "55%" }}
-          animate={{ opacity: hovering ? 0.8 : 0.6 }}
+          className="absolute w-2 h-1 bg-pink-300 rounded-full"
+          style={{ right: "17%", top: "58%" }}
+          animate={{ opacity: hovering ? 0.9 : 0.55 }}
         />
 
-        {/* MOUTH */}
+        {/* Mouth */}
         <motion.div
           className="absolute w-3 h-1.5 border-b-2 border-black rounded-full"
-          style={{ left: "30%", top: "60%" }}
-          animate={hovering ? { scaleY: 1.5, y: -1 } : { scaleY: 1, y: 0 }}
+          style={{ left: "32%", top: "63%" }}
+          animate={hovering ? { scaleY: 1.4, y: -1 } : { scaleY: 1, y: 0 }}
         />
 
         {/* Sparkles */}
@@ -58,7 +59,7 @@ function Mascot({ hovering }) {
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0 }}
-                className="absolute -top-1 -right-1 w-2 h-2 text-yellow-300"
+                className="absolute -top-1 -right-1 text-yellow-300 text-xs"
               >
                 ✨
               </motion.div>
@@ -68,7 +69,7 @@ function Mascot({ hovering }) {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0 }}
                 transition={{ delay: 0.1 }}
-                className="absolute -top-2 left-0 w-2 h-2 text-yellow-300"
+                className="absolute -top-2 left-0 text-yellow-300 text-xs"
               >
                 ✨
               </motion.div>
@@ -77,12 +78,12 @@ function Mascot({ hovering }) {
         </AnimatePresence>
       </motion.div>
 
-      {/* Pointer diamond */}
+      {/* Diamond pointer */}
       <motion.div
         className="absolute -bottom-1 left-1/2 w-3 h-3 -translate-x-1/2"
         animate={
           hovering
-            ? { y: [0, -3, 0], transition: { duration: 0.3, repeat: Infinity, repeatType: "reverse" } }
+            ? { y: [0, -4, 0], transition: { duration: 0.3, repeat: Infinity, repeatType: "reverse" } }
             : { y: [0, 2, 0], transition: { duration: 1, repeat: Infinity, ease: "easeInOut", delay: 0.5 } }
         }
       >
@@ -93,113 +94,82 @@ function Mascot({ hovering }) {
 }
 
 export default function LunarNavbar() {
-  const items = [
-    { name: "Home", url: "/home" },
-    { name: "Features", url: "/features" },
-    { name: "Changelog", url: "/changelog" },
-    { name: "Contact", url: "/contact" },
-    { name: "View Anime", url: "/view-anime" },
-  ];
+  const items = ["Home", "Popular", "Movie", "Random", "Schedule"];
 
   const [active, setActive] = useState("Home");
   const [hovering, setHovering] = useState(null);
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <>
+      {/* Font Import */}
       <style>{`
-        :root { --geist: 'Geist Mono', monospace; }
+        @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@700&display=swap');
+        :root { --geist: "Geist Mono", monospace; }
       `}</style>
 
-      {/* NAVBAR moved up slightly (top-5 → top-3) */}
-      <div className="fixed left-0 right-0 top-3 z-[9999] flex justify-center select-none pointer-events-none">
-        <div className="flex justify-center pointer-events-auto pt-4">
+      {/* Navbar WRAPPER (moved slightly up) */}
+      <div className="fixed left-0 right-0 top-4 z-[9999] flex justify-center select-none pointer-events-none">
+        <div className="pointer-events-auto pt-4">
+          {/* Navbar Container */}
           <motion.div
-            className="flex items-center gap-3 bg-black/50 border border-white/10 backdrop-blur-lg shadow-lg w-auto py-2 px-2 rounded-full"
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
+            className="flex items-center gap-3 bg-black/50 border border-white/10 backdrop-blur-lg shadow-lg rounded-full px-3 py-2"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
           >
-            {/* MASCOT left but smaller */}
-            <motion.div
-              animate={
-                hovering
-                  ? { y: [0, -5, 0], rotate: [0, 5, 0, -5, 0] }
-                  : { y: [0, -5, 0] }
-              }
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
-            >
-              <Mascot hovering={hovering} />
-            </motion.div>
+            {/* Mascot FOLLOWING ACTIVE TAB */}
+            <AnimatePresence>
+              <motion.div
+                key={active}
+                layoutId="mascot"
+                className="absolute -top-12 left-0 right-0 mx-auto flex justify-center pointer-events-none"
+                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              >
+                <Mascot hovering={hovering === active} />
+              </motion.div>
+            </AnimatePresence>
 
-            {/* LUNAR TEXT with correct Geist Mono Bold 700 */}
+            {/* LUNAR */}
             <span
-              className="font-bold text-lg text-white"
+              className="font-bold text-white text-lg"
               style={{
                 fontFamily: "var(--geist)",
                 fontWeight: 700,
-                letterSpacing: "-0.6px",
+                letterSpacing: "-0.5px",
               }}
             >
               LUNAR
             </span>
 
-            {/* MENU ITEMS */}
-            <div className="hidden md:flex items-center space-x-2 ml-3">
-              {items.map((item) => {
-                const isActive = item.name === active;
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center ml-4 space-x-1">
+              {items.map((name) => {
+                const isActive = name === active;
 
                 return (
-                  <motion.a
-                    key={item.name}
-                    href={item.url}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setActive(item.name);
-                      window.location.href = item.url;
-                    }}
-                    onMouseEnter={() => setHovering(item.name)}
+                  <motion.div
+                    key={name}
+                    onClick={() => setActive(name)}
+                    onMouseEnter={() => setHovering(name)}
                     onMouseLeave={() => setHovering(null)}
-                    className="relative cursor-pointer text-sm font-semibold px-6 py-3 rounded-full transition-all duration-300 text-white/70 hover:text-white"
+                    className="relative cursor-pointer px-5 py-2 text-sm font-medium text-white/70 hover:text-white rounded-full"
                   >
+                    {/* Glow following active tab */}
                     <AnimatePresence>
                       {isActive && (
                         <motion.div
-                          layoutId="active-pill"
-                          className="absolute inset-0 rounded-full -z-10 overflow-hidden"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                        >
-                          <div className="absolute inset-0 bg-white/15 rounded-full blur-md" />
-                        </motion.div>
+                          layoutId="glow"
+                          className="absolute inset-0 rounded-full bg-white/15 blur-md -z-10"
+                          transition={{ type: "spring", stiffness: 250, damping: 25 }}
+                        />
                       )}
                     </AnimatePresence>
 
-                    <motion.span
-                      className="relative z-10"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {item.name}
-                    </motion.span>
-                  </motion.a>
+                    {name}
+                  </motion.div>
                 );
               })}
             </div>
-
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden text-white p-1.5"
-            >
-              {mobileOpen ? "✖" : "☰"}
-            </button>
           </motion.div>
         </div>
       </div>
