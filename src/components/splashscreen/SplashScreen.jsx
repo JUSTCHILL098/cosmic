@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import "./SplashPage.css";
+import "./splashscreen.css";
 
-export default function SplashPage() {
+export default function splashscreen() {
   const videoRef = useRef(null);
   const navigate = useNavigate();
 
