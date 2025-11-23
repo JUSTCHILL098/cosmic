@@ -1,124 +1,222 @@
-import React, { useState } from "react";
+// LunarNavbar.jsx
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
+function Mascot({ hovering }) {
+  return (
+    <div className="relative w-12 h-12">
+      <motion.div
+        className="absolute w-10 h-10 bg-white rounded-full left-1/2 -translate-x-1/2 shadow-md"
+        animate={
+          hovering
+            ? { scale: [1, 1.1, 1], rotate: [0, -5, 5, 0] }
+            : { y: [0, -3, 0] }
+        }
+        transition={
+          hovering
+            ? { duration: 0.5, ease: "easeInOut" }
+            : { duration: 2, repeat: Infinity, ease: "easeInOut" }
+        }
+      >
+        {/* Eyes */}
+        <motion.div
+          className="absolute w-2 h-2 bg-black rounded-full"
+          style={{ left: "25%", top: "40%" }}
+          animate={hovering ? { scaleY: [1, 0.2, 1] } : {}}
+        />
+        <motion.div
+          className="absolute w-2 h-2 bg-black rounded-full"
+          style={{ right: "25%", top: "40%" }}
+          animate={hovering ? { scaleY: [1, 0.2, 1] } : {}}
+        />
+
+        {/* Blush */}
+        <motion.div
+          className="absolute w-2 h-1.5 bg-pink-300 rounded-full"
+          style={{ left: "15%", top: "55%" }}
+          animate={{ opacity: hovering ? 0.8 : 0.6 }}
+        />
+        <motion.div
+          className="absolute w-2 h-1.5 bg-pink-300 rounded-full"
+          style={{ right: "15%", top: "55%" }}
+          animate={{ opacity: hovering ? 0.8 : 0.6 }}
+        />
+
+        {/* Mouth */}
+        <motion.div
+          className="absolute w-4 h-2 border-b-2 border-black rounded-full"
+          style={{ left: "30%", top: "60%" }}
+          animate={hovering ? { scaleY: 1.5, y: -1 } : { scaleY: 1, y: 0 }}
+        />
+
+        {/* Sparkles */}
+        <AnimatePresence>
+          {hovering && (
+            <>
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0 }}
+                className="absolute -top-1 -right-1"
+              >
+                ✨
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0 }}
+                transition={{ delay: 0.1 }}
+                className="absolute -top-2 left-0"
+              >
+                ✨
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Pointer diamond */}
+      <motion.div
+        className="absolute -bottom-1 left-1/2 w-4 h-4 -translate-x-1/2"
+        animate={
+          hovering
+            ? { y: [0, -4, 0], transition: { duration: 0.3, repeat: Infinity, repeatType: "reverse" } }
+            : { y: [0, 2, 0], transition: { duration: 1, repeat: Infinity, ease: "easeInOut", delay: 0.5 } }
+        }
+      >
+        <div className="w-full h-full bg-white rotate-45 shadow" />
+      </motion.div>
+    </div>
+  );
+}
 
 export default function LunarNavbar() {
   const items = [
     { name: "Home", url: "/home" },
-    { name: "Movies", url: "/movie" },
-    { name: "Random", url: "/random" },
+    { name: "Features", url: "/features" },
+    { name: "Changelog", url: "/changelog" },
     { name: "Contact", url: "/contact" },
-    { name: "View Anime", url: "/dmca" },
+    { name: "View Anime", url: "/view-anime" },
   ];
 
   const [active, setActive] = useState("Home");
-  const [hover, setHover] = useState(null);
-  const [mobile, setMobile] = useState(false);
+  const [hovering, setHovering] = useState(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <>
-      <div className="header">
-        <div className={`header-inner ${mobile ? "menu-open" : ""}`}>
-          {/* Brand */}
-          <div className="brand">
-            <div className="brand-icon-wrapper">
-              <div className="w-6 h-6 bg-white rounded-lg" />
-            </div>
-            <span className="brand-text">LUNAR</span>
-          </div>
+      <style>{`
+        :root { --geist: 'Geist Mono', monospace; }
+      `}</style>
 
-          {/* Desktop nav */}
-          <nav className="nav">
-            <ul className="nav-list">
+      <div className="fixed left-0 right-0 top-5 z-[9999] flex justify-center select-none pointer-events-none">
+        <div className="flex justify-center pointer-events-auto">
+          <motion.div
+            className="flex items-center gap-4 bg-black/60 border border-white/10 backdrop-blur-xl shadow-xl px-6 py-3 rounded-full"
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+          >
+            {/* Mascot */}
+            <motion.div
+              animate={
+                hovering
+                  ? { y: [0, -5, 0], rotate: [0, 5, 0, -5, 0] }
+                  : { y: [0, -5, 0] }
+              }
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+            >
+              <Mascot hovering={hovering} />
+            </motion.div>
+
+            {/* Logo text */}
+            <span
+              className="font-bold text-lg text-white tracking-tight"
+              style={{ fontFamily: "var(--geist)" }}
+            >
+              LUNAR
+            </span>
+
+            {/* Desktop Nav Items */}
+            <div className="hidden md:flex items-center gap-2 ml-3">
               {items.map((item) => {
                 const isActive = item.name === active;
+
                 return (
-                  <li key={item.name} className="nav-item">
-                    <a
-                      href={item.url}
-                      className={`nav-link ${isActive ? "active" : ""}`}
-                      onMouseEnter={() => setHover(item.name)}
-                      onMouseLeave={() => setHover(null)}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setActive(item.name);
-                        window.location.href = item.url;
-                      }}
-                    >
-                      {/* Active glowing backdrop */}
+                  <motion.a
+                    key={item.name}
+                    href={item.url}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setActive(item.name);
+                      window.location.href = item.url;
+                    }}
+                    onMouseEnter={() => setHovering(item.name)}
+                    onMouseLeave={() => setHovering(null)}
+                    className="relative text-sm font-semibold px-5 py-2 text-white/70 hover:text-white cursor-pointer rounded-full"
+                  >
+                    {/* Active glowing pill */}
+                    <AnimatePresence>
                       {isActive && (
-                        <div className="active-backdrop">
-                          <div className="layer layer-1" />
-                          <div className="layer layer-2" />
-                          <div className="layer layer-3" />
-                          <div className="layer layer-4" />
-                          <div className="shine" />
-                        </div>
+                        <motion.div
+                          layoutId="active-pill"
+                          className="absolute inset-0 bg-white/15 rounded-full blur-md -z-10"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                        />
                       )}
+                    </AnimatePresence>
 
-                      {/* Hover backdrop */}
-                      {!isActive && hover === item.name && (
-                        <div className="hover-backdrop" />
-                      )}
-
-                      <span className="label-desktop">{item.name}</span>
-                      <span className="label-mobile">{item.name}</span>
-
-                      {/* Mascot over the active item */}
-                      {isActive && (
-                        <div className="mascot">
-                          <div className="mascot-inner">
-                            <div className="head">
-                              <div className="eye eye-left"></div>
-                              <div className="eye eye-right"></div>
-                              <div className="blush blush-left"></div>
-                              <div className="blush blush-right"></div>
-                              <div className="mouth"></div>
-                              <div className="sparkle sparkle-1">✨</div>
-                              <div className="sparkle sparkle-2">✨</div>
-                            </div>
-                            <div className="body"></div>
-                          </div>
-                        </div>
-                      )}
-                    </a>
-                  </li>
+                    <span className="relative z-10">{item.name}</span>
+                  </motion.a>
                 );
               })}
-            </ul>
-          </nav>
-
-          {/* Mobile menu button */}
-          <button
-            className="menu-button md:hidden"
-            onClick={() => setMobile(!mobile)}
-          >
-            <span className="menu-bar" />
-            <span className="menu-bar" />
-            <span className="menu-bar" />
-          </button>
-
-          {/* Mobile dropdown */}
-          {mobile && (
-            <div className="mobile-menu">
-              {items.map((item) => (
-                <button
-                  key={item.name}
-                  className={`mobile-menu-item ${
-                    active === item.name ? "active" : ""
-                  }`}
-                  onClick={() => {
-                    setActive(item.name);
-                    setMobile(false);
-                    window.location.href = item.url;
-                  }}
-                >
-                  <span className="mobile-menu-label">{item.name}</span>
-                </button>
-              ))}
             </div>
-          )}
+
+            {/* Hamburger */}
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="md:hidden text-white text-2xl px-2"
+            >
+              {mobileOpen ? "✖" : "☰"}
+            </button>
+          </motion.div>
         </div>
       </div>
+
+      {/* Mobile Slide Menu */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ type: "spring", stiffness: 260, damping: 22 }}
+            className="fixed inset-x-6 top-24 z-[9998] rounded-2xl bg-black/95 backdrop-blur-lg border border-white/20 shadow-xl p-4 md:hidden"
+          >
+            {items.map((item) => (
+              <a
+                key={item.name}
+                href={item.url}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActive(item.name);
+                  window.location.href = item.url;
+                }}
+                className="block px-4 py-3 rounded-xl text-white/80 hover:text-white hover:bg-white/10"
+              >
+                {item.name}
+              </a>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
