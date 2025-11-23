@@ -4,10 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function LunarNavbar() {
   const items = [
     { name: "Home", url: "/home" },
-    { name: "Features", url: "/features" },
-    { name: "Changelog", url: "/changelog" },
+    { name: "Movies", url: "/movie" },
+    { name: "Random", url: "/random" },
     { name: "Contact", url: "/contact" },
-    { name: "View Anime", url: "/view-anime" },
+    { name: "View Anime", url: "/dmca" },
   ];
 
   const [active, setActive] = useState("Home");
