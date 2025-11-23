@@ -1,92 +1,104 @@
-@import url("https://fonts.cdnfonts.com/css/geist-mono");
-@import url("https://fonts.cdnfonts.com/css/geist");
+/* GLOBAL RESET */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-.splash-root {
-  min-height: 100vh;
+body, html { background: #000 !important; }
+
+/* WRAPPER */
+.splash-wrapper {
   background: #000;
-  color: white;
-  font-family: "Geist Mono", monospace;
   position: relative;
-  overflow-x: hidden;
-}
-
-/* FALLING STARS BG */
-.stars {
-  position: fixed;
-  inset: 0;
-  background: transparent;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 1;
-}
-
-.star {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  background: white;
-  border-radius: 50%;
-  animation: fall linear infinite;
-}
-
-@keyframes fall {
-  from {
-    transform: translateY(-10vh);
-    opacity: 1;
-  }
-  to {
-    transform: translateY(110vh);
-    opacity: 0;
-  }
+  padding: 0 6%;
 }
 
 /* HERO SECTION */
 .hero-section {
-  z-index: 5;
+  position: relative;
   text-align: center;
-  padding-top: 140px;
+  padding-top: 130px;
+  padding-bottom: 80px;
+  border-bottom: 1px solid #222;
 }
 
+/* ⭐ STARS */
+.stars, .stars-2, .stars-3 {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.25) 1px, transparent 1px);
+  background-size: 3px 3px;
+  animation: drift linear infinite;
+  pointer-events: none;
+}
+
+.stars { opacity: .05; animation-duration: 18s; }
+.stars-2 { opacity: .07; animation-duration: 24s; }
+.stars-3 { opacity: .09; animation-duration: 30s; }
+
+@keyframes drift {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50px); }
+}
+
+/* USERS WATCHING BADGE */
 .status-badge {
-  background: rgba(79, 70, 229, 0.2);
+  background: rgba(99, 102, 241, 0.2);
   border: 1px solid #6366f1;
-  padding: 4px 14px;
+  color: #818cf8;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
   display: inline-flex;
   align-items: center;
-  font-size: 13px;
-  border-radius: 6px;
+  gap: 6px;
 }
 
-.dot {
-  width: 8px;
-  height: 8px;
-  background: #6366f1;
-  border-radius: 50%;
-  margin-right: 6px;
+.status-dot-wrapper {
+  position: relative;
+  width: 10px;
+  height: 10px;
 }
 
-/* MASK VIDEO */
-.mask-box {
-  margin-top: 20px;
+.status-ping {
+  position: absolute;
   width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: #818cf8;
+  animation: ping 1s infinite;
+  opacity: .75;
+}
+
+.status-dot {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #6366f1;
+}
+
+@keyframes ping {
+  0% { transform: scale(.7); opacity: .9; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* MASKED LOGO */
+.mask-container {
   max-width: 900px;
-  height: 140px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 30px auto;
 }
 
 .mask-logo {
-  width: 100%;
-  height: 100%;
+  mask-image: url("https://i.imgur.com/L8Lq2O7.png");
+  -webkit-mask-image: url("https://i.imgur.com/L8Lq2O7.png");
   mask-size: contain;
-  mask-repeat: no-repeat;
-  mask-position: center;
   -webkit-mask-size: contain;
+  mask-repeat: no-repeat;
   -webkit-mask-repeat: no-repeat;
+  mask-position: center;
   -webkit-mask-position: center;
+  height: 120px;
 }
 
-.masked-video {
+.mask-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -94,107 +106,111 @@
 
 /* TEXT */
 .hero-subtitle {
-  margin-top: 25px;
-  font-size: 20px;
-  color: #ddd;
+  margin-top: 12px;
+  font-size: 16px;
+  color: #cbd5e1;
 }
 
 .hero-desc {
   margin-top: 6px;
-  color: #777;
+  color: #94a3b8;
   font-size: 14px;
 }
 
-/* BUTTON */
-.watch-btn {
-  margin-top: 18px;
-  padding: 10px 28px;
-  font-size: 14px;
+/* BUTTONS */
+.hero-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+
+.btn-primary {
   background: #4f46e5;
-  border: none;
+  color: white;
+  padding: 8px 22px;
+  border-radius: 6px;
+}
+
+.btn-ghost {
+  border: 1px solid #444;
+  padding: 8px 22px;
   border-radius: 6px;
   color: white;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.watch-btn:hover {
-  background: #4338ca;
 }
 
 /* PREVIEW WINDOW */
 .preview-window {
-  margin-top: 50px;
+  margin: 55px auto;
+  max-width: 900px;
   border: 1px solid #222;
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
-  background: #090909;
-  width: 100%;
-  max-width: 880px;
-  margin-left: auto;
-  margin-right: auto;
+  background: #0b0b0b;
 }
 
-.window-bar {
+.preview-header {
   background: #111;
-  padding: 10px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
 }
 
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+.dots { display: flex; gap: 6px; }
+
+.window-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
 }
 
-.red { background: #ff5f57; }
-.yellow { background: #ffbd2e; }
-.green { background: #28c840; }
+.dot-red { background: #ff5f56; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green { background: #27c93f; }
 
-.url-box {
-  flex: 1;
-  text-align: center;
-  color: #999;
+.url-pill {
+  padding: 4px 10px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 6px;
   font-size: 12px;
+  color: #777;
 }
+
+.preview-body { padding: 12px; }
 
 .preview-img {
   width: 100%;
-  display: block;
+  border-radius: 6px;
 }
 
 /* MARQUEE */
 .marquee-section {
-  width: 100%;
+  margin-top: 20px;
   overflow: hidden;
-  border-top: 1px solid #333;
-  border-bottom: 1px solid #333;
-  margin-top: 40px;
+  border-top: 1px solid #111;
+  border-bottom: 1px solid #111;
 }
 
-.marquee-track {
+.track {
   display: flex;
-  gap: 40px;
-  animation: marquee 45s linear infinite;
   white-space: nowrap;
+  animation: marquee 45s linear infinite;
 }
 
-.marquee-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #ccc;
-}
-
-.marquee-divider {
-  width: 1px;
-  height: 14px;
-  background: #555;
+.track.reverse {
+  animation-direction: reverse;
 }
 
 @keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-item {
+  padding: 10px 25px;
+  color: #aaa;
+  font-size: 14px;
+  border-right: 1px solid #333;
 }
