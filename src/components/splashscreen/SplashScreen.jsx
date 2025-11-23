@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../../navbar/Navbar.jsx";
+import Navbar from "../navbar/Navbar.jsx";
 import "./SplashScreen.css";
 
 export default function SplashScreen() {
