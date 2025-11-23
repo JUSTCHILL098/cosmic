@@ -1,113 +1,200 @@
-/* ============================= */
-/*        GEIST FONT SETUP       */
-/* ============================= */
+@import url("https://fonts.cdnfonts.com/css/geist-mono");
+@import url("https://fonts.cdnfonts.com/css/geist");
 
-@import url('https://fonts.cdnfonts.com/css/geist-mono');
-@import url('https://fonts.cdnfonts.com/css/geist');
-
-body {
-  font-family: 'Geist', sans-serif;
+.splash-root {
+  min-height: 100vh;
+  background: #000;
+  color: white;
+  font-family: "Geist Mono", monospace;
+  position: relative;
+  overflow-x: hidden;
 }
 
-.mono {
-  font-family: 'Geist Mono', monospace;
+/* FALLING STARS BG */
+.stars {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
 }
 
-/* ============================= */
-/*        GLOBAL BACKGROUND      */
-/* ============================= */
-
-.splash-bg {
-  background: radial-gradient(
-    ellipse at center,
-    rgba(79,70,229,0.22),
-    rgba(0,0,0,1) 70%
-  );
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  animation: fall linear infinite;
 }
 
-/* ============================= */
-/*         HERO MASK TEXT        */
-/* ============================= */
+@keyframes fall {
+  from {
+    transform: translateY(-10vh);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(110vh);
+    opacity: 0;
+  }
+}
+
+/* HERO SECTION */
+.hero-section {
+  z-index: 5;
+  text-align: center;
+  padding-top: 140px;
+}
+
+.status-badge {
+  background: rgba(79, 70, 229, 0.2);
+  border: 1px solid #6366f1;
+  padding: 4px 14px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: #6366f1;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+/* MASK VIDEO */
+.mask-box {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 900px;
+  height: 140px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
 .mask-logo {
-  mask-image: url('/mask/lunar-mask.png');
-  -webkit-mask-image: url('/mask/lunar-mask.png');
-  mask-repeat: no-repeat;
-  -webkit-mask-repeat: no-repeat;
-  mask-position: center;
-  -webkit-mask-position: center;
+  width: 100%;
+  height: 100%;
   mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
   -webkit-mask-size: contain;
-  background: white;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
 }
 
-/* ============================= */
-/*        MARQUEE ANIMATION      */
-/* ============================= */
-
-@keyframes marqueeFlow {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+.masked-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.animate-marquee {
-  animation: marqueeFlow var(--duration) linear infinite;
+/* TEXT */
+.hero-subtitle {
+  margin-top: 25px;
+  font-size: 20px;
+  color: #ddd;
 }
 
-/* ============================= */
-/*   Hover Pause For Marquee     */
-/* ============================= */
-
-.group:hover .animate-marquee {
-  animation-play-state: paused;
+.hero-desc {
+  margin-top: 6px;
+  color: #777;
+  font-size: 14px;
 }
 
-/* ============================= */
-/*        WINDOW DOTS UI         */
-/* ============================= */
+/* BUTTON */
+.watch-btn {
+  margin-top: 18px;
+  padding: 10px 28px;
+  font-size: 14px;
+  background: #4f46e5;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
 
-.window-dot {
-  width: 14px;
-  height: 14px;
+.watch-btn:hover {
+  background: #4338ca;
+}
+
+/* PREVIEW WINDOW */
+.preview-window {
+  margin-top: 50px;
+  border: 1px solid #222;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #090909;
+  width: 100%;
+  max-width: 880px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.window-bar {
+  background: #111;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
 }
 
-.dot-red { background: #ff5f57; }
-.dot-yellow { background: #febc2e; }
-.dot-green { background: #28c840; }
+.red { background: #ff5f57; }
+.yellow { background: #ffbd2e; }
+.green { background: #28c840; }
 
-/* ============================= */
-/*   Fade-In Animation Timing    */
-/* ============================= */
-
-@keyframes fadeUp {
-  0% { opacity:0; transform:translateY(10px); }
-  100% { opacity:1; transform:translateY(0); }
+.url-box {
+  flex: 1;
+  text-align: center;
+  color: #999;
+  font-size: 12px;
 }
 
-.fade {
-  animation: fadeUp 0.7s ease forwards;
+.preview-img {
+  width: 100%;
+  display: block;
 }
 
-/* ============================= */
-/*         CARD HOVER            */
-/* ============================= */
-
-.feature-card {
-  transition: 0.25s ease;
+/* MARQUEE */
+.marquee-section {
+  width: 100%;
+  overflow: hidden;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+  margin-top: 40px;
 }
 
-.feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 0 30px rgba(99,102,241,0.3);
+.marquee-track {
+  display: flex;
+  gap: 40px;
+  animation: marquee 45s linear infinite;
+  white-space: nowrap;
 }
 
-/* ============================= */
-/*        SMOOTH SCROLL          */
-/* ============================= */
+.marquee-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ccc;
+}
 
-html { scroll-behavior: smooth; }
+.marquee-divider {
+  width: 1px;
+  height: 14px;
+  background: #555;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
