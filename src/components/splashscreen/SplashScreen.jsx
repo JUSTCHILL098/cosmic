@@ -61,16 +61,18 @@ export default function SplashScreen() {
           <div className="stars-2"></div>
           <div className="stars-3"></div>
 
-          {/* Badge */}
-          <div className="fade z-10 mt-20">
-            <div className="status-badge">
-              <span className="status-dot-wrapper">
-                <span className="status-ping"></span>
-                <span className="status-dot"></span>
-              </span>
-              0 users watching now
-            </div>
-          </div>
+        {/* small status badge */}
+<div className="fade z-10">
+  <div
+    className="rounded-md font-semibold shadow bg-indigo-500/20 text-indigo-500 border border-indigo-500 px-2 py-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap"
+  >
+    <span className="relative flex h-2 w-2 flex-shrink-0">
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+      <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+    </span>
+    0 users watching now
+  </div>
+</div>
 
           {/* MASK + VIDEO */}
           <div className="mask-container">
@@ -140,14 +142,6 @@ export default function SplashScreen() {
           <div className="track">
             {[...items, ...items].map((label, i) => (
               <div className="marquee-item" key={i}>
-                {label}
-              </div>
-            ))}
-          </div>
-
-          <div className="track reverse">
-            {[...items, ...items].map((label, i) => (
-              <div className="marquee-item" key={`r-${i}`}>
                 {label}
               </div>
             ))}
