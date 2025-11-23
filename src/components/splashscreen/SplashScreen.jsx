@@ -7,7 +7,6 @@ export default function SplashScreen() {
   const videoRef = useRef(null);
   const navigate = useNavigate();
 
-  // Marquee items
   const items = [
     "Solo Leveling ソロレベリング",
     "One Piece ワンピース",
@@ -32,59 +31,54 @@ export default function SplashScreen() {
   ];
 
   useEffect(() => {
+    // fonts
     const addLink = (href) => {
-      if (document.querySelector(`link[href="${href}"]`)) return;
-      const l = document.createElement("link");
-      l.rel = "stylesheet";
-      l.href = href;
-      document.head.appendChild(l);
+      if (!document.querySelector(`link[href="${href}"]`)) {
+        const l = document.createElement("link");
+        l.rel = "stylesheet";
+        l.href = href;
+        document.head.appendChild(l);
+      }
     };
 
     addLink("https://fonts.cdnfonts.com/css/geist-mono");
     addLink("https://fonts.cdnfonts.com/css/geist");
 
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
-    }
+    if (videoRef.current) videoRef.current.play().catch(() => {});
   }, []);
 
   return (
     <main className="min-h-screen bg-black">
-      {/* NAVBAR */}
       <Navbar />
 
-      <div className="splash-wrapper min-h-screen text-white">
+      <div className="splash-wrapper">
+        {/* ⭐ Falling stars */}
+        <div className="stars"></div>
+        <div className="stars stars-2"></div>
+        <div className="stars stars-3"></div>
+
         <section className="hero-section">
 
-          {/* ⭐ STARS */}
-          <div className="stars"></div>
-          <div className="stars-2"></div>
-          <div className="stars-3"></div>
+          {/* Badge */}
+          <div className="fade z-10">
+            <div className="status-badge">
+              <span className="status-dot">
+                <span className="status-ping"></span>
+              </span>
+              0 users watching now
+            </div>
+          </div>
 
-        {/* small status badge */}
-<div className="fade z-10">
-  <div
-    className="rounded-md font-semibold shadow bg-indigo-500/20 text-indigo-500 border border-indigo-500 px-2 py-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap"
-  >
-    <span className="relative flex h-2 w-2 flex-shrink-0">
-      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-      <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-    </span>
-    0 users watching now
-  </div>
-</div>
-
-          {/* MASK + VIDEO */}
+          {/* Masked video text "LUNAR" */}
           <div className="mask-container">
             <div className="mask-logo">
               <video
                 ref={videoRef}
                 autoPlay
-                muted
                 loop
+                muted
                 playsInline
                 preload="auto"
-                className="mask-video"
               >
                 <source
                   src="https://api.lunaranime.ru/static/intro.mp4"
@@ -101,21 +95,15 @@ export default function SplashScreen() {
             </p>
           </div>
 
-          {/* BUTTONS */}
+          {/* Buttons */}
           <div className="hero-buttons">
-            <button
-              onClick={() => navigate("/home")}
-              className="btn-primary"
-            >
+            <button onClick={() => navigate("/home")} className="btn-primary">
               Start Watching
             </button>
-
-            <a href="#" className="btn-ghost">
-              Discord
-            </a>
+            <a href="#" className="btn-ghost">Discord</a>
           </div>
 
-          {/* PREVIEW WINDOW */}
+          {/* Window preview */}
           <div className="preview-window">
             <div className="preview-header">
               <div className="dots">
@@ -130,14 +118,14 @@ export default function SplashScreen() {
             <div className="preview-body">
               <img
                 src="https://i.imgur.com/Jp9w4wF.png"
-                alt="Preview"
                 className="preview-img"
+                alt="preview"
               />
             </div>
           </div>
         </section>
 
-        {/* MARQUEE */}
+        {/* Marquee anime list */}
         <section className="marquee-section">
           <div className="track">
             {[...items, ...items].map((label, i) => (
