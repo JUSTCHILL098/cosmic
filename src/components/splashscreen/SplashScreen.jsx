@@ -61,10 +61,18 @@ export default function SplashScreen() {
 
       <section className="hero-section">
 
-        {/* STATUS BADGE */}
-        <div className="status-badge">
-          <span className="dot"></span> 0 users watching now
-        </div>
+        {/* small status badge */}
+<div className="fade z-10">
+  <div
+    className="rounded-md font-semibold shadow bg-indigo-500/20 text-indigo-500 border border-indigo-500 px-2 py-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap"
+  >
+    <span className="relative flex h-2 w-2 flex-shrink-0">
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+      <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+    </span>
+    0 users watching now
+  </div>
+</div>
 
         {/* MASKED VIDEO */}
         <div className="mask-box">
