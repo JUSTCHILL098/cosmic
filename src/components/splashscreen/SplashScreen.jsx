@@ -3,6 +3,14 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../navbar/Navbar.jsx";
 import "./SplashScreen.css";
 
+/**
+ * Final SplashScreen.jsx
+ * - Creates inline SVG mask for "LUNAR" so no external mask file required.
+ * - Adds diagonal streaks + twinkling stars.
+ * - Smooth marquee and preview window.
+ * - Uses Geist font via injected <link>.
+ */
+
 export default function SplashScreen() {
   const videoRef = useRef(null);
   const navigate = useNavigate();
@@ -31,7 +39,7 @@ export default function SplashScreen() {
   ];
 
   useEffect(() => {
-    // fonts
+    // inject Geist fonts
     const addLink = (href) => {
       if (!document.querySelector(`link[href="${href}"]`)) {
         const l = document.createElement("link");
@@ -40,98 +48,115 @@ export default function SplashScreen() {
         document.head.appendChild(l);
       }
     };
-
     addLink("https://fonts.cdnfonts.com/css/geist-mono");
     addLink("https://fonts.cdnfonts.com/css/geist");
 
-    if (videoRef.current) videoRef.current.play().catch(() => {});
+    // ensure video tries to autoplay
+    if (videoRef.current) {
+      videoRef.current
+        .play()
+        .catch(() => {
+          /* autoplay blocked: it's fine, video will be paused */
+        });
+    }
   }, []);
 
+  // build inline SVG mask data URL for "LUNAR"
+  const maskSvg = encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200'>
+      <rect width='1200' height='200' fill='black'/>
+      <style>
+        @import url('https://fonts.cdnfonts.com/css/geist-mono');
+        text { font-family: 'Geist Mono', monospace; font-weight: 900; font-size: 150px; letter-spacing: 8px; }
+      </style>
+      <text x='50%' y='72%' text-anchor='middle' fill='white'>LUNAR</text>
+    </svg>`
+  );
+  const maskDataUrl = `data:image/svg+xml;utf8,${maskSvg}`;
+
   return (
-    <main className="min-h-screen bg-black">
+    <main className="splash-root">
       <Navbar />
 
+      {/* background layers */}
+      <div className="streaks-layer" aria-hidden />
+      <div className="twinkle-layer" aria-hidden />
+
       <div className="splash-wrapper">
-        {/* ⭐ Falling stars */}
-        <div className="stars"></div>
-        <div className="stars stars-2"></div>
-        <div className="stars stars-3"></div>
-
-        <section className="hero-section">
-
-          {/* Badge */}
-          <div className="fade z-10">
+        <section className="hero">
+          {/* status badge */}
+          <div className="status-wrap">
             <div className="status-badge">
-              <span className="status-dot">
-                <span className="status-ping"></span>
+              <span className="status-indicator">
+                <span className="ping" />
+                <span className="core" />
               </span>
-              0 users watching now
+              <span className="status-text">10 users watching now</span>
             </div>
           </div>
 
-          {/* Masked video text "LUNAR" */}
-          <div className="mask-container">
-            <div className="mask-logo">
-              <video
-                ref={videoRef}
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-              >
-                <source
-                  src="https://api.lunaranime.ru/static/intro.mp4"
-                  type="video/mp4"
-                />
-              </video>
-            </div>
-
-            <h1 className="hero-subtitle">
-              Your Ultimate Anime Streaming Platform
-            </h1>
-            <p className="hero-desc">
-              Thousands of anime series and movies in English and German
-            </p>
+          {/* masked LUNAR */}
+          <div
+            className="mask-block"
+            style={{
+              WebkitMaskImage: `url("${maskDataUrl}")`,
+              maskImage: `url("${maskDataUrl}")`,
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+            }}
+          >
+            <video
+              ref={videoRef}
+              className="hero-video"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+            >
+              <source src="https://api.lunaranime.ru/static/intro.mp4" type="video/mp4" />
+            </video>
           </div>
 
-          {/* Buttons */}
-          <div className="hero-buttons">
-            <button onClick={() => navigate("/home")} className="btn-primary">
+          {/* subtitle */}
+          <p className="subhead">Your Complete Anime Entertainment Platform</p>
+          <p className="subdesc">Thousands of series in English &amp; German and more</p>
+
+          {/* CTAs */}
+          <div className="cta-row">
+            <button className="cta-primary" onClick={() => navigate("/home")}>
               Start Watching
             </button>
-            <a href="#" className="btn-ghost">Discord</a>
+            <a className="cta-ghost" href="#" onClick={(e)=>e.preventDefault()}>Discord</a>
           </div>
 
-          {/* Window preview */}
-          <div className="preview-window">
-            <div className="preview-header">
-              <div className="dots">
-                <div className="window-dot dot-red"></div>
-                <div className="window-dot dot-yellow"></div>
-                <div className="window-dot dot-green"></div>
+          {/* preview window */}
+          <div className="preview">
+            <div className="preview-top">
+              <div className="preview-dots" aria-hidden>
+                <div className="dot dot-red" />
+                <div className="dot dot-yellow" />
+                <div className="dot dot-green" />
               </div>
 
-              <div className="url-pill">https://lunar.animes</div>
+              <div className="preview-url">https://lunar.animes</div>
             </div>
 
             <div className="preview-body">
-              <img
-                src="https://i.imgur.com/Jp9w4wF.png"
-                className="preview-img"
-                alt="preview"
-              />
+              <img className="preview-img" src="https://i.imgur.com/Jp9w4wF.png" alt="preview" />
             </div>
           </div>
         </section>
 
-        {/* Marquee anime list */}
-        <section className="marquee-section">
-          <div className="track">
-            {[...items, ...items].map((label, i) => (
-              <div className="marquee-item" key={i}>
-                {label}
-              </div>
+        {/* marquee (duplicate items for smoothness) */}
+        <section className="marquee">
+          <div className="marquee-track" style={{ "--duration": "72s" }}>
+            {[...items, ...items].map((t, i) => (
+              <div className="marquee-item" key={i}>{t}</div>
             ))}
           </div>
         </section>
