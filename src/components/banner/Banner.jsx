@@ -1,3 +1,4 @@
+// Banner.jsx
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
@@ -10,37 +11,69 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/src/context/LanguageContext";
 import "./Banner.css";
 
+// Expected "item" shape (example):
+// {
+//   id: 1,
+//   poster: "https://image-url.jpg",
+//   title: "Attack on Titan",
+//   japanese_title: "進撃の巨人",
+//   description: "Some description...",
+//   tvInfo: {
+//     showType: "TV",
+//     duration: "24 min / ep",
+//     releaseDate: "2013",
+//     quality: "HD",
+//     episodeInfo: {
+//       sub: "Sub",
+//       dub: "Dub",
+//     },
+//   },
+// }
+
 function Banner({ item, index }) {
   const { language } = useLanguage();
+
+  if (!item) return null; // safety so it doesn't crash
+
+  const titleToShow =
+    language === "EN"
+      ? item.title || item.japanese_title
+      : item.japanese_title || item.title;
+
   return (
     <section className="spotlight w-full h-full relative rounded-2xl overflow-hidden">
+      {/* Background image */}
       <img
-        src={`${item.poster}`}
+        src={item.poster}
         alt={item.title}
         className="absolute inset-0 object-cover w-full h-full rounded-2xl"
       />
-      <div className="spotlight-overlay absolute inset-0 z-[1] rounded-2xl"></div>
-      
+
+      {/* Dark overlay (you can also add extra styles in Banner.css with .spotlight-overlay) */}
+      <div className="spotlight-overlay absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent z-[1] rounded-2xl" />
+
+      {/* Left content block */}
       <div className="absolute flex flex-col left-0 bottom-[40px] w-[55%] p-4 z-[2] max-[1390px]:w-[45%] max-[1390px]:bottom-[40px] max-[1300px]:w-[600px] max-[1120px]:w-[60%] max-md:w-[90%] max-md:bottom-[20px] max-[300px]:w-full">
+        {/* Spotlight label */}
         <p className="text-[#b67fff] font-semibold text-[20px] w-fit max-[1300px]:text-[15px]">
           #{index + 1} Spotlight
         </p>
+
+        {/* Title */}
         <h3 className="text-white line-clamp-2 text-5xl font-bold mt-4 text-left max-[1390px]:text-[45px] max-[1300px]:text-3xl max-[1300px]:mt-3 max-md:text-2xl max-md:mt-1 max-[575px]:text-[22px] max-sm:leading-6 max-sm:w-[80%] max-[320px]:w-full">
-          {language === "EN" ? item.title : item.japanese_title}
+          {titleToShow}
         </h3>
-        
-        {/* Mobile Buttons */}
+
+        {/* Mobile buttons */}
         <div className="hidden max-md:flex max-md:mt-3 max-md:gap-x-3 max-md:w-full">
           <Link
             to={`/watch/${item.id}`}
             className="bg-white/90 hover:bg-white text-black font-medium px-5 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-x-2 text-sm"
           >
-            <FontAwesomeIcon
-              icon={faPlay}
-              className="text-[10px]"
-            />
+            <FontAwesomeIcon icon={faPlay} className="text-[10px]" />
             <span>Watch Now</span>
           </Link>
+
           <Link
             to={`/${item.id}`}
             className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-medium px-5 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-x-2 text-sm"
@@ -49,6 +82,7 @@ function Banner({ item, index }) {
           </Link>
         </div>
 
+        {/* Info row (desktop / tablet) */}
         <div className="flex h-fit justify-start items-center w-fit space-x-5 mt-5 max-[1300px]:mt-4 max-md:hidden">
           {item.tvInfo && (
             <>
@@ -94,6 +128,7 @@ function Banner({ item, index }) {
                     {item.tvInfo.quality}
                   </div>
                 )}
+
                 <div className="flex space-x-[1px] rounded-r-[5px] rounded-l-[5px] w-fit py-[1px] overflow-hidden">
                   {item.tvInfo.episodeInfo?.sub && (
                     <div className="flex space-x-1 justify-center items-center bg-white/10 px-[4px]">
@@ -123,22 +158,25 @@ function Banner({ item, index }) {
             </>
           )}
         </div>
-        <p className="text-white/70 text-[17px] font-sm mt-4 text-left line-clamp-3 max-[1200px]:line-clamp-2 max-[1300px]:w-[500px] max-[1120px]:w-[90%] max-md:hidden">
-          {item.description}
-        </p>
+
+        {/* Description (desktop only) */}
+        {item.description && (
+          <p className="text-white/70 text-[17px] font-sm mt-4 text-left line-clamp-3 max-[1200px]:line-clamp-2 max-[1300px]:w-[500px] max-[1120px]:w-[90%] max-md:hidden">
+            {item.description}
+          </p>
+        )}
       </div>
-      {/* Desktop Buttons */}
+
+      {/* Desktop buttons (bottom-right) */}
       <div className="absolute bottom-[50px] right-[40px] flex gap-x-5 z-[2] max-md:hidden">
         <Link
           to={`/watch/${item.id}`}
           className="bg-white/90 hover:bg-white text-black font-medium px-7 py-2 rounded-lg transition-all duration-200 flex items-center gap-x-2.5 shadow-lg shadow-black/10 backdrop-blur-sm hover:translate-y-[-1px]"
         >
-          <FontAwesomeIcon
-            icon={faPlay}
-            className="text-[10px]"
-          />
+          <FontAwesomeIcon icon={faPlay} className="text-[10px]" />
           <span>Watch Now</span>
         </Link>
+
         <Link
           to={`/${item.id}`}
           className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-medium px-7 py-2 rounded-lg transition-all duration-200 flex items-center gap-x-2.5 backdrop-blur-sm hover:translate-y-[-1px]"
