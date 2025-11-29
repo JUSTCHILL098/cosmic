@@ -1,4 +1,5 @@
-// Banner.jsx
+// weeb/src/components/banner/Banner.jsx
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
@@ -8,32 +9,15 @@ import {
   faClock,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
-import { useLanguage } from "@/src/context/LanguageContext";
-import "./Banner.css";
-
-// Expected "item" shape (example):
-// {
-//   id: 1,
-//   poster: "https://image-url.jpg",
-//   title: "Attack on Titan",
-//   japanese_title: "進撃の巨人",
-//   description: "Some description...",
-//   tvInfo: {
-//     showType: "TV",
-//     duration: "24 min / ep",
-//     releaseDate: "2013",
-//     quality: "HD",
-//     episodeInfo: {
-//       sub: "Sub",
-//       dub: "Dub",
-//     },
-//   },
-// }
+// ✅ if your alias is @ -> src, this is correct:
+import { useLanguage } from "@/context/LanguageContext";
+// ❗ if that gives an error, use this instead:
+// import { useLanguage } from "../../context/LanguageContext";
 
 function Banner({ item, index }) {
   const { language } = useLanguage();
 
-  if (!item) return null; // safety so it doesn't crash
+  if (!item) return null;
 
   const titleToShow =
     language === "EN"
@@ -41,7 +25,7 @@ function Banner({ item, index }) {
       : item.japanese_title || item.title;
 
   return (
-    <section className="spotlight w-full h-full relative rounded-2xl overflow-hidden">
+    <section className="w-full h-full relative rounded-2xl overflow-hidden">
       {/* Background image */}
       <img
         src={item.poster}
@@ -49,18 +33,18 @@ function Banner({ item, index }) {
         className="absolute inset-0 object-cover w-full h-full rounded-2xl"
       />
 
-      {/* Dark overlay (you can also add extra styles in Banner.css with .spotlight-overlay) */}
-      <div className="spotlight-overlay absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent z-[1] rounded-2xl" />
+      {/* Dark gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent z-[1]" />
 
       {/* Left content block */}
       <div className="absolute flex flex-col left-0 bottom-[40px] w-[55%] p-4 z-[2] max-[1390px]:w-[45%] max-[1390px]:bottom-[40px] max-[1300px]:w-[600px] max-[1120px]:w-[60%] max-md:w-[90%] max-md:bottom-[20px] max-[300px]:w-full">
         {/* Spotlight label */}
-        <p className="text-[#b67fff] font-semibold text-[20px] w-fit max-[1300px]:text-[15px]">
+        <p className="text-[#b67fff] font-semibold text-[20px] w-fit max-[1300px]:text-[15px] drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
           #{index + 1} Spotlight
         </p>
 
         {/* Title */}
-        <h3 className="text-white line-clamp-2 text-5xl font-bold mt-4 text-left max-[1390px]:text-[45px] max-[1300px]:text-3xl max-[1300px]:mt-3 max-md:text-2xl max-md:mt-1 max-[575px]:text-[22px] max-sm:leading-6 max-sm:w-[80%] max-[320px]:w-full">
+        <h3 className="text-white line-clamp-2 text-5xl font-bold mt-4 text-left max-[1390px]:text-[45px] max-[1300px]:text-3xl max-[1300px]:mt-3 max-md:text-2xl max-md:mt-1 max-[575px]:text-[22px] max-sm:leading-6 max-sm:w-[80%] max-[320px]:w-full drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
           {titleToShow}
         </h3>
 
@@ -68,7 +52,7 @@ function Banner({ item, index }) {
         <div className="hidden max-md:flex max-md:mt-3 max-md:gap-x-3 max-md:w-full">
           <Link
             to={`/watch/${item.id}`}
-            className="bg-white/90 hover:bg-white text-black font-medium px-5 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-x-2 text-sm"
+            className="bg-white/90 hover:bg-white text-black font-medium px-5 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-x-2 text-sm shadow-md"
           >
             <FontAwesomeIcon icon={faPlay} className="text-[10px]" />
             <span>Watch Now</span>
@@ -76,7 +60,7 @@ function Banner({ item, index }) {
 
           <Link
             to={`/${item.id}`}
-            className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-medium px-5 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-x-2 text-sm"
+            className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-medium px-5 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-x-2 text-sm backdrop-blur-sm"
           >
             <span>Details</span>
           </Link>
@@ -161,7 +145,7 @@ function Banner({ item, index }) {
 
         {/* Description (desktop only) */}
         {item.description && (
-          <p className="text-white/70 text-[17px] font-sm mt-4 text-left line-clamp-3 max-[1200px]:line-clamp-2 max-[1300px]:w-[500px] max-[1120px]:w-[90%] max-md:hidden">
+          <p className="text-white/70 text-[17px] mt-4 text-left line-clamp-3 max-[1200px]:line-clamp-2 max-[1300px]:w-[500px] max-[1120px]:w-[90%] max-md:hidden drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
             {item.description}
           </p>
         )}
