@@ -10,14 +10,7 @@ import {
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 
-/**
- * Banner component:
- * - Solid overlay (bg-black/65)
- * - Stable tag selection using (item.tag || (item.id ?? index) % tags.length)
- * - Right/left translucent arrow styling expected in Spotlight
- * - Layout tuned so content never falls off-screen
- */
-
+/* Tag list + color map */
 const TAGS = ["Popular", "Classic", "New Season", "Trending", "Fantasy", "TV"];
 const TAG_COLORS = {
   Popular: "bg-amber-500/10 text-amber-400 border-amber-500/20",
@@ -31,9 +24,7 @@ const TAG_COLORS = {
 function TagPill({ tag }) {
   const cls = TAG_COLORS[tag] ?? "bg-white/10 text-white border-white/10";
   return (
-    <span
-      className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-semibold border ${cls}`}
-    >
+    <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-semibold border ${cls}`}>
       {tag}
     </span>
   );
@@ -41,10 +32,9 @@ function TagPill({ tag }) {
 
 export default function Banner({ item, index = 0 }) {
   const { language } = useLanguage();
-
   if (!item) return null;
 
-  // Choose stable tag: use item.tag if provided, otherwise compute from id/index
+  // stable tag logic: prefer item.tag, else deterministic pick by id/index
   const tag =
     item.tag ||
     TAGS[(Number(item.id ?? index) % TAGS.length + TAGS.length) % TAGS.length];
@@ -52,64 +42,62 @@ export default function Banner({ item, index = 0 }) {
   const title =
     language === "EN" ? item.title || item.japanese_title : item.japanese_title || item.title;
 
-  // make sure there's enough bottom padding so content never hides behind viewport bottom
-  // and align items-end to place content near bottom while keeping it visible
+  // episode value: try many possible property names to be robust
+  const episodes = item.tvInfo?.episodes ?? item.episodes ?? item.episodeCount ?? "??";
+  const rating = item.rating ?? item.score ?? "90%";
+  const year = item.tvInfo?.releaseDate ?? item.year ?? "----";
+
   return (
     <section className="w-full">
       <div className="relative rounded-2xl overflow-hidden border border-white/5 bg-black/0">
-        {/* container height tuned for different screens */}
         <div className="relative h-[320px] sm:h-[420px] lg:h-[520px]">
 
-          {/* Background */}
-          <img
-            src={item.poster}
-            alt={title}
-            className="absolute inset-0 w-full h-full object-cover z-[10]"
-          />
+          {/* background image */}
+          <img src={item.poster} alt={title} className="absolute inset-0 w-full h-full object-cover z-[10]" />
 
-          {/* SOLID overlay — adjust opacity to taste */}
+          {/* solid overlay */}
           <div className="absolute inset-0 bg-black/65 z-[20]" />
 
-          {/* Content area — placed above overlay */}
-          {/* Added pb to ensure content doesn't touch viewport bottom on smaller screens */}
+          {/* content area */}
           <div className="absolute inset-0 flex items-end z-[30]">
             <div className="p-4 sm:p-6 lg:p-10 space-y-4 max-w-2xl pb-6 sm:pb-8">
-              {/* Top row: tag + info */}
+
+              {/* top row: tag + info */}
               <div className="flex items-center gap-3 flex-wrap">
                 <TagPill tag={tag} />
 
-                <div className="flex items-center gap-4 text-xs sm:text-sm text-white/70">
+                <div className="flex items-center gap-4 text-xs sm:text-sm text-white/60">
                   <div className="flex items-center gap-1">
-                    <FontAwesomeIcon icon={faStar} className="text-yellow-400 h-4 w-4" />
-                    <span>{item.rating ?? "90%"}</span>
+                    <FontAwesomeIcon icon={faStar} className="text-yellow-400 h-4 w-4 opacity-80" />
+                    <span>{rating}</span>
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <FontAwesomeIcon icon={faCalendar} className="h-4 w-4" />
-                    <span>{item.tvInfo?.releaseDate ?? "----"}</span>
+                    <FontAwesomeIcon icon={faCalendar} className="h-4 w-4 opacity-70" />
+                    <span>{year}</span>
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <FontAwesomeIcon icon={faPlay} className="h-4 w-4" />
-                    <span>{item.tvInfo?.episodes ?? "??"} eps</span>
+                    <FontAwesomeIcon icon={faPlay} className="h-4 w-4 opacity-70" />
+                    <span>{episodes} eps</span>
                   </div>
                 </div>
               </div>
 
-              {/* Title */}
+              {/* title */}
               <h2 className="text-white text-2xl sm:text-3xl lg:text-4xl font-bold drop-shadow-[0_6px_20px_rgba(0,0,0,0.8)] leading-tight">
                 {title}
               </h2>
 
-              {/* Description (clamped) */}
+              {/* description */}
               {item.description && (
                 <p className="text-white/70 text-xs sm:text-sm lg:text-base max-w-[70%] line-clamp-3">
                   {item.description}
                 </p>
               )}
 
-              {/* Buttons - mobile visible in content area; desktop also has floating ones */}
-              <div className="flex flex-col sm:flex-row gap-3 mt-2">
+              {/* SINGLE set of buttons (keeps layout consistent; visible on all sizes) */}
+              <div className="flex flex-row gap-3 mt-2">
                 <Link
                   to={`/watch/${item.id}`}
                   className="inline-flex items-center gap-2 bg-white text-black px-4 py-2 rounded-md font-semibold shadow hover:opacity-95 transition"
@@ -129,24 +117,8 @@ export default function Banner({ item, index = 0 }) {
             </div>
           </div>
 
-          {/* Desktop floating buttons (bottom-right) */}
-          <div className="absolute bottom-8 right-8 hidden md:flex gap-3 z-[40]">
-            <Link
-              to={`/watch/${item.id}`}
-              className="flex items-center gap-3 bg-white text-black px-5 py-2 rounded-lg shadow-lg hover:translate-y-[-2px] transition"
-            >
-              <FontAwesomeIcon icon={faPlay} />
-              <span>Watch Now</span>
-            </Link>
+          {/* removed floating duplicate buttons on right */}
 
-            <Link
-              to={`/${item.id}`}
-              className="flex items-center gap-3 border border-white/20 text-white px-5 py-2 rounded-lg backdrop-blur-sm hover:bg-white/5 transition"
-            >
-              <FontAwesomeIcon icon={faInfoCircle} />
-              <span>Details</span>
-            </Link>
-          </div>
         </div>
       </div>
     </section>
