@@ -1,5 +1,5 @@
 // weeb/src/components/banner/Banner.jsx
-
+import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
@@ -10,98 +10,143 @@ import {
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 
-export default function Banner({ item, index }) {
+/**
+ * Banner component:
+ * - Solid overlay (bg-black/65)
+ * - Stable tag selection using (item.tag || (item.id ?? index) % tags.length)
+ * - Right/left translucent arrow styling expected in Spotlight
+ * - Layout tuned so content never falls off-screen
+ */
+
+const TAGS = ["Popular", "Classic", "New Season", "Trending", "Fantasy", "TV"];
+const TAG_COLORS = {
+  Popular: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+  Classic: "bg-slate-700/20 text-slate-200 border-slate-600/20",
+  "New Season": "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
+  Trending: "bg-rose-500/10 text-rose-300 border-rose-500/20",
+  Fantasy: "bg-violet-500/10 text-violet-300 border-violet-500/20",
+  TV: "bg-cyan-500/10 text-cyan-300 border-cyan-500/20",
+};
+
+function TagPill({ tag }) {
+  const cls = TAG_COLORS[tag] ?? "bg-white/10 text-white border-white/10";
+  return (
+    <span
+      className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-semibold border ${cls}`}
+    >
+      {tag}
+    </span>
+  );
+}
+
+export default function Banner({ item, index = 0 }) {
   const { language } = useLanguage();
 
-  const title =
-    language === "EN"
-      ? item.title || item.japanese_title
-      : item.japanese_title || item.title;
+  if (!item) return null;
 
+  // Choose stable tag: use item.tag if provided, otherwise compute from id/index
+  const tag =
+    item.tag ||
+    TAGS[(Number(item.id ?? index) % TAGS.length + TAGS.length) % TAGS.length];
+
+  const title =
+    language === "EN" ? item.title || item.japanese_title : item.japanese_title || item.title;
+
+  // make sure there's enough bottom padding so content never hides behind viewport bottom
+  // and align items-end to place content near bottom while keeping it visible
   return (
     <section className="w-full">
-      <div className="rounded-2xl overflow-hidden bg-white/[0.03] backdrop-blur-sm border border-white/5">
-        <div className="relative h-[300px] sm:h-[400px] lg:h-[500px]">
+      <div className="relative rounded-2xl overflow-hidden border border-white/5 bg-black/0">
+        {/* container height tuned for different screens */}
+        <div className="relative h-[320px] sm:h-[420px] lg:h-[520px]">
 
-          {/* Background image */}
+          {/* Background */}
           <img
             src={item.poster}
             alt={title}
-            className="absolute inset-0 w-full h-full object-cover z-[2]"
+            className="absolute inset-0 w-full h-full object-cover z-[10]"
           />
 
-          {/* Solid dark overlay (same as your example) */}
-          <div className="absolute inset-0 bg-background/80 z-[3]"></div>
+          {/* SOLID overlay — adjust opacity to taste */}
+          <div className="absolute inset-0 bg-black/65 z-[20]" />
 
-          {/* Content */}
-          <div className="absolute inset-0 flex items-end z-[4]">
-            <div className="p-4 sm:p-6 lg:p-10 space-y-4 max-w-2xl">
+          {/* Content area — placed above overlay */}
+          {/* Added pb to ensure content doesn't touch viewport bottom on smaller screens */}
+          <div className="absolute inset-0 flex items-end z-[30]">
+            <div className="p-4 sm:p-6 lg:p-10 space-y-4 max-w-2xl pb-6 sm:pb-8">
+              {/* Top row: tag + info */}
+              <div className="flex items-center gap-3 flex-wrap">
+                <TagPill tag={tag} />
 
-              {/* Popular + info row (copy of your design) */}
-              <div className="flex items-center gap-2 flex-wrap">
-
-                {/* Popular Badge */}
-                <span className="px-2 py-[2px] bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-md text-xs sm:text-sm font-semibold">
-                  Popular
-                </span>
-
-                {/* Info row */}
                 <div className="flex items-center gap-4 text-xs sm:text-sm text-white/70">
-
-                  {/* Rating */}
                   <div className="flex items-center gap-1">
-                    <FontAwesomeIcon
-                      icon={faStar}
-                      className="text-yellow-400 h-4 w-4"
-                    />
-                    <span>90%</span>
+                    <FontAwesomeIcon icon={faStar} className="text-yellow-400 h-4 w-4" />
+                    <span>{item.rating ?? "90%"}</span>
                   </div>
 
-                  {/* Year */}
                   <div className="flex items-center gap-1">
                     <FontAwesomeIcon icon={faCalendar} className="h-4 w-4" />
-                    <span>{item.tvInfo?.releaseDate || "----"}</span>
+                    <span>{item.tvInfo?.releaseDate ?? "----"}</span>
                   </div>
 
-                  {/* Episode count */}
                   <div className="flex items-center gap-1">
                     <FontAwesomeIcon icon={faPlay} className="h-4 w-4" />
-                    <span>{item.tvInfo?.episodes || "??"} eps</span>
+                    <span>{item.tvInfo?.episodes ?? "??"} eps</span>
                   </div>
                 </div>
               </div>
 
               {/* Title */}
-              <h2 className="text-xl sm:text-2xl lg:text-4xl font-bold text-white drop-shadow-md">
+              <h2 className="text-white text-2xl sm:text-3xl lg:text-4xl font-bold drop-shadow-[0_6px_20px_rgba(0,0,0,0.8)] leading-tight">
                 {title}
               </h2>
 
-              {/* Description */}
-              <p className="text-white/70 text-xs sm:text-sm lg:text-base line-clamp-2 sm:line-clamp-3">
-                {item.description}
-              </p>
+              {/* Description (clamped) */}
+              {item.description && (
+                <p className="text-white/70 text-xs sm:text-sm lg:text-base max-w-[70%] line-clamp-3">
+                  {item.description}
+                </p>
+              )}
 
-              {/* Buttons (copy of your card UI) */}
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              {/* Buttons - mobile visible in content area; desktop also has floating ones */}
+              <div className="flex flex-col sm:flex-row gap-3 mt-2">
                 <Link
                   to={`/watch/${item.id}`}
-                  className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium shadow"
+                  className="inline-flex items-center gap-2 bg-white text-black px-4 py-2 rounded-md font-semibold shadow hover:opacity-95 transition"
                 >
-                  <FontAwesomeIcon icon={faPlay} className="h-4 w-4" />
-                  Watch Now
+                  <FontAwesomeIcon icon={faPlay} />
+                  <span>Watch Now</span>
                 </Link>
 
                 <Link
                   to={`/${item.id}`}
-                  className="border border-white/20 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium backdrop-blur-sm hover:bg-white/10 transition"
+                  className="inline-flex items-center gap-2 border border-white/20 text-white px-4 py-2 rounded-md hover:bg-white/5 transition"
                 >
-                  <FontAwesomeIcon icon={faInfoCircle} className="h-4 w-4" />
-                  Details
+                  <FontAwesomeIcon icon={faInfoCircle} />
+                  <span>Details</span>
                 </Link>
               </div>
             </div>
           </div>
 
+          {/* Desktop floating buttons (bottom-right) */}
+          <div className="absolute bottom-8 right-8 hidden md:flex gap-3 z-[40]">
+            <Link
+              to={`/watch/${item.id}`}
+              className="flex items-center gap-3 bg-white text-black px-5 py-2 rounded-lg shadow-lg hover:translate-y-[-2px] transition"
+            >
+              <FontAwesomeIcon icon={faPlay} />
+              <span>Watch Now</span>
+            </Link>
+
+            <Link
+              to={`/${item.id}`}
+              className="flex items-center gap-3 border border-white/20 text-white px-5 py-2 rounded-lg backdrop-blur-sm hover:bg-white/5 transition"
+            >
+              <FontAwesomeIcon icon={faInfoCircle} />
+              <span>Details</span>
+            </Link>
+          </div>
         </div>
       </div>
     </section>
