@@ -1,24 +1,58 @@
-/* SplashScreen.css - final Lunar-like styles
-   Put this file next to the JSX and import it
-*/
+/* ==========================================================
+   SplashScreen.css — Full, Clean, Fixed Version
+   Background glitch (half black/half blue) resolved.
+   ========================================================== */
 
 /* base */
-:root { --bg: #000; --muted: #94a3b8; --accent: #6366f1; }
+:root { 
+  --bg: #000; 
+  --muted: #94a3b8; 
+  --accent: #6366f1; 
+}
+
 * { box-sizing: border-box; }
-html,body { height: 100%; background: var(--bg); margin:0; }
-.splash-root { min-height:100vh; background:#000; color:#fff; font-family: "Geist Mono", monospace; }
 
-/* NAVBAR spacing handled by your Navbar component */
-.splash-wrapper { position: relative; z-index: 3; padding: 0 6%; }
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+}
 
-/* ===== diagonal streaks (fast subtle light streaks) ===== */
+/* root container MUST fill the whole screen */
+#root, .splash-root {
+  min-height: 100vh;
+  width: 100%;
+  background: #000;
+  color: #fff;
+  font-family: "Geist Mono", monospace;
+  display: flex;
+  flex-direction: column;
+}
+
+/* main wrapper */
+.splash-wrapper {
+  position: relative;
+  z-index: 5;
+  padding: 0 6%;
+  width: 100%;
+}
+
+/* ==========================================================
+   BACKGROUND LAYERS
+   ========================================================== */
+
 .streaks-layer {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background-image:
-    repeating-linear-gradient(-45deg, rgba(255,255,255,0.06) 0 1px, rgba(255,255,255,0.00) 1px 40px);
+    repeating-linear-gradient(
+      -45deg,
+      rgba(255,255,255,0.06) 0 1px,
+      rgba(255,255,255,0.00) 1px 40px
+    );
   opacity: 0.12;
   mix-blend-mode: screen;
   animation: streak-move 8s linear infinite;
@@ -26,10 +60,9 @@ html,body { height: 100%; background: var(--bg); margin:0; }
 
 @keyframes streak-move {
   from { background-position: 0 0; }
-  to { background-position: 0 -400px; }
+  to   { background-position: 0 -400px; }
 }
 
-/* ===== twinkling small stars for depth (lighter, randomized via JS-less approach) ===== */
 .twinkle-layer {
   position: fixed;
   inset: 0;
@@ -51,74 +84,226 @@ html,body { height: 100%; background: var(--bg); margin:0; }
   to   { opacity: 0.12; transform: translateY(-10px); }
 }
 
-/* ===== HERO ===== */
-.hero { padding-top: 120px; text-align:center; margin: 0 auto; max-width: 1100px; }
+/* everything above background needs proper z-index */
+.splash-root *,
+.splash-wrapper,
+.hero,
+.preview,
+.marquee {
+  position: relative;
+  z-index: 5;
+}
+
+/* ==========================================================
+   HERO SECTION
+   ========================================================== */
+
+.hero {
+  padding-top: 120px;
+  text-align: center;
+  margin: 0 auto;
+  max-width: 1100px;
+}
 
 /* status badge */
-.status-wrap { display:flex; justify-content:center; margin-bottom:18px; z-index:5; position:relative; }
-.status-badge {
-  display:inline-flex; align-items:center; gap:10px;
-  padding:6px 12px; border-radius:8px;
-  background: rgba(99,102,241,0.12); color: var(--accent);
-  border: 1px solid rgba(99,102,241,0.35); font-weight:700; font-size:13px;
+.status-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+  z-index: 5;
+  position: relative;
 }
-.status-indicator { position: relative; width:12px; height:12px; display:inline-block; }
-.ping { position:absolute; inset:0; border-radius:50%; background: rgba(99,102,241,0.6); animation: ping 1.2s infinite; }
-.core { position:absolute; inset:3px; border-radius:50%; background: var(--accent); }
-@keyframes ping { 0%{ transform:scale(0.8); opacity:1 } 100%{ transform:scale(2.2); opacity:0 } }
 
-/* ===== masked LUNAR block ===== */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(99,102,241,0.12);
+  color: var(--accent);
+  border: 1px solid rgba(99,102,241,0.35);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.status-indicator { 
+  position: relative; 
+  width: 12px; 
+  height: 12px; 
+  display: inline-block; 
+}
+
+.ping {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(99,102,241,0.6);
+  animation: ping 1.2s infinite;
+}
+
+.core {
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+@keyframes ping {
+  0%   { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* masked block */
 .mask-block {
   margin: 0 auto 8px;
   width: 100%;
   max-width: 1000px;
   height: 180px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position: relative;
-  z-index: 4;
-  /* add a subtle radial glow behind text */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: 0 40px 80px rgba(0,0,0,0.6) inset;
 }
 
-/* the element that holds the video is masked by inline SVG set in JSX */
 .hero-video {
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
-/* subtitle text */
-.subhead { margin-top: 14px; color:#cbd5e1; font-size:18px; letter-spacing:1px; font-family: "Geist"; }
-.subdesc { margin-top:8px; color:var(--muted); font-size:14px; }
+/* text */
+.subhead {
+  margin-top: 14px;
+  color: #cbd5e1;
+  font-size: 18px;
+  letter-spacing: 1px;
+  font-family: "Geist";
+}
+
+.subdesc {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
 
 /* CTAs */
-.cta-row { margin-top:18px; display:flex; gap:12px; justify-content:center; }
-.cta-primary { background:var(--accent); color:white; padding:10px 18px; border-radius:8px; border:none; font-weight:700; }
-.cta-ghost { border:1px solid rgba(255,255,255,0.06); padding:10px 18px; color:white; border-radius:8px; background:transparent; }
+.cta-row {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
 
-/* ===== preview window ===== */
-.preview { margin-top:34px; background:#080808; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.03); max-width:900px; margin-left:auto; margin-right:auto; }
-.preview-top { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#0b0b0b; border-bottom:1px solid rgba(255,255,255,0.02); }
-.preview-dots { display:flex; gap:8px; align-items:center; }
-.dot { width:12px; height:12px; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,0.5); }
-.dot-red { background:#ff5f57; } .dot-yellow { background:#ffbd2e; } .dot-green { background:#28c840; }
-.preview-url { flex:1; text-align:center; color:#9ca3af; font-size:13px; }
-.preview-body { padding:12px; }
-.preview-img { width:100%; height:auto; border-radius:6px; display:block; }
+.cta-primary {
+  background: var(--accent);
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 700;
+}
 
-/* ===== MARQUEE ===== */
-.marquee { margin-top:42px; border-top:1px solid rgba(255,255,255,0.03); border-bottom:1px solid rgba(255,255,255,0.03); padding:12px 0; overflow:hidden; }
-.marquee-track { display:flex; gap:28px; align-items:center; white-space:nowrap; animation: marqueeLinear var(--duration, 80s) linear infinite; }
-.marquee-item { color:#cbd5e1; font-family: "Geist Mono"; font-size:14px; padding: 8px 12px; border-right:1px solid rgba(255,255,255,0.02); }
-@keyframes marqueeLinear { 0% { transform:translateX(0);} 100%{ transform:translateX(-50%);} }
+.cta-ghost {
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 10px 18px;
+  color: white;
+  border-radius: 8px;
+  background: transparent;
+}
 
-/* responsive tweaks */
+/* ==========================================================
+   PREVIEW WINDOW
+   ========================================================== */
+
+.preview {
+  margin-top: 34px;
+  background: #080808;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.03);
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.preview-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #0b0b0b;
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+}
+
+.preview-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+.dot-red { background: #ff5f57; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green { background: #28c840; }
+
+.preview-url {
+  flex: 1;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.preview-body { padding: 12px; }
+.preview-img { width: 100%; border-radius: 6px; display: block; }
+
+/* ==========================================================
+   MARQUEE
+   ========================================================== */
+
+.marquee {
+  margin-top: 42px;
+  border-top: 1px solid rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  padding: 12px 0;
+  overflow: hidden;
+}
+
+.marquee-track {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  white-space: nowrap;
+  animation: marqueeLinear var(--duration, 80s) linear infinite;
+}
+
+.marquee-item {
+  color: #cbd5e1;
+  font-family: "Geist Mono";
+  font-size: 14px;
+  padding: 8px 12px;
+  border-right: 1px solid rgba(255,255,255,0.02);
+}
+
+@keyframes marqueeLinear {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
 @media (max-width: 768px) {
   .mask-block { height: 100px; }
-  .subhead { font-size:16px; }
+  .subhead { font-size: 16px; }
   .preview { max-width: 95%; }
-  .marquee-track { gap:18px; }
+  .marquee-track { gap: 18px; }
 }
