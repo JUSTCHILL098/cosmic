@@ -69,4 +69,3 @@ const Spotlight = ({ spotlights = [] }) => {
 };
 
 export default Spotlight;
-s
