@@ -24,40 +24,53 @@ const Spotlight = ({ spotlights = [] }) => {
           }}
           pagination={{
             clickable: true,
-            dynamicBullets: false,
           }}
           autoplay={{
-            delay: 5000, // slower carousel (5s)
+            delay: 5000,
             disableOnInteraction: false,
           }}
           modules={[Navigation, Autoplay, Pagination]}
           className="h-full rounded-2xl relative"
         >
-          {/* NEW modern arrow buttons */}
+
+          {/* Left (Previous) Button */}
           <button
-            className="button-prev absolute left-4 top-1/2 -translate-y-1/2 z-[50] 
-            w-10 h-10 flex items-center justify-center rounded-full 
-            bg-black/40 text-white/90 cursor-pointer backdrop-blur-sm shadow"
+            className="button-prev inline-flex items-center justify-center gap-2
+            whitespace-nowrap text-sm font-medium transition-colors
+            border border-white/20 bg-black/40 backdrop-blur-sm hover:bg-white/20
+            text-white h-8 w-8 rounded-full absolute left-4 top-1/2 -translate-y-1/2 z-[50]"
           >
-            <span className="text-2xl">❮</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              className="h-4 w-4 rotate-180">
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
           </button>
 
+          {/* Right (Next) Button */}
           <button
-            className="button-next absolute right-4 top-1/2 -translate-y-1/2 z-[50]
-            w-10 h-10 flex items-center justify-center rounded-full 
-            bg-black/40 text-white/90 cursor-pointer backdrop-blur-sm shadow"
+            className="button-next inline-flex items-center justify-center gap-2
+            whitespace-nowrap text-sm font-medium transition-colors
+            border border-white/20 bg-black/40 backdrop-blur-sm hover:bg-white/20
+            text-white h-8 w-8 rounded-full absolute right-4 top-1/2 -translate-y-1/2 z-[50]"
           >
-            <span className="text-2xl">❯</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              className="h-4 w-4">
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
           </button>
 
           {spotlights.map((item, index) => (
-            <SwiperSlide
-              key={item.id ?? index}
-              className="relative w-full h-full !overflow-visible"
-            >
+            <SwiperSlide key={item.id ?? index} className="relative !overflow-visible">
               <Banner item={item} index={index} />
             </SwiperSlide>
           ))}
+
         </Swiper>
       ) : (
         <p className="text-white">No spotlights to show.</p>
