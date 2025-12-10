@@ -5,7 +5,7 @@ import { faPlay, faInfoCircle, faStar, faCalendar } from "@fortawesome/free-soli
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 
-/* Tag list + color mapping */
+/* Tag list + colors */
 const TAGS = ["Popular", "Classic", "New Season", "Trending", "Fantasy", "TV"];
 const TAG_COLORS = {
   Popular: "bg-amber-500/10 text-amber-400 border-amber-500/20",
@@ -29,12 +29,10 @@ export default function Banner({ item, index = 0 }) {
   const { language } = useLanguage();
   if (!item) return null;
 
-  /* Stable tag */
-  const tag =
-    item.tag ??
-    TAGS[(Number(item.id ?? index) % TAGS.length + TAGS.length) % TAGS.length];
+  // Stable tag (based on id or index)
+  const tagIndex = item.id ? Number(item.id) : index;
+  const tag = item.tag ?? TAGS[tagIndex % TAGS.length];
 
-  /* Text fields */
   const title =
     language === "EN"
       ? item.title || item.japanese_title
@@ -48,52 +46,43 @@ export default function Banner({ item, index = 0 }) {
 
   return (
     <section className="w-full relative">
-      <div className="relative rounded-2xl overflow-hidden border border-white/5">
+      <div className="relative rounded-2xl overflow-hidden border border-white/5 bg-black/20">
         <div className="relative h-[320px] sm:h-[420px] lg:h-[520px]">
 
-          {/* Background */}
+          {/* Background Image */}
           <img
             src={item.poster}
             alt={title}
             className="absolute inset-0 w-full h-full object-cover z-[10]"
           />
 
-          {/* SOLID OVERLAY — INLINE STYLE SO IT NEVER BREAKS BUILD */}
+          {/* Solid Overlay - Safe Inline Style */}
           <div
             className="absolute inset-0 z-[20] pointer-events-none"
             style={{ backgroundColor: "rgba(0,0,0,0.60)" }}
           />
 
-          {/* CONTENT */}
-          <div className="absolute inset-0 flex items-end z-[30]">
-            <div className="p-4 sm:p-6 lg:p-10 space-y-4 pb-6 max-w-2xl">
+          {/* CONTENT (Moved Up) */}
+          <div className="absolute inset-0 flex items-center z-[30] pt-6">
+            <div className="p-4 sm:p-6 lg:p-10 space-y-4 max-w-2xl">
 
               {/* Tag + Info */}
               <div className="flex items-center gap-3 flex-wrap">
                 <TagPill tag={tag} />
 
-                <div className="flex items-center gap-4 text-xs sm:text-sm text-white/60">
+                <div className="flex items-center gap-4 text-xs sm:text-sm text-white/70">
                   <div className="flex items-center gap-1">
-                    <FontAwesomeIcon
-                      icon={faStar}
-                      className="text-yellow-400 h-4 w-4 opacity-70"
-                    />
+                    <FontAwesomeIcon icon={faStar} className="text-yellow-400 h-4 w-4 opacity-80" />
                     <span>{rating}</span>
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <FontAwesomeIcon
-                      icon={faCalendar}
-                      className="h-4 w-4 opacity-60"
-                    />
+                    <FontAwesomeIcon icon={faCalendar} className="h-4 w-4 opacity-70" />
                     <span>{year}</span>
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <FontAwesomeIcon
-                      icon={faPlay}
-                      className="h-4 w-4 opacity-60"
-                    />
+                    <FontAwesomeIcon icon={faPlay} className="h-4 w-4 opacity-70" />
                     <span>{episodes} eps</span>
                   </div>
                 </div>
@@ -106,16 +95,16 @@ export default function Banner({ item, index = 0 }) {
 
               {/* Description */}
               {item.description && (
-                <p className="text-white/70 text-xs sm:text-sm lg:text-base max-w-[70%] line-clamp-3">
+                <p className="text-white/70 text-xs sm:text-sm lg:text-base max-w-[75%] line-clamp-3">
                   {item.description}
                 </p>
               )}
 
-              {/* Buttons (only 1 set now - no duplicates) */}
-              <div className="flex gap-3 mt-2">
+              {/* Buttons */}
+              <div className="flex gap-3 mt-3">
                 <Link
                   to={`/watch/${item.id}`}
-                  className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-md font-semibold shadow hover:opacity-90 transition"
+                  className="flex items-center gap-2 bg-white text-black px-5 py-2 rounded-md font-semibold shadow hover:opacity-90 transition"
                 >
                   <FontAwesomeIcon icon={faPlay} />
                   Watch Now
@@ -123,7 +112,7 @@ export default function Banner({ item, index = 0 }) {
 
                 <Link
                   to={`/${item.id}`}
-                  className="flex items-center gap-2 border border-white/20 text-white px-4 py-2 rounded-md hover:bg-white/10 transition"
+                  className="flex items-center gap-2 border border-white/30 text-white px-5 py-2 rounded-md hover:bg-white/10 transition"
                 >
                   <FontAwesomeIcon icon={faInfoCircle} />
                   Details
