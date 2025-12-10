@@ -5,7 +5,7 @@ import { faPlay, faInfoCircle, faStar, faCalendar } from "@fortawesome/free-soli
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 
-/* Tag list + colors */
+/* Tag Colors */
 const TAGS = ["Popular", "Classic", "New Season", "Trending", "Fantasy", "TV"];
 const TAG_COLORS = {
   Popular: "bg-amber-500/10 text-amber-400 border-amber-500/20",
@@ -17,94 +17,80 @@ const TAG_COLORS = {
 };
 
 function TagPill({ tag }) {
-  const cls = TAG_COLORS[tag] ?? "bg-white/10 text-white border-white/10";
   return (
-    <span className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold border ${cls}`}>
+    <span
+      className={`px-3 py-1 rounded-md text-xs font-semibold border ${TAG_COLORS[tag]}`}
+    >
       {tag}
     </span>
   );
 }
 
-export default function Banner({ item, index = 0 }) {
+export default function Banner({ item, index }) {
   const { language } = useLanguage();
-  if (!item) return null;
 
-  // Stable tag (based on id or index)
-  const tagIndex = item.id ? Number(item.id) : index;
-  const tag = item.tag ?? TAGS[tagIndex % TAGS.length];
+  // ⚠️ PLACEHOLDER because we don’t know your real API fields yet
+  const poster = item.poster || item.image || item.bannerImage || item.cover;
+  const rating = item.rating || item.score || "90%";
+  const episodes = item.totalEpisodes || item.episodes || "??";
+  const year = item.year || item.releaseDate || "----";
+  const description = item.description || item.synopsis || "";
+  const title = language === "EN" ? item.title : item.japanese_title || item.title;
 
-  const title =
-    language === "EN"
-      ? item.title || item.japanese_title
-      : item.japanese_title || item.title;
-
-  const episodes =
-    item.tvInfo?.episodes ?? item.episodes ?? item.episodeCount ?? "??";
-
-  const rating = item.rating ?? item.score ?? "90%";
-  const year = item.tvInfo?.releaseDate ?? item.year ?? "----";
+  const tag = TAGS[(item.id ?? index) % TAGS.length];
 
   return (
     <section className="w-full relative">
-      <div className="relative rounded-2xl overflow-hidden border border-white/5 bg-black/20">
-        <div className="relative h-[320px] sm:h-[420px] lg:h-[520px]">
+      <div className="relative rounded-2xl overflow-hidden border border-white/5 bg-card/30 backdrop-blur-sm">
+        <div className="relative h-[300px] sm:h-[400px] lg:h-[500px]">
 
-          {/* Background Image */}
-          <img
-            src={item.poster}
-            alt={title}
-            className="absolute inset-0 w-full h-full object-cover z-[10]"
-          />
+          {/* BG Image */}
+          <img src={poster} className="absolute inset-0 w-full h-full object-cover z-[10]" />
 
-          {/* Solid Overlay - Safe Inline Style */}
-          <div
-            className="absolute inset-0 z-[20] pointer-events-none"
-            style={{ backgroundColor: "rgba(0,0,0,0.60)" }}
-          />
+          {/* Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-[20]" />
 
-          {/* CONTENT (Moved Up) */}
-          <div className="absolute inset-0 flex items-center z-[30] pt-6">
-            <div className="p-4 sm:p-6 lg:p-10 space-y-4 max-w-2xl">
+          {/* Content */}
+          <div className="absolute inset-0 flex items-end z-[30] p-6 lg:p-10">
+            <div className="space-y-3 max-w-2xl">
 
-              {/* Tag + Info */}
-              <div className="flex items-center gap-3 flex-wrap">
+              {/* Tags + Info Row */}
+              <div className="flex items-center gap-2 flex-wrap">
                 <TagPill tag={tag} />
 
-                <div className="flex items-center gap-4 text-xs sm:text-sm text-white/70">
+                <div className="flex items-center gap-4 text-white/70 text-xs sm:text-sm">
                   <div className="flex items-center gap-1">
-                    <FontAwesomeIcon icon={faStar} className="text-yellow-400 h-4 w-4 opacity-80" />
+                    <FontAwesomeIcon icon={faStar} className="text-yellow-400" />
                     <span>{rating}</span>
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <FontAwesomeIcon icon={faCalendar} className="h-4 w-4 opacity-70" />
+                    <FontAwesomeIcon icon={faCalendar} />
                     <span>{year}</span>
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <FontAwesomeIcon icon={faPlay} className="h-4 w-4 opacity-70" />
+                    <FontAwesomeIcon icon={faPlay} />
                     <span>{episodes} eps</span>
                   </div>
                 </div>
               </div>
 
               {/* Title */}
-              <h2 className="text-white text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight drop-shadow-xl">
+              <h2 className="text-white text-2xl sm:text-3xl lg:text-4xl font-bold">
                 {title}
               </h2>
 
               {/* Description */}
-              {item.description && (
-                <p className="text-white/70 text-xs sm:text-sm lg:text-base max-w-[75%] line-clamp-3">
-                  {item.description}
-                </p>
-              )}
+              <p className="text-white/70 text-xs sm:text-sm lg:text-base line-clamp-3">
+                {description}
+              </p>
 
               {/* Buttons */}
-              <div className="flex gap-3 mt-3">
+              <div className="flex gap-3">
                 <Link
                   to={`/watch/${item.id}`}
-                  className="flex items-center gap-2 bg-white text-black px-5 py-2 rounded-md font-semibold shadow hover:opacity-90 transition"
+                  className="bg-white text-black px-4 py-2 rounded-md font-semibold flex items-center gap-2"
                 >
                   <FontAwesomeIcon icon={faPlay} />
                   Watch Now
@@ -112,7 +98,7 @@ export default function Banner({ item, index = 0 }) {
 
                 <Link
                   to={`/${item.id}`}
-                  className="flex items-center gap-2 border border-white/30 text-white px-5 py-2 rounded-md hover:bg-white/10 transition"
+                  className="border border-white/20 text-white px-4 py-2 rounded-md flex items-center gap-2"
                 >
                   <FontAwesomeIcon icon={faInfoCircle} />
                   Details
