@@ -27,35 +27,33 @@ const Spotlight = ({ spotlights = [] }) => {
             dynamicBullets: false,
           }}
           autoplay={{
-            delay: 3000,
+            delay: 5000, // slower carousel (5s)
             disableOnInteraction: false,
           }}
           modules={[Navigation, Autoplay, Pagination]}
           className="h-full rounded-2xl relative"
-          style={{
-            "--swiper-pagination-bullet-inactive-color": "rgba(255, 255, 255, 0.5)",
-            "--swiper-pagination-bullet-inactive-opacity": "1",
-          }}
         >
-          {/* translucent vertically-centered nav buttons */}
+          {/* NEW modern arrow buttons */}
           <button
-            className="button-prev absolute left-4 top-1/2 -translate-y-1/2 z-[50] w-10 h-10 flex items-center justify-center rounded-full bg-black/30 text-white/90 cursor-pointer shadow"
-            aria-label="Previous"
+            className="button-prev absolute left-4 top-1/2 -translate-y-1/2 z-[50] 
+            w-10 h-10 flex items-center justify-center rounded-full 
+            bg-black/40 text-white/90 cursor-pointer backdrop-blur-sm shadow"
           >
-            ‹
+            <span className="text-2xl">❮</span>
           </button>
 
           <button
-            className="button-next absolute right-4 top-1/2 -translate-y-1/2 z-[50] w-10 h-10 flex items-center justify-center rounded-full bg-black/30 text-white/90 cursor-pointer shadow"
-            aria-label="Next"
+            className="button-next absolute right-4 top-1/2 -translate-y-1/2 z-[50]
+            w-10 h-10 flex items-center justify-center rounded-full 
+            bg-black/40 text-white/90 cursor-pointer backdrop-blur-sm shadow"
           >
-            ›
+            <span className="text-2xl">❯</span>
           </button>
 
           {spotlights.map((item, index) => (
             <SwiperSlide
-              className="text-black relative !overflow-visible w-full h-full"
               key={item.id ?? index}
+              className="relative w-full h-full !overflow-visible"
             >
               <Banner item={item} index={index} />
             </SwiperSlide>
