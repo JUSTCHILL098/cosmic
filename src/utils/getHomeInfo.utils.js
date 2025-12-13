@@ -1,37 +1,64 @@
 import axios from "axios";
 
+const CACHE_KEY = "homeInfoCache";
+const CACHE_DURATION = 24 * 60 * 60 * 1000;
+
 export default async function getHomeInfo() {
   const api_url = import.meta.env.VITE_API_URL;
+
   if (!api_url) {
-    console.error("VITE_API_URL missing");
+    console.error("[HOME] Missing VITE_API_URL");
     return null;
   }
 
-  const res = await axios.get(api_url);
-  const raw = res.data;
+  const now = Date.now();
 
-  if (!raw || !raw.results) {
-    console.error("Invalid API response", raw);
-    return null;
+  // 🔥 READ CACHE
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached) {
+    const parsed = JSON.parse(cached);
+    if (parsed?.timestamp && now - parsed.timestamp < CACHE_DURATION) {
+      return parsed.data;
+    }
   }
 
-  const r = raw.results;
+  // 🔥 FETCH API
+  const response = await axios.get(api_url);
+  const raw = response.data?.results;
 
-  return {
-    spotlights: r.spotlights ?? [],
-    trending: r.trending ?? [],
+  if (!raw) return null;
 
-    // ✅ ✅ CORRECT TOP TEN MAPPING
-    topten: {
-      today: r.topTen?.today ?? [],
-      week: r.topTen?.week ?? [],
-      month: r.topTen?.month ?? [],
+  // ✅ NORMALIZED DATA SHAPE
+  const data = {
+    spotlights: raw.spotlights ?? [],
+    trending: raw.trending ?? [],
+
+    // 🔑 THIS IS THE IMPORTANT PART
+    topten: raw.topTen ?? {
+      today: [],
+      week: [],
+      month: [],
     },
 
-    top_airing: r.topAiring ?? [],
-    most_favorite: r.mostFavorite ?? [],
-    latest_completed: r.latestCompleted ?? [],
-    latest_episode: r.latestEpisode ?? [],
-    genres: r.genres ?? [],
+    todaySchedule: raw.today ?? [],
+    top_airing: raw.topAiring ?? [],
+    most_popular: raw.mostPopular ?? [],
+    most_favorite: raw.mostFavorite ?? [],
+    latest_completed: raw.latestCompleted ?? [],
+    latest_episode: raw.latestEpisode ?? [],
+    top_upcoming: raw.topUpcoming ?? [],
+    recently_added: raw.recentlyAdded ?? [],
+    genres: raw.genres ?? [],
   };
+
+  // 🔥 SAVE CACHE
+  localStorage.setItem(
+    CACHE_KEY,
+    JSON.stringify({
+      data,
+      timestamp: now,
+    })
+  );
+
+  return data;
 }
