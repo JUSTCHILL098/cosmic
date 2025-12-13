@@ -9,38 +9,25 @@ import { Link, useNavigate } from "react-router-dom";
 import useToolTipPosition from "@/src/hooks/useToolTipPosition";
 import Qtip from "../qtip/Qtip";
 
+/* 🏆 Trophy icon (NO glow, fixed size) */
 function Trophy({ rank }) {
-  const styles = {
-    1: {
-      bg: "bg-amber-700/20",
-      color: "text-amber-500 fill-amber-500",
-      glow: "shadow-[0_0_10px_rgba(245,158,11,0.6)]",
-    },
-    2: {
-      bg: "bg-gray-400/20",
-      color: "text-gray-300 fill-gray-300",
-      glow: "shadow-[0_0_10px_rgba(209,213,219,0.6)]",
-    },
-    3: {
-      bg: "bg-orange-700/20",
-      color: "text-orange-500 fill-orange-500",
-      glow: "shadow-[0_0_10px_rgba(234,88,12,0.6)]",
-    },
+  const colors = {
+    1: "text-yellow-500 fill-yellow-500 bg-yellow-500/15",
+    2: "text-gray-300 fill-gray-300 bg-gray-400/15",
+    3: "text-orange-500 fill-orange-500 bg-orange-500/15",
   }[rank];
 
   return (
-    <div
-      className={`w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full ${styles.bg} ${styles.glow}`}
-    >
+    <div className={`w-7 h-7 flex items-center justify-center rounded-full ${colors}`}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
         stroke="currentColor"
         fill="currentColor"
-        className={`h-3 w-3 sm:h-4 sm:w-4 ${styles.color} block`}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
+        className="w-4 h-4 block"
         aria-hidden="true"
       >
         <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
@@ -61,7 +48,7 @@ function Topten({ data, className }) {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [hoverTimeout, setHoverTimeout] = useState(null);
 
-  // 🛡️ HARD NORMALIZATION
+  /* 🛡 HARD NORMALIZATION */
   const safeData = useMemo(() => {
     if (!data) return { today: [], week: [], month: [] };
     return {
@@ -92,7 +79,7 @@ function Topten({ data, className }) {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="font-bold text-2xl text-white">Top 10</h1>
-        <ul className="flex bg-[#1a1a1a] rounded-lg overflow-hidden">
+        <ul className="flex bg-black rounded-lg overflow-hidden border border-white/10">
           {["today", "week", "month"].map((period) => (
             <li
               key={period}
@@ -109,16 +96,16 @@ function Topten({ data, className }) {
         </ul>
       </div>
 
-      {/* List */}
-      <div className="flex flex-col space-y-3 bg-[#1a1a1a] p-4 rounded-lg">
+      {/* List (TRUE BLACK, NO WAVE) */}
+      <div className="flex flex-col bg-black rounded-lg border border-white/10">
         {currentData.map((item, index) => (
           <div
             key={item.id}
             ref={(el) => (cardRefs.current[index] = el)}
-            className="flex items-center gap-3 relative"
+            className="flex items-center gap-3 px-3 py-3 h-[88px] border-b border-white/5 last:border-b-0"
           >
-            {/* Rank (FIXED HEIGHT = NO WAVE) */}
-            <div className="w-7 h-7 flex items-center justify-center">
+            {/* Rank column — FIXED HEIGHT */}
+            <div className="w-8 h-8 flex items-center justify-center shrink-0">
               {index < 3 ? (
                 <Trophy rank={index + 1} />
               ) : (
@@ -131,7 +118,7 @@ function Topten({ data, className }) {
             <img
               src={item.poster}
               alt={item.title}
-              className="w-[55px] h-[70px] rounded-lg object-cover cursor-pointer"
+              className="w-[55px] h-[70px] rounded-lg object-cover shrink-0 cursor-pointer"
               onClick={() => navigate(`/watch/${item.id}`)}
               onMouseEnter={() => handleMouseEnter(item, index)}
               onMouseLeave={handleMouseLeave}
@@ -141,32 +128,30 @@ function Topten({ data, className }) {
               window.innerWidth > 1024 && (
                 <div
                   className={`absolute ${tooltipPosition} ${tooltipHorizontalPosition} z-[9999]`}
-                  onMouseEnter={() =>
-                    hoverTimeout && clearTimeout(hoverTimeout)
-                  }
+                  onMouseEnter={() => hoverTimeout && clearTimeout(hoverTimeout)}
                   onMouseLeave={handleMouseLeave}
                 >
                   <Qtip id={item.id} />
                 </div>
               )}
 
-            <div className="flex flex-col ml-2">
+            <div className="flex flex-col justify-center min-w-0">
               <Link
                 to={`/${item.id}`}
-                className="text-gray-200 hover:text-white line-clamp-1"
+                className="text-gray-200 hover:text-white line-clamp-1 text-sm"
               >
                 {language === "EN" ? item.title : item.japanese_title}
               </Link>
 
-              <div className="flex gap-2 mt-1">
+              <div className="flex gap-3 mt-1 text-xs text-gray-400">
                 {item.tvInfo?.sub && (
-                  <span className="flex items-center gap-1 text-xs text-gray-300">
+                  <span className="flex items-center gap-1">
                     <FontAwesomeIcon icon={faClosedCaptioning} />
                     {item.tvInfo.sub}
                   </span>
                 )}
                 {item.tvInfo?.dub && (
-                  <span className="flex items-center gap-1 text-xs text-gray-300">
+                  <span className="flex items-center gap-1">
                     <FontAwesomeIcon icon={faMicrophone} />
                     {item.tvInfo.dub}
                   </span>
