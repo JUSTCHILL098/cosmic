@@ -13,7 +13,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerDescription,
-} from "./ui/dialog-mock";
+} from "../ui/dialog-mock";
 
 /* ---------------- Text Reveal ---------------- */
 
