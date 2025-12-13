@@ -4,7 +4,7 @@ const CACHE_KEY = "homeInfoCache";
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 export default async function getHomeInfo() {
-  // ✅ Vite-safe env access with fallback
+  // ✅ Vite-safe env access
   const api_url =
     import.meta.env?.VITE_API_URL ||
     import.meta.env?.VITE_API ||
@@ -18,86 +18,80 @@ export default async function getHomeInfo() {
   try {
     const currentTime = Date.now();
 
-    // ✅ Read cache safely
+    // 🔹 Try cache first
     const cachedRaw = localStorage.getItem(CACHE_KEY);
     if (cachedRaw) {
-      const cachedData = JSON.parse(cachedRaw);
+      const cached = JSON.parse(cachedRaw);
       if (
-        cachedData?.timestamp &&
-        currentTime - cachedData.timestamp < CACHE_DURATION &&
-        cachedData?.data
+        cached?.timestamp &&
+        cached?.data &&
+        currentTime - cached.timestamp < CACHE_DURATION
       ) {
-        return cachedData.data;
+        return cached.data;
       }
     }
 
-    // ✅ Fetch API
+    // 🔹 Fetch from API
     const response = await axios.get(api_url);
     const raw = response?.data;
 
-    if (!raw) {
-      console.error("[HOME API] Empty response");
+    if (!raw || !raw.results) {
+      console.error("[HOME API] Invalid response shape", raw);
       return null;
     }
 
-    // ✅ Support both `{ results }` and direct payloads
-    const source = raw.results ?? raw;
+    const source = raw.results;
 
-    // ✅ Normalize data shape for frontend
+    // ✅ FINAL NORMALIZED SHAPE (MATCHES FRONTEND USAGE)
     const data = {
+      // --- Hero / Top ---
       spotlights: Array.isArray(source.spotlights) ? source.spotlights : [],
       trending: Array.isArray(source.trending) ? source.trending : [],
 
-      // Top Ten normalization
-      topten:
-        source.topTen ??
-        {
-          today: Array.isArray(source.today) ? source.today : [],
-          week: Array.isArray(source.week) ? source.week : [],
-          month: Array.isArray(source.month) ? source.month : [],
-        },
+      // ✅ TOP TEN (ONLY FROM source.topTen — NO FALLBACKS)
+      topten: {
+        today: Array.isArray(source?.topTen?.today)
+          ? source.topTen.today
+          : [],
+        week: Array.isArray(source?.topTen?.week)
+          ? source.topTen.week
+          : [],
+        month: Array.isArray(source?.topTen?.month)
+          ? source.topTen.month
+          : [],
+      },
 
+      // --- Schedule ---
       todaySchedule: Array.isArray(source.today) ? source.today : [],
-      top_airing:
-        Array.isArray(source.topAiring)
-          ? source.topAiring
-          : Array.isArray(source.top_airing)
-          ? source.top_airing
-          : [],
-      most_popular:
-        Array.isArray(source.mostPopular)
-          ? source.mostPopular
-          : Array.isArray(source.most_popular)
-          ? source.most_popular
-          : [],
-      most_favorite:
-        Array.isArray(source.mostFavorite)
-          ? source.mostFavorite
-          : Array.isArray(source.most_favorite)
-          ? source.most_favorite
-          : [],
-      latest_completed:
-        Array.isArray(source.latestCompleted)
-          ? source.latestCompleted
-          : Array.isArray(source.latest_completed)
-          ? source.latest_completed
-          : [],
-      latest_episode:
-        Array.isArray(source.latestEpisode)
-          ? source.latestEpisode
-          : Array.isArray(source.latest_episode)
-          ? source.latest_episode
-          : [],
+
+      // --- Categories ---
+      top_airing: Array.isArray(source.topAiring)
+        ? source.topAiring
+        : [],
+      most_popular: Array.isArray(source.mostPopular)
+        ? source.mostPopular
+        : [],
+      most_favorite: Array.isArray(source.mostFavorite)
+        ? source.mostFavorite
+        : [],
+      latest_completed: Array.isArray(source.latestCompleted)
+        ? source.latestCompleted
+        : [],
+      latest_episode: Array.isArray(source.latestEpisode)
+        ? source.latestEpisode
+        : [],
       top_upcoming: Array.isArray(source.topUpcoming)
         ? source.topUpcoming
         : [],
       recently_added: Array.isArray(source.recentlyAdded)
         ? source.recentlyAdded
         : [],
+
+      // --- Genres ---
       genres: Array.isArray(source.genres) ? source.genres : [],
     };
 
-    // ✅ Cache normalized data
+    // 🔹 Cache normalized data
     localStorage.setItem(
       CACHE_KEY,
       JSON.stringify({
