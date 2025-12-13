@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/src/lib/utils";
 import './Skeleton.css';
 
 function Skeleton({ className, animation=true, ...props }) {
