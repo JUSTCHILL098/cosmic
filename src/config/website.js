@@ -1,3 +1,3 @@
-const website_name = "Z-ANIME";
+const website_name = "kaito";
 
 export default website_name;
