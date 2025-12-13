@@ -1,23 +1,21 @@
-import Spotlight from "@/src/components/spotlight/Spotlight.jsx";
-import Trending from "@/src/components/trending/Trending.jsx";
-import CategoryCard from "@/src/components/categorycard/CategoryCard.jsx";
-import Genre from "@/src/components/genres/Genre.jsx";
-import Topten from "@/src/components/topten/Topten.jsx";
-import Loader from "@/src/components/Loader/Loader.jsx";
-import Error from "@/src/components/error/Error.jsx";
-import { useHomeInfo } from "@/src/context/HomeInfoContext.jsx";
+import Spotlight from "@/src/components/spotlight/Spotlight";
+import Trending from "@/src/components/trending/Trending";
+import CategoryCard from "@/src/components/categorycard/CategoryCard";
+import Genre from "@/src/components/genres/Genre";
+import Topten from "@/src/components/topten/Topten";
+import Loader from "@/src/components/Loader/Loader";
+import Error from "@/src/components/error/Error";
+import { useHomeInfo } from "@/src/context/HomeInfoContext";
 import Schedule from "@/src/components/schedule/Schedule";
 import ContinueWatching from "@/src/components/continue/ContinueWatching";
 import TabbedAnimeSection from "@/src/components/tabbed-anime/TabbedAnimeSection";
-import JoinRoomPanel from "@/src/components/multiplayer/JoinRoomPanel.jsx";
+import JoinRoomPanel from "@/src/components/multiplayer/JoinRoomPanel";
 
 function Home() {
   const { homeInfo, homeInfoLoading, error } = useHomeInfo();
 
   if (homeInfoLoading) return <Loader type="home" />;
   if (error || !homeInfo) return <Error />;
-
-  console.log("✅ TOPTEN DATA =>", homeInfo.topten);
 
   return (
     <>
@@ -32,7 +30,7 @@ function Home() {
 
         <ContinueWatching />
 
-        <div className="w-full grid grid-cols-[minmax(0,75%),minmax(0,25%)] gap-x-6 max-[1200px]:flex max-[1200px]:flex-col">
+        <div className="w-full grid grid-cols-[75%,25%] gap-x-6 max-[1200px]:flex max-[1200px]:flex-col">
           <div>
             <CategoryCard
               label="Latest Episode"
@@ -55,7 +53,7 @@ function Home() {
           <div className="w-full mt-[60px]">
             <Trending trending={homeInfo.trending} />
 
-            {/* ✅ NOW THIS WORKS */}
+            {/* ✅ THIS NOW WORKS */}
             <Topten data={homeInfo.topten} className="mt-12" />
           </div>
         </div>
