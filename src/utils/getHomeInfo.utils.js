@@ -2,12 +2,18 @@ import axios from "axios";
 
 export default async function getHomeInfo() {
   const api_url = import.meta.env.VITE_API_URL;
-  if (!api_url) return null;
+  if (!api_url) {
+    console.error("VITE_API_URL missing");
+    return null;
+  }
 
-  const response = await axios.get(api_url);
-  const raw = response.data;
+  const res = await axios.get(api_url);
+  const raw = res.data;
 
-  if (!raw?.results) return null;
+  if (!raw || !raw.results) {
+    console.error("Invalid API response", raw);
+    return null;
+  }
 
   const r = raw.results;
 
@@ -15,14 +21,13 @@ export default async function getHomeInfo() {
     spotlights: r.spotlights ?? [],
     trending: r.trending ?? [],
 
-    // ✅ READ DIRECTLY FROM BACKEND SHAPE
+    // ✅ ✅ CORRECT TOP TEN MAPPING
     topten: {
-      today: r.today ?? [],
-      week: r.week ?? [],
-      month: r.month ?? [],
+      today: r.topTen?.today ?? [],
+      week: r.topTen?.week ?? [],
+      month: r.topTen?.month ?? [],
     },
 
-    todaySchedule: r.today ?? [],
     top_airing: r.topAiring ?? [],
     most_favorite: r.mostFavorite ?? [],
     latest_completed: r.latestCompleted ?? [],
