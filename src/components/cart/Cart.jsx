@@ -11,13 +11,17 @@ import { useState } from "react";
 import useToolTipPosition from "@/src/hooks/useToolTipPosition";
 import Qtip from "../qtip/Qtip";
 
-function Cart({ label, data, path }) {
+function Cart({ label, data = [], path }) {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const [hoveredItem, setHoveredItem] = useState(null);
   const [hoverTimeout, setHoverTimeout] = useState(null);
+
+  // ✅ ALWAYS PASS ARRAY TO HOOK
+  const safeData = Array.isArray(data) ? data : [];
+
   const { tooltipPosition, tooltipHorizontalPosition, cardRefs } =
-    useToolTipPosition(hoveredItem, data);
+    useToolTipPosition(hoveredItem, safeData);
 
   const handleImageEnter = (item, index) => {
     if (hoverTimeout) clearTimeout(hoverTimeout);
@@ -28,7 +32,7 @@ function Cart({ label, data, path }) {
     setHoverTimeout(
       setTimeout(() => {
         setHoveredItem(null);
-      }, 300) 
+      }, 300)
     );
   };
 
@@ -37,40 +41,36 @@ function Cart({ label, data, path }) {
       <h1 className="font-bold text-2xl text-[#ffbade] max-md:text-xl">
         {label}
       </h1>
-      <div className="w-full space-y-4 flex flex-col">
-        {data &&
-          data.slice(0, 5).map((item, index) => (
-            <div
-              key={index}
-              style={{ borderBottom: "1px solid rgba(255, 255, 255, .075)" }}
-              className="flex pb-4 items-center relative"
-              ref={(el) => (cardRefs.current[index] = el)}
-            >
-              <img
-                src={`${item.poster}`}
-                alt={item.title}
-                className="flex-shrink-0 w-[60px] h-[75px] rounded-md object-cover cursor-pointer"
-                onClick={() => navigate(`/watch/${item.id}`)}
-                onMouseEnter={() => handleImageEnter(item, index)}
-                onMouseLeave={handleImageLeave}
-              />
 
-              {hoveredItem === item.id + index && window.innerWidth > 1024 && (
+      <div className="w-full space-y-4 flex flex-col">
+        {safeData.slice(0, 5).map((item, index) => (
+          <div
+            key={item.id}
+            style={{ borderBottom: "1px solid rgba(255, 255, 255, .075)" }}
+            className="flex pb-4 items-center relative"
+            ref={(el) => (cardRefs.current[index] = el)}
+          >
+            <img
+              src={item.poster}
+              alt={item.title}
+              className="flex-shrink-0 w-[60px] h-[75px] rounded-md object-cover cursor-pointer"
+              onClick={() => navigate(`/watch/${item.id}`)}
+              onMouseEnter={() => handleImageEnter(item, index)}
+              onMouseLeave={handleImageLeave}
+            />
+
+            {hoveredItem === item.id + index &&
+              window.innerWidth > 1024 && (
                 <div
                   className={`absolute ${tooltipPosition} ${tooltipHorizontalPosition} 
-                    ${
-                      tooltipHorizontalPosition === "left-1/2"
-                        ? "translate-x-[-100px]"
-                        : "translate-x-[-200px]"
-                    } 
-                    z-[100000] transform transition-all duration-300 ease-in-out 
-                    ${
-                      hoveredItem === item.id + index
-                        ? "opacity-100 translate-y-0"
-                        : "opacity-0 translate-y-2"
-                    }`}
+                  ${
+                    tooltipHorizontalPosition === "left-1/2"
+                      ? "translate-x-[-100px]"
+                      : "translate-x-[-200px]"
+                  } 
+                  z-[100000] transform transition-all duration-300 ease-in-out`}
                   onMouseEnter={() => {
-                    if (hoverTimeout) clearTimeout(hoverTimeout); 
+                    if (hoverTimeout) clearTimeout(hoverTimeout);
                   }}
                   onMouseLeave={handleImageLeave}
                 >
@@ -78,43 +78,54 @@ function Cart({ label, data, path }) {
                 </div>
               )}
 
-              <div className="flex flex-col ml-4 space-y-2 w-full">
-                <Link
-                  to={`/${item.id}`}
-                  className="w-full line-clamp-2 text-[1em] font-[500] hover:cursor-pointer hover:text-[#ffbade] transform transition-all ease-out max-[1200px]:text-[14px]"
-                >
-                  {language === "EN" ? item.title : item.japanese_title}
-                </Link>
-                <div className="flex items-center flex-wrap w-fit space-x-1">
-                  {item.tvInfo?.sub && (
-                    <div className="flex space-x-1 justify-center items-center bg-[#B0E3AF] rounded-[4px] px-[4px] text-black py-[2px]">
-                      <FontAwesomeIcon
-                        icon={faClosedCaptioning}
-                        className="text-[12px]"
-                      />
-                      <p className="text-[12px] font-bold">{item.tvInfo.sub}</p>
-                    </div>
-                  )}
+            <div className="flex flex-col ml-4 space-y-2 w-full">
+              <Link
+                to={`/${item.id}`}
+                className="w-full line-clamp-2 text-[1em] font-[500] hover:cursor-pointer hover:text-[#ffbade] transform transition-all ease-out max-[1200px]:text-[14px]"
+              >
+                {language === "EN"
+                  ? item.title
+                  : item.japanese_title}
+              </Link>
 
-                  {item.tvInfo?.dub && (
-                    <div className="flex space-x-1 justify-center items-center bg-[#B9E7FF] rounded-[4px] px-[8px] text-black py-[2px]">
-                      <FontAwesomeIcon
-                        icon={faMicrophone}
-                        className="text-[12px]"
-                      />
-                      <p className="text-[12px] font-bold">{item.tvInfo.dub}</p>
-                    </div>
-                  )}
+              <div className="flex items-center flex-wrap w-fit space-x-1">
+                {item.tvInfo?.sub && (
+                  <div className="flex space-x-1 justify-center items-center bg-[#B0E3AF] rounded-[4px] px-[4px] text-black py-[2px]">
+                    <FontAwesomeIcon
+                      icon={faClosedCaptioning}
+                      className="text-[12px]"
+                    />
+                    <p className="text-[12px] font-bold">
+                      {item.tvInfo.sub}
+                    </p>
+                  </div>
+                )}
+
+                {item.tvInfo?.dub && (
+                  <div className="flex space-x-1 justify-center items-center bg-[#B9E7FF] rounded-[4px] px-[8px] text-black py-[2px]">
+                    <FontAwesomeIcon
+                      icon={faMicrophone}
+                      className="text-[12px]"
+                    />
+                    <p className="text-[12px] font-bold">
+                      {item.tvInfo.dub}
+                    </p>
+                  </div>
+                )}
+
+                {item.tvInfo?.showType && (
                   <div className="flex items-center w-fit pl-1 gap-x-1">
                     <div className="dot"></div>
                     <p className="text-[14px] text-[#D2D2D3]">
                       {item.tvInfo.showType}
                     </p>
                   </div>
-                </div>
+                )}
               </div>
             </div>
-          ))}
+          </div>
+        ))}
+
         <Link
           to={`/${path}`}
           className="flex w-fit items-baseline rounded-3xl gap-x-2 group"
