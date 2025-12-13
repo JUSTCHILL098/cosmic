@@ -1,271 +1,193 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
 
-import { usePathname } from "./usePathname";
-import Link from "./Link";
-import { cn } from "@/src/lib/utils";
-import { IconMark } from "./IconMark";
-import { Button } from "../ui/button";
+
+import { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
-} from "../ui/dialog-mock";
+  faBars,
+  faRandom,
+  faMagnifyingGlass,
+  faXmark,
+  faFilm,
+  faFire,
+} from "@fortawesome/free-solid-svg-icons";
+import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
+import { useLanguage } from "@/src/context/LanguageContext";
+import { Link, useLocation } from "react-router-dom";
+import Sidebar from "../sidebar/Sidebar";
+import { SearchProvider } from "@/src/context/SearchContext";
+import WebSearch from "../searchbar/WebSearch";
+import MobileSearch from "../searchbar/MobileSearch";
 
-/* ---------------- Text Reveal ---------------- */
-
-const TextReveal = ({ text, by = "word", className = "" }) => {
-  const split = by === "word" ? text.split(" ") : text.split("");
-  return (
-    <motion.div className={className}>
-      {split.map((item, index) => (
-        <motion.span
-          key={`${index}-${item}`}
-          initial={{ opacity: 0, filter: "blur(10px)" }}
-          animate={{ opacity: 1, filter: "blur(0px)" }}
-          transition={{
-            duration: 0.3,
-            delay: index * (by === "word" ? 0.1 : 0.05),
-          }}
-          className={`inline-block ${by === "word" ? "mr-2" : "mr-1"}`}
-        >
-          {item}
-        </motion.span>
-      ))}
-    </motion.div>
-  );
-};
-
-/* ---------------- Navbar ---------------- */
-
-export function Navbar({
-  items,
-  className,
-  defaultActive = "Home",
-  onProviderChange,
-}) {
-  const pathname = usePathname();
-
-  const [mounted, setMounted] = useState(false);
-  const [hovered, setHovered] = useState(null);
-  const [active, setActive] = useState(defaultActive);
-  const [isMobile, setIsMobile] = useState(false);
+function Navbar() {
+  const location = useLocation();
+  const { language, toggleLanguage } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Easter Egg
-  const [showEasterEgg, setShowEasterEgg] = useState(false);
-  const [eggStep, setEggStep] = useState(0);
-  const [showEggButtons, setShowEggButtons] = useState(false);
-
-  // Provider
-  const [providerOpen, setProviderOpen] = useState(false);
-  const [iconColor, setIconColor] = useState("text-indigo-500");
-
-  /* ----------- SAFE MOUNT RESET (FIX BLACK SCREEN) ----------- */
-  useEffect(() => {
-    setMounted(true);
-    setShowEasterEgg(false);
-    setEggStep(0);
-    setShowEggButtons(false);
-
-    const provider = CookieMock.get("selectedProvider");
-    setIconColor(provider === "hentai" ? "text-purple-500" : "text-indigo-500");
-  }, []);
-
-  /* ---------------- Resize / Scroll ---------------- */
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
+    const handleScroll = () => setIsScrolled(window.scrollY > 0);
     window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  /* ---------------- Logo Click ---------------- */
-
-  const handleLogoClick = () => {
-    const provider = CookieMock.get("selectedProvider");
-    const interaction = localStorage.getItem("lunar_moon_interaction");
-
-    if (provider === "hentai") {
-      setProviderOpen(true);
-      return;
-    }
-
-    if (interaction === "true") {
-      CookieMock.set("selectedProvider", "hentai");
-      setIconColor("text-purple-500");
-      onProviderChange?.("hentai");
-      setTimeout(() => window.location.reload(), 300);
-      return;
-    }
-
-    if (!showEasterEgg) {
-      setShowEasterEgg(true);
-      setEggStep(1);
-      setTimeout(() => setEggStep(2), 4000);
-      setTimeout(() => setShowEggButtons(true), 8000);
-    }
+  const handleHamburgerClick = () => setIsSidebarOpen(true);
+  const handleCloseSidebar = () => setIsSidebarOpen(false);
+  const handleRandomClick = () => {
+    if (location.pathname === "/random") window.location.reload();
   };
-
-  /* ---------------- Provider Select ---------------- */
-
-  const handleProviderSelect = (provider) => {
-    CookieMock.set("selectedProvider", provider);
-    setIconColor(provider === "hentai" ? "text-purple-500" : "text-indigo-500");
-    onProviderChange?.(provider);
-    setProviderOpen(false);
-    setTimeout(() => window.location.reload(), 300);
-  };
-
-  /* ---------------- Confirm Egg ---------------- */
-
-  const confirmEasterEgg = async () => {
-    setShowEggButtons(false);
-    setEggStep(3);
-    await new Promise((r) => setTimeout(r, 3000));
-    localStorage.setItem("lunar_moon_interaction", "true");
-    CookieMock.set("selectedProvider", "hentai");
-    setIconColor("text-purple-500");
-    onProviderChange?.("hentai");
-    await new Promise((r) => setTimeout(r, 2000));
-    window.location.reload();
-  };
-
-  if (!mounted) return null;
 
   return (
-    <>
-      {/* ---------------- NAVBAR ---------------- */}
-      <div className={cn("fixed left-0 right-0 z-[9999]", isMobile ? "top-2" : "top-6")}>
-        <div className="flex justify-center">
-          <motion.div
-            className="flex items-center gap-3 bg-black/50 border border-white/10 backdrop-blur-lg shadow-lg rounded-full px-4 py-3 font-mono"
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
+    <SearchProvider>
+      {/* Import Koulen Regular font */}
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Staatliches&display=swap');
+        `}
+      </style>
+
+      <nav className="fixed left-0 right-0 top-4 z-[100000]">
+        <div className="flex justify-center px-4">
+          <div
+            className={`w-full max-w-[900px] rounded-full border border-white/10 shadow-lg
+                        ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-black/65 backdrop-blur"}
+                        px-4 py-[6px]`}
           >
-            <motion.button
-              onClick={handleLogoClick}
-              animate={{ y: [0, -5, 0], rotate: [0, 5, 0, -5, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-            >
-              <IconMark className={`h-7 w-7 ${iconColor}`} />
-            </motion.button>
+            <div className="flex items-center justify-between relative z-[100001]">
+              
+              {/* === LEFT SIDE: Hamburger, KAITO, Social Icons, and Web Search === */}
+              {/* Increased gap-2 for better spacing on the crowded left side */}
+              <div className="flex items-center gap-2"> 
+                
+                {/* Hamburger */}
+                <button
+                  onClick={handleHamburgerClick}
+                  className="p-[8px] text-white/80 hover:text-white transition-colors flex items-center justify-center"
+                  title="Menu"
+                >
+                  <FontAwesomeIcon icon={faBars} className="text-[20px]" />
+                </button>
 
-            <span className="text-white font-bold">LUNAR</span>
+                {/* KAITO Text (Adjusted with mt-1 for better vertical alignment) */}
+                <Link to="/home" className="flex items-center select-none">
+                  <span
+                    className="text-white text-[22px] font-bold tracking-wide mt-1" 
+                    style={{
+                      fontFamily: "'Koulen', sans-serif",
+                    }}
+                  >
+                    KAITO
+                  </span>
+                </Link>
 
-            {!isMobile && (
-              <div className="flex gap-2">
-                {items.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = active === item.name;
+                {/* Discord (MOVED TO LEFT) */}
+                <a
+                  href="#"
+                  className="p-[8px] text-white/80 hover:text-[#5865F2] transition-colors rounded-md hidden sm:block"
+                  title="Discord"
+                >
+                  <FontAwesomeIcon icon={faDiscord} className="text-[20px]" />
+                </a>
 
-                  return (
-                    <a
-                      key={item.name}
-                      href={item.url}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setActive(item.name);
-                        window.location.href = item.url;
-                      }}
-                      className={cn(
-                        "px-6 py-2 rounded-full text-white/70 hover:text-white transition",
-                        isActive && "text-white"
-                      )}
-                    >
-                      {item.name}
-                    </a>
-                  );
-                })}
+                {/* Telegram (MOVED TO LEFT) */}
+                <a
+                  href="#"
+                  className="p-[8px] text-white/80 hover:text-[#229ED9] transition-colors rounded-md hidden sm:block"
+                  title="Telegram"
+                >
+                  <FontAwesomeIcon icon={faTelegram} className="text-[20px]" />
+                </a>
+                
+                {/* Compact Web Search (MOVED TO LEFT) */}
+                <div className="hidden md:block basis-[170px] max-w-[170px] flex-shrink-0">
+                  <WebSearch />
+                </div>
               </div>
-            )}
 
-            {isMobile && (
-              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                {mobileMenuOpen ? <X /> : <Menu />}
-              </button>
-            )}
-          </motion.div>
-        </div>
-      </div>
+              {/* === RIGHT SIDE: Random, Movie, Popular, and Language Toggle === */}
+              {/* Using gap-1 to create minimal space between all the items on the right side. */}
+              <div className="flex items-center gap-1"> 
+                
+                {/* Random */}
+                <Link
+                  to={location.pathname === "/random" ? "#" : "/random"}
+                  onClick={handleRandomClick}
+                  className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md"
+                  title="Random Anime"
+                >
+                  <FontAwesomeIcon icon={faRandom} className="text-[20px]" />
+                </Link>
 
-      {/* ---------------- EASTER EGG OVERLAY ---------------- */}
-      <AnimatePresence>
-        {showEasterEgg && eggStep > 0 && (
-          <motion.div
-            className="fixed inset-0 z-[10000] flex items-center justify-center bg-black"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <div className="text-center text-white font-mono">
-              {eggStep === 1 && (
-                <TextReveal
-                  text="A cold silence lingers beneath the moonlight."
-                  className="text-3xl"
-                />
-              )}
+                {/* Movies */}
+                <Link
+                  to="/movie"
+                  className="p-[8px] text-white/80 hover:text-white transition-colors rounded-md hidden sm:block"
+                  title="Movies"
+                >
+                  <FontAwesomeIcon icon={faFilm} className="text-[20px]" />
+                </Link>
 
-              {eggStep === 2 && (
-                <>
-                  <TextReveal
-                    text="You seek to trespass into the dark side of the lunar realm…"
-                    className="text-3xl mb-8"
-                  />
-                  {showEggButtons && (
-                    <div className="flex gap-4 justify-center">
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setShowEasterEgg(false);
-                          setEggStep(0);
-                        }}
-                      >
-                        NO
-                      </Button>
-                      <Button onClick={confirmEasterEgg}>YES</Button>
-                    </div>
-                  )}
-                </>
-              )}
+                {/* Popular */}
+                <Link
+                  to="/most-popular"
+                  className="p-[8px] text-white/80 hover:text-orange-500 transition-colors rounded-md hidden sm:block"
+                  title="Popular Anime"
+                >
+                  <FontAwesomeIcon icon={faFire} className="text-[20px]" />
+                </Link>
 
-              {eggStep === 3 && (
-                <TextReveal text="Ok..." by="character" className="text-6xl" />
-              )}
+                {/* Language Toggle */}
+                <div className="hidden md:flex items-center gap-2 bg-[#1f1f1f] rounded-md p-[2px] ml-1">
+                  {["EN", "JP"].map((lang) => (
+                    <button
+                      key={lang}
+                      onClick={() => toggleLanguage(lang)}
+                      className={`px-2 py-[2px] text-sm font-medium rounded ${
+                        language === lang
+                          ? "bg-[#2a2a2a] text-white"
+                          : "text-gray-400 hover:text-white"
+                      }`}
+                    >
+                      {lang}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Mobile Search */}
+                <div className="md:hidden">
+                  <button
+                    onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+                    className="p-[8px] text-white/70 hover:text-white transition-colors flex items-center justify-center w-[34px] h-[34px]"
+                    title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
+                  >
+                    <FontAwesomeIcon
+                      icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
+                      className="w-[18px] h-[18px]"
+                      style={{
+                        transform: isMobileSearchOpen
+                          ? "rotate(90deg)"
+                          : "rotate(0deg)",
+                      }}
+                    />
+                  </button>
+                </div>
+              </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ---------------- PROVIDER DRAWER ---------------- */}
-      <Drawer open={providerOpen} onOpenChange={setProviderOpen}>
-        <DrawerContent className="rounded-xl">
-          <DrawerHeader>
-            <DrawerTitle>Select Provider</DrawerTitle>
-            <DrawerDescription>Choose which provider you want</DrawerDescription>
-          </DrawerHeader>
-          <div className="space-y-2">
-            <Button variant="outline" onClick={() => handleProviderSelect("1st")}>
-              1st Provider
-            </Button>
-            <Button variant="outline" onClick={() => handleProviderSelect("2nd")}>
-              2nd Provider
-            </Button>
           </div>
-        </DrawerContent>
-      </Drawer>
-    </>
+        </div>
+
+        {/* Mobile Search Dropdown */}
+        {isMobileSearchOpen && (
+          <div className="md:hidden mx-4 mt-2 bg-black/90 backdrop-blur-md rounded-xl shadow-lg border border-white/10">
+            <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
+          </div>
+        )}
+
+        {/* Sidebar */}
+        <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
+      </nav>
+    </SearchProvider>
   );
 }
+
+export default Navbar;
