@@ -1,64 +1,36 @@
 import axios from "axios";
 
-const CACHE_KEY = "homeInfoCache";
-const CACHE_DURATION = 24 * 60 * 60 * 1000;
-
 export default async function getHomeInfo() {
   const api_url = import.meta.env.VITE_API_URL;
 
   if (!api_url) {
-    console.error("[HOME] Missing VITE_API_URL");
+    console.error("❌ VITE_API_URL missing");
     return null;
   }
 
-  const now = Date.now();
+  const response = await axios.get(api_url);
+  const raw = response.data;
 
-  // 🔥 READ CACHE
-  const cached = localStorage.getItem(CACHE_KEY);
-  if (cached) {
-    const parsed = JSON.parse(cached);
-    if (parsed?.timestamp && now - parsed.timestamp < CACHE_DURATION) {
-      return parsed.data;
-    }
+  console.log("🔥 RAW HOME API RESPONSE =>", raw);
+
+  if (!raw?.results) {
+    console.error("❌ No results key");
+    return null;
   }
 
-  // 🔥 FETCH API
-  const response = await axios.get(api_url);
-  const raw = response.data?.results;
+  const r = raw.results;
 
-  if (!raw) return null;
+  console.log("🔥 RAW TOPTEN FROM API =>", r.topTen);
 
-  // ✅ NORMALIZED DATA SHAPE
-  const data = {
-    spotlights: raw.spotlights ?? [],
-    trending: raw.trending ?? [],
-
-    // 🔑 THIS IS THE IMPORTANT PART
-    topten: raw.topTen ?? {
-      today: [],
-      week: [],
-      month: [],
-    },
-
-    todaySchedule: raw.today ?? [],
-    top_airing: raw.topAiring ?? [],
-    most_popular: raw.mostPopular ?? [],
-    most_favorite: raw.mostFavorite ?? [],
-    latest_completed: raw.latestCompleted ?? [],
-    latest_episode: raw.latestEpisode ?? [],
-    top_upcoming: raw.topUpcoming ?? [],
-    recently_added: raw.recentlyAdded ?? [],
-    genres: raw.genres ?? [],
+  return {
+    spotlights: r.spotlights ?? [],
+    trending: r.trending ?? [],
+    topten: r.topTen ?? { today: [], week: [], month: [] },
+    todaySchedule: r.today ?? [],
+    top_airing: r.topAiring ?? [],
+    most_favorite: r.mostFavorite ?? [],
+    latest_completed: r.latestCompleted ?? [],
+    latest_episode: r.latestEpisode ?? [],
+    genres: r.genres ?? [],
   };
-
-  // 🔥 SAVE CACHE
-  localStorage.setItem(
-    CACHE_KEY,
-    JSON.stringify({
-      data,
-      timestamp: now,
-    })
-  );
-
-  return data;
 }
