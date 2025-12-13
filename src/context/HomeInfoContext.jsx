@@ -11,63 +11,48 @@ export const HomeInfoProvider = ({ children }) => {
   useEffect(() => {
     const fetchHomeInfo = async () => {
       try {
-        const raw = await getHomeInfo();
+        const data = await getHomeInfo();
 
-        if (!raw || !raw.results) {
-          throw new Error("Invalid home API response");
+        if (!data) {
+          throw new Error("Home API returned null");
         }
 
-        const results = raw.results;
-
-        const normalizedHomeInfo = {
-          spotlights: Array.isArray(results.spotlights)
-            ? results.spotlights
+        // ✅ DO NOT TOUCH SHAPE HERE
+        const normalized = {
+          spotlights: Array.isArray(data.spotlights) ? data.spotlights : [],
+          genres: Array.isArray(data.genres) ? data.genres : [],
+          trending: Array.isArray(data.trending) ? data.trending : [],
+          latest_episode: Array.isArray(data.latest_episode)
+            ? data.latest_episode
             : [],
 
-          genres: Array.isArray(results.genres)
-            ? results.genres
-            : [],
-
-          trending: Array.isArray(results.trending)
-            ? results.trending
-            : [],
-
-          latest_episode: Array.isArray(results.latestEpisode)
-            ? results.latestEpisode
-            : [],
-
-          // ✅ FIXED TOP TEN (DO NOT TOUCH)
+          // ✅ THIS IS THE FIX
           topten: {
-            today: Array.isArray(results.topTen?.today)
-              ? results.topTen.today
+            today: Array.isArray(data.topten?.today)
+              ? data.topten.today
               : [],
-            week: Array.isArray(results.topTen?.week)
-              ? results.topTen.week
+            week: Array.isArray(data.topten?.week)
+              ? data.topten.week
               : [],
-            month: Array.isArray(results.topTen?.month)
-              ? results.topTen.month
+            month: Array.isArray(data.topten?.month)
+              ? data.topten.month
               : [],
           },
 
-          top_airing: Array.isArray(results.topAiring)
-            ? results.topAiring
+          top_airing: Array.isArray(data.top_airing)
+            ? data.top_airing
             : [],
-
-          most_favorite: Array.isArray(results.mostFavorite)
-            ? results.mostFavorite
+          most_favorite: Array.isArray(data.most_favorite)
+            ? data.most_favorite
             : [],
-
-          latest_completed: Array.isArray(results.latestCompleted)
-            ? results.latestCompleted
+          latest_completed: Array.isArray(data.latest_completed)
+            ? data.latest_completed
             : [],
         };
 
-        console.log(
-          "✅ TOP TEN FIXED:",
-          normalizedHomeInfo.topten
-        );
+        console.log("✅ TOPTEN FINAL:", normalized.topten);
 
-        setHomeInfo(normalizedHomeInfo);
+        setHomeInfo(normalized);
       } catch (err) {
         console.error("Home info error:", err);
         setError(err);
@@ -80,9 +65,7 @@ export const HomeInfoProvider = ({ children }) => {
   }, []);
 
   return (
-    <HomeInfoContext.Provider
-      value={{ homeInfo, homeInfoLoading, error }}
-    >
+    <HomeInfoContext.Provider value={{ homeInfo, homeInfoLoading, error }}>
       {children}
     </HomeInfoContext.Provider>
   );
