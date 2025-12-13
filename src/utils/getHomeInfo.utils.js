@@ -6,67 +6,53 @@ const CACHE_DURATION = 24 * 60 * 60 * 1000;
 export default async function getHomeInfo() {
   const api_url = import.meta.env.VITE_API_URL;
 
-  if (!api_url) {
-    console.error("VITE_API_URL is missing");
+  const currentTime = Date.now();
+  const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY));
+
+  if (cachedData && currentTime - cachedData.timestamp < CACHE_DURATION) {
+    return cachedData.data;
+  }
+  const response = await axios.get(`${api_url}`);
+  if (
+    !response.data.results ||
+    Object.keys(response.data.results).length === 0
+  ) {
     return null;
   }
+  const {
+    spotlights,
+    trending,
+    topTen: topten,
+    today: todaySchedule,
+    topAiring: top_airing,
+    mostPopular: most_popular,
+    mostFavorite: most_favorite,
+    latestCompleted: latest_completed,
+    latestEpisode: latest_episode,
+    topUpcoming: top_upcoming,
+    recentlyAdded: recently_added,
+    genres,
+  } = response.data.results;
 
-  const now = Date.now();
-
-  // 🔹 Cache
-  const cachedRaw = localStorage.getItem(CACHE_KEY);
-  if (cachedRaw) {
-    const cached = JSON.parse(cachedRaw);
-    if (
-      cached?.timestamp &&
-      cached?.data &&
-      now - cached.timestamp < CACHE_DURATION
-    ) {
-      return cached.data;
-    }
-  }
-
-  // 🔹 Fetch
-  const response = await axios.get(api_url);
-  const raw = response?.data;
-
-  if (!raw?.results) {
-    console.error("Invalid API response", raw);
-    return null;
-  }
-
-  const r = raw.results;
-
-  // ✅ FIXED DATA SHAPE
-  const data = {
-    spotlights: r.spotlights ?? [],
-    trending: r.trending ?? [],
-
-    // 🔥 THIS IS THE FIX — BUILD TOPTEN MANUALLY
-    topten: {
-      today: Array.isArray(r.today) ? r.today : [],
-      week: Array.isArray(r.week) ? r.week : [],
-      month: Array.isArray(r.month) ? r.month : [],
+  const dataToCache = {
+    data: {
+      spotlights,
+      trending,
+      topten,
+      todaySchedule,
+      top_airing,
+      most_popular,
+      most_favorite,
+      latest_completed,
+      latest_episode,
+      top_upcoming,
+      recently_added,
+      genres,
     },
-
-    todaySchedule: r.today ?? [],
-    top_airing: r.topAiring ?? [],
-    most_popular: r.mostPopular ?? [],
-    most_favorite: r.mostFavorite ?? [],
-    latest_completed: r.latestCompleted ?? [],
-    latest_episode: r.latestEpisode ?? [],
-    top_upcoming: r.topUpcoming ?? [],
-    recently_added: r.recentlyAdded ?? [],
-    genres: r.genres ?? [],
+    timestamp: currentTime,
   };
 
-  localStorage.setItem(
-    CACHE_KEY,
-    JSON.stringify({
-      data,
-      timestamp: now,
-    })
-  );
+  localStorage.setItem(CACHE_KEY, JSON.stringify(dataToCache));
 
-  return data;
+  return dataToCache.data;
 }
