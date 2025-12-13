@@ -11,17 +11,22 @@ import Qtip from "../qtip/Qtip";
 
 function Topten({ data, className }) {
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const [activePeriod, setActivePeriod] = useState("today");
   const [hoveredItem, setHoveredItem] = useState(null);
   const [hoverTimeout, setHoverTimeout] = useState(null);
-  const navigate = useNavigate();
 
-  // ✅ SAFE GUARD
-  if (!data || typeof data !== "object") return null;
+  // ✅ HARD GUARD (NO MORE SILENT FAILURES)
+  if (
+    !data ||
+    !Array.isArray(data.today) ||
+    !Array.isArray(data.week) ||
+    !Array.isArray(data.month)
+  ) {
+    return null;
+  }
 
-  const currentData = Array.isArray(data[activePeriod])
-    ? data[activePeriod]
-    : [];
+  const currentData = data[activePeriod];
 
   const { tooltipPosition, tooltipHorizontalPosition, cardRefs } =
     useToolTipPosition(hoveredItem, currentData);
@@ -48,12 +53,12 @@ function Topten({ data, className }) {
           {["today", "week", "month"].map((period) => (
             <li
               key={period}
-              className={`cursor-pointer px-4 py-1.5 text-sm ${
+              onClick={() => setActivePeriod(period)}
+              className={`cursor-pointer px-4 py-1.5 text-sm transition-all ${
                 activePeriod === period
                   ? "bg-white text-black font-medium"
                   : "text-gray-400 hover:text-white"
               }`}
-              onClick={() => setActivePeriod(period)}
             >
               {period.charAt(0).toUpperCase() + period.slice(1)}
             </li>
@@ -71,7 +76,7 @@ function Topten({ data, className }) {
           return (
             <div
               key={item.id}
-              className="flex gap-x-3 items-center"
+              className="flex items-center gap-x-3"
               ref={(el) => (cardRefs.current[index] = el)}
             >
               <span className="text-white font-bold text-xl w-6">
