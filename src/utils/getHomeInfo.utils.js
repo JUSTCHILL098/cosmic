@@ -12,47 +12,45 @@ export default async function getHomeInfo() {
   if (cachedData && currentTime - cachedData.timestamp < CACHE_DURATION) {
     return cachedData.data;
   }
-  const response = await axios.get(`${api_url}`);
-  if (
-    !response.data.results ||
-    Object.keys(response.data.results).length === 0
-  ) {
-    return null;
-  }
-  const {
-    spotlights,
-    trending,
-    topTen: topten,
-    today: todaySchedule,
-    topAiring: top_airing,
-    mostPopular: most_popular,
-    mostFavorite: most_favorite,
-    latestCompleted: latest_completed,
-    latestEpisode: latest_episode,
-    topUpcoming: top_upcoming,
-    recentlyAdded: recently_added,
-    genres,
-  } = response.data.results;
+
+  const response = await axios.get(api_url);
+  const raw = response.data;
+
+  // ✅ SUPPORT BOTH API SHAPES
+  const source = raw.results ?? raw;
+
+  const data = {
+    spotlights: source.spotlights ?? [],
+    trending: source.trending ?? [],
+
+    // Top ten (your backend format)
+    topten:
+      source.topTen ??
+      {
+        today: source.today ?? [],
+        week: source.week ?? [],
+        month: source.month ?? [],
+      },
+
+    todaySchedule: source.today ?? [],
+    top_airing: source.topAiring ?? source.top_airing ?? [],
+    most_popular: source.mostPopular ?? source.most_popular ?? [],
+    most_favorite: source.mostFavorite ?? source.most_favorite ?? [],
+    latest_completed:
+      source.latestCompleted ?? source.latest_completed ?? [],
+    latest_episode:
+      source.latestEpisode ?? source.latest_episode ?? [],
+    top_upcoming: source.topUpcoming ?? [],
+    recently_added: source.recentlyAdded ?? [],
+    genres: source.genres ?? [],
+  };
 
   const dataToCache = {
-    data: {
-      spotlights,
-      trending,
-      topten,
-      todaySchedule,
-      top_airing,
-      most_popular,
-      most_favorite,
-      latest_completed,
-      latest_episode,
-      top_upcoming,
-      recently_added,
-      genres,
-    },
+    data,
     timestamp: currentTime,
   };
 
   localStorage.setItem(CACHE_KEY, JSON.stringify(dataToCache));
 
-  return dataToCache.data;
+  return data;
 }
