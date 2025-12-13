@@ -18,6 +18,8 @@ function Home() {
   if (homeInfoLoading) return <Loader type="home" />;
   if (error) return <Error />;
   if (!homeInfo) return <Error error="404" />;
+  console.log("HOME TOPTEN RAW =>", homeInfo.topten);
+
 
   // ✅ NORMALIZE TOPTEN HERE (IMPORTANT)
   const normalizedTopten =
