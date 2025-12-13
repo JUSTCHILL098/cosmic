@@ -1,7 +1,7 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import getHomeInfo from "../utils/getHomeInfo.utils.js";
 
-const HomeInfoContext = createContext();
+const HomeInfoContext = createContext(null);
 
 export const HomeInfoProvider = ({ children }) => {
   const [homeInfo, setHomeInfo] = useState(null);
@@ -13,56 +13,63 @@ export const HomeInfoProvider = ({ children }) => {
       try {
         const raw = await getHomeInfo();
 
-        // ✅ NORMALIZE RESPONSE (frontend-only fix)
+        if (!raw || !raw.results) {
+          throw new Error("Invalid home API response");
+        }
+
+        const results = raw.results;
+
         const normalizedHomeInfo = {
-          // Spotlight
-          spotlights: raw?.results?.spotlights ?? raw?.spotlights ?? [],
+          spotlights: Array.isArray(results.spotlights)
+            ? results.spotlights
+            : [],
 
-          // Genres
-          genres: raw?.results?.genres ?? raw?.genres ?? [],
+          genres: Array.isArray(results.genres)
+            ? results.genres
+            : [],
 
-          // Trending
-          trending: raw?.results?.trending ?? raw?.trending ?? [],
+          trending: Array.isArray(results.trending)
+            ? results.trending
+            : [],
 
-          // Latest Episode
-          latest_episode:
-            raw?.results?.latestEpisode ??
-            raw?.latestEpisode ??
-            raw?.latest_episode ??
-            [],
+          latest_episode: Array.isArray(results.latestEpisode)
+            ? results.latestEpisode
+            : [],
 
-          // Top Ten (IMPORTANT)
-          topten:
-            raw?.results?.topTen ??
-            {
-              today: raw?.today ?? [],
-              week: raw?.week ?? [],
-              month: raw?.month ?? [],
-            },
+          // ✅ FIXED TOP TEN (DO NOT TOUCH)
+          topten: {
+            today: Array.isArray(results.topTen?.today)
+              ? results.topTen.today
+              : [],
+            week: Array.isArray(results.topTen?.week)
+              ? results.topTen.week
+              : [],
+            month: Array.isArray(results.topTen?.month)
+              ? results.topTen.month
+              : [],
+          },
 
-          // Tabbed sections
-          top_airing:
-            raw?.results?.topAiring ??
-            raw?.topAiring ??
-            raw?.top_airing ??
-            [],
+          top_airing: Array.isArray(results.topAiring)
+            ? results.topAiring
+            : [],
 
-          most_favorite:
-            raw?.results?.mostFavorite ??
-            raw?.mostFavorite ??
-            raw?.most_favorite ??
-            [],
+          most_favorite: Array.isArray(results.mostFavorite)
+            ? results.mostFavorite
+            : [],
 
-          latest_completed:
-            raw?.results?.latestCompleted ??
-            raw?.latestCompleted ??
-            raw?.latest_completed ??
-            [],
+          latest_completed: Array.isArray(results.latestCompleted)
+            ? results.latestCompleted
+            : [],
         };
+
+        console.log(
+          "✅ TOP TEN FIXED:",
+          normalizedHomeInfo.topten
+        );
 
         setHomeInfo(normalizedHomeInfo);
       } catch (err) {
-        console.error("Error fetching home info:", err);
+        console.error("Home info error:", err);
         setError(err);
       } finally {
         setHomeInfoLoading(false);
