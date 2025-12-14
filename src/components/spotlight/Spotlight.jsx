@@ -1,38 +1,38 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Autoplay, Pagination } from "swiper/modules";
+import { Autoplay, Pagination } from "swiper/modules";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import "swiper/css";
 import "swiper/css/pagination";
-import "swiper/css/navigation";
 
 import Banner from "../banner/Banner";
 import "./Spotlight.css";
 
 export default function Spotlight({ spotlights = [] }) {
+  const swiperRef = useRef(null);
+
   if (!spotlights.length) return null;
 
   return (
     <div className="relative h-[500px] max-md:h-[360px] -mt-8">
       <Swiper
+        onSwiper={(swiper) => (swiperRef.current = swiper)}
         slidesPerView={1}
         loop
         autoplay={{
           delay: 5000,
           disableOnInteraction: false,
         }}
-        navigation={{
-          nextEl: ".button-next",
-          prevEl: ".button-prev",
-        }}
         pagination={{ clickable: true }}
-        modules={[Navigation, Autoplay, Pagination]}
+        modules={[Autoplay, Pagination]}
         className="h-full rounded-2xl overflow-hidden"
       >
         {/* LEFT ARROW */}
         <button
-          className="button-prev inline-flex items-center justify-center
+          type="button"
+          onClick={() => swiperRef.current?.slidePrev()}
+          className="inline-flex items-center justify-center
                      h-8 w-8 rounded-full
                      border border-white/20
                      bg-black/40 backdrop-blur-sm
@@ -47,7 +47,9 @@ export default function Spotlight({ spotlights = [] }) {
 
         {/* RIGHT ARROW */}
         <button
-          className="button-next inline-flex items-center justify-center
+          type="button"
+          onClick={() => swiperRef.current?.slideNext()}
+          className="inline-flex items-center justify-center
                      h-8 w-8 rounded-full
                      border border-white/20
                      bg-black/40 backdrop-blur-sm
