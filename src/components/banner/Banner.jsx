@@ -1,4 +1,3 @@
-// weeb/src/components/banner/Banner.jsx
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
@@ -10,115 +9,139 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/src/context/LanguageContext";
+import "./Banner.css";
 
-function Banner({ item }) {
+const TAGS = ["Popular", "Trending", "New", "Classic", "TV", "Fantasy"];
+const TAG_COLORS = {
+  Popular: "bg-[#ffbade]/20 text-[#ffbade]",
+  Trending: "bg-[#ff7a7a]/20 text-[#ff7a7a]",
+  New: "bg-[#7affc4]/20 text-[#7affc4]",
+  Classic: "bg-white/15 text-white",
+  TV: "bg-[#7ab7ff]/20 text-[#7ab7ff]",
+  Fantasy: "bg-[#c77aff]/20 text-[#c77aff]",
+};
+
+function Banner({ item, index }) {
   const { language } = useLanguage();
-
   if (!item) return null;
 
+  const tag = TAGS[index % TAGS.length];
+
   return (
-    <section className="w-full h-full">
-      <div className="relative h-[300px] sm:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden bg-card/30 backdrop-blur-sm">
+    <section className="spotlight w-full h-full relative rounded-2xl overflow-hidden">
+      {/* IMAGE */}
+      <img
+        src={item.poster}
+        alt={item.title}
+        className="absolute inset-0 object-cover w-full h-full"
+      />
 
-        {/* Background Image */}
-        <img
-          src={item.poster}
-          alt={item.title}
-          className="absolute inset-0 w-full h-full object-cover z-[1]"
-        />
+      {/* DARK CINEMATIC GRADIENT (FIXED) */}
+      <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black via-black/70 to-transparent" />
 
-        {/* Featured-style Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent z-[2]" />
+      {/* CONTENT */}
+      <div className="absolute left-0 bottom-14 w-[55%] p-6 z-[2]
+                      max-[1120px]:w-[70%]
+                      max-md:w-[90%]
+                      max-md:bottom-8">
 
-        {/* Content */}
-        <div className="absolute inset-0 flex items-end z-[3]">
-          <div className="p-4 sm:p-6 lg:p-10 space-y-4 max-w-2xl">
+        {/* TAG + META */}
+        <div className="flex items-center gap-3 flex-wrap text-sm text-white/70">
 
-            {/* TAGS + META (Qtip style) */}
-            <div className="flex items-center gap-2 flex-wrap text-xs sm:text-sm text-muted-foreground">
+          {/* TAG */}
+          <span
+            className={`px-3 py-1 rounded-md text-xs font-semibold ${TAG_COLORS[tag]}`}
+          >
+            {tag}
+          </span>
 
-              {/* TYPE */}
-              {item.tvInfo?.showType && (
-                <span className="px-3 py-1 rounded-md bg-amber-500/10 text-amber-500 border border-amber-500/20 font-semibold">
-                  {item.tvInfo.showType}
-                </span>
-              )}
-
-              {/* DURATION */}
-              {item.tvInfo?.duration && (
-                <div className="flex items-center gap-1">
-                  <FontAwesomeIcon icon={faClock} className="h-4 w-4" />
-                  <span>{item.tvInfo.duration}</span>
-                </div>
-              )}
-
-              {/* YEAR */}
-              {item.tvInfo?.releaseDate && (
-                <div className="flex items-center gap-1">
-                  <FontAwesomeIcon icon={faCalendar} className="h-4 w-4" />
-                  <span>{item.tvInfo.releaseDate}</span>
-                </div>
-              )}
-
-              {/* QUALITY */}
-              {item.tvInfo?.quality && (
-                <span className="px-2 py-[2px] rounded-md bg-white/10 text-white text-xs font-bold">
-                  {item.tvInfo.quality}
-                </span>
-              )}
-
-              {/* SUB / DUB / EP COUNT */}
-              {item.tvInfo?.episodeInfo && (
-                <div className="flex rounded-md overflow-hidden">
-
-                  {item.tvInfo.episodeInfo.sub && (
-                    <div className="flex items-center gap-1 px-2 py-[2px] bg-[#B0E3AF] text-black text-xs font-semibold">
-                      <FontAwesomeIcon icon={faClosedCaptioning} />
-                      {item.tvInfo.episodeInfo.sub}
-                    </div>
-                  )}
-
-                  {item.tvInfo.episodeInfo.dub && (
-                    <div className="flex items-center gap-1 px-2 py-[2px] bg-[#B9E7FF] text-black text-xs font-semibold">
-                      <FontAwesomeIcon icon={faMicrophone} />
-                      {item.tvInfo.episodeInfo.dub}
-                    </div>
-                  )}
-                </div>
-              )}
+          {/* RATING */}
+          {item.rating && (
+            <div className="flex items-center gap-1">
+              <FontAwesomeIcon icon={faStar} className="text-yellow-400" />
+              <span>{item.rating}</span>
             </div>
+          )}
 
-            {/* TITLE */}
-            <h2 className="text-xl sm:text-2xl lg:text-4xl font-bold text-white">
-              {language === "EN" ? item.title : item.japanese_title}
-            </h2>
+          {/* YEAR */}
+          {item.tvInfo?.releaseDate && (
+            <div className="flex items-center gap-1">
+              <FontAwesomeIcon icon={faCalendar} />
+              <span>{item.tvInfo.releaseDate}</span>
+            </div>
+          )}
 
-            {/* DESCRIPTION */}
-            {item.description && (
-              <p className="text-muted-foreground text-xs sm:text-sm lg:text-base line-clamp-3">
-                {item.description}
-              </p>
+          {/* DURATION */}
+          {item.tvInfo?.duration && (
+            <div className="flex items-center gap-1">
+              <FontAwesomeIcon icon={faClock} />
+              <span>{item.tvInfo.duration}</span>
+            </div>
+          )}
+        </div>
+
+        {/* TITLE */}
+        <h3 className="text-white text-4xl font-bold mt-4 leading-tight
+                       max-md:text-2xl">
+          {language === "EN" ? item.title : item.japanese_title}
+        </h3>
+
+        {/* DESCRIPTION */}
+        {item.description && (
+          <p className="text-white/70 mt-3 line-clamp-3 max-w-xl text-sm">
+            {item.description}
+          </p>
+        )}
+
+        {/* SUB / DUB / QUALITY */}
+        {item.tvInfo && (
+          <div className="flex items-center gap-3 mt-4">
+
+            {item.tvInfo.quality && (
+              <span className="bg-white/15 px-2 py-1 rounded text-xs font-bold">
+                {item.tvInfo.quality}
+              </span>
             )}
 
-            {/* BUTTONS */}
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <Link
-                to={`/watch/${item.id}`}
-                className="inline-flex items-center justify-center bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-md font-semibold"
-              >
-                <FontAwesomeIcon icon={faPlay} className="mr-2" />
-                Watch Now
-              </Link>
+            {item.tvInfo.episodeInfo?.sub && (
+              <span className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded text-xs">
+                <FontAwesomeIcon icon={faClosedCaptioning} />
+                {item.tvInfo.episodeInfo.sub}
+              </span>
+            )}
 
-              <Link
-                to={`/${item.id}`}
-                className="inline-flex items-center justify-center border border-input bg-background/40 hover:bg-background/60 px-6 py-3 rounded-md font-semibold"
-              >
-                Details
-              </Link>
-            </div>
-
+            {item.tvInfo.episodeInfo?.dub && (
+              <span className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded text-xs">
+                <FontAwesomeIcon icon={faMicrophone} />
+                {item.tvInfo.episodeInfo.dub}
+              </span>
+            )}
           </div>
+        )}
+
+        {/* BUTTONS (FIXED — NO CUTTING) */}
+        <div className="flex gap-4 mt-6">
+
+          <Link
+            to={`/watch/${item.id}`}
+            className="inline-flex items-center gap-2
+                       bg-white text-black px-6 py-3
+                       rounded-lg font-semibold
+                       hover:bg-gray-200 transition"
+          >
+            <FontAwesomeIcon icon={faPlay} />
+            Watch Now
+          </Link>
+
+          <Link
+            to={`/${item.id}`}
+            className="inline-flex items-center gap-2
+                       bg-white/10 border border-white/20
+                       text-white px-6 py-3 rounded-lg
+                       hover:bg-white/20 transition"
+          >
+            Details
+          </Link>
         </div>
       </div>
     </section>
