@@ -227,25 +227,31 @@ function AnimeInfo({ random = false }) {
               </div>
             </div>
 
-            {/* Watch Button - Full Width on Mobile */}
-            <div className="mt-6">
-              {animeInfo?.animeInfo?.Status?.toLowerCase() !== "not-yet-aired" ? (
-                <Link
-                  to={`/watch/${animeInfo.id}`}
-                  className="flex justify-center items-center w-full px-4 py-3 bg-white/10 backdrop-blur-md rounded-lg text-white transition-all duration-300 hover:bg-white/20 group"
-                >
-                  <FontAwesomeIcon
-                    icon={faPlay}
-                    className="mr-2 text-xs group-hover:text-white"
-                  />
-                  <span className="font-medium text-sm">Watch Now</span>
-                </Link>
-              ) : (
-                <div className="flex justify-center items-center w-full px-4 py-3 bg-gray-700/50 rounded-lg">
-                  <span className="font-medium text-sm">Not released</span>
-                </div>
-              )}
-            </div>
+          {/* Watch Button - Full Width on Mobile */}
+<div className="mt-6">
+  {animeInfo?.animeInfo?.Status?.toLowerCase() !== "not-yet-aired" ? (
+    <Link
+      to={`/watch/${animeInfo.id}`}
+      className="
+        inline-flex items-center justify-center gap-2
+        w-full h-10
+        rounded-md
+        bg-white text-black
+        font-semibold text-sm
+        shadow-lg shadow-white/20
+        hover:shadow-white/30
+        transition-all
+      "
+    >
+      <FontAwesomeIcon icon={faPlay} className="h-4 w-4" />
+      Watch Now
+    </Link>
+  ) : (
+    <div className="flex justify-center items-center w-full h-10 rounded-md bg-black/70">
+      <span className="font-medium text-sm text-white/60">Not released</span>
+    </div>
+  )}
+</div>
 
             {/* Details Section - Full Width on Mobile */}
             <div className="mt-6 space-y-3 py-3 backdrop-blur-md bg-white/5 rounded-lg px-3 text-xs">
