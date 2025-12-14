@@ -7,8 +7,7 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { FaHistory, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useLanguage } from "@/src/context/LanguageContext";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlay } from "@fortawesome/free-solid-svg-icons";
+import { Play } from "lucide-react";
 
 const ContinueWatching = () => {
   const [watchList, setWatchList] = useState([]);
@@ -26,7 +25,6 @@ const ContinueWatching = () => {
     }
   }, []);
 
-  // ✅ ALWAYS GUARANTEE ARRAY
   const memoizedWatchList = useMemo(
     () => (Array.isArray(watchList) ? watchList : []),
     [watchList]
@@ -47,10 +45,11 @@ const ContinueWatching = () => {
 
   return (
     <div className="mt-8">
+      {/* HEADER */}
       <div className="flex items-center justify-between max-md:pl-4 mb-6">
-        <div className="flex items-center gap-x-3 justify-center">
+        <div className="flex items-center gap-x-3">
           <FaHistory className="text-gray-200 text-xl" />
-          <h1 className="text-gray-200 text-2xl font-bold tracking-tight max-[450px]:text-xl max-[450px]:mb-1 max-[350px]:text-lg">
+          <h1 className="text-gray-200 text-2xl font-bold tracking-tight max-[450px]:text-xl">
             Continue Watching
           </h1>
         </div>
@@ -65,6 +64,7 @@ const ContinueWatching = () => {
         </div>
       </div>
 
+      {/* SWIPER */}
       <div className="relative mx-auto overflow-hidden z-[1]">
         <Swiper
           ref={swiperRef}
@@ -84,7 +84,7 @@ const ContinueWatching = () => {
             prevEl: ".continue-btn-prev",
           }}
         >
-          {(memoizedWatchList ?? [])
+          {memoizedWatchList
             .slice()
             .reverse()
             .map((item, index) => (
@@ -92,9 +92,10 @@ const ContinueWatching = () => {
                 key={`${item?.episodeId}-${index}`}
                 className="text-center flex justify-center items-center"
               >
-                <div className="w-full h-auto pb-[140%] relative inline-block overflow-hidden rounded-lg shadow-lg group">
+                <div className="w-full pb-[140%] relative overflow-hidden rounded-lg shadow-lg group">
+                  {/* REMOVE BUTTON */}
                   <button
-                    className="absolute top-3 right-3 bg-black/70 text-gray-300 w-8 h-8 flex items-center justify-center rounded-lg text-sm z-10 font-medium hover:bg-white hover:text-black transition-all duration-300"
+                    className="absolute top-3 right-3 bg-black/70 text-gray-300 w-8 h-8 flex items-center justify-center rounded-lg text-sm z-10 hover:bg-white hover:text-black transition-all duration-300"
                     onClick={() => removeFromWatchList(item?.episodeId)}
                   >
                     ✖
@@ -102,38 +103,38 @@ const ContinueWatching = () => {
 
                   <Link
                     to={`/watch/${item?.id}?ep=${item?.episodeId}`}
-                    className="inline-block bg-gray-900 absolute left-0 top-0 w-full h-full group"
+                    className="absolute inset-0"
                   >
                     <img
                       src={item?.poster}
                       alt={item?.title}
-                      className="block w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-105 group-hover:blur-sm"
-                      title={item?.title}
+                      className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:blur-sm"
                       loading="lazy"
                     />
+
+                    {/* PLAY OVERLAY */}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                      <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                        <FontAwesomeIcon
-                          icon={faPlay}
-                          className="text-[50px] text-white drop-shadow-lg max-[450px]:text-[36px]"
-                        />
+                      <div className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                        <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
                       </div>
                     </div>
                   </Link>
 
+                  {/* 18+ */}
                   {item?.adultContent === true && (
-                    <div className="text-white px-2 py-0.5 rounded-lg bg-red-600 absolute top-3 left-3 flex items-center justify-center text-[12px] font-bold">
+                    <div className="absolute top-3 left-3 bg-red-600 text-white px-2 py-0.5 rounded-lg text-[12px] font-bold">
                       18+
                     </div>
                   )}
 
-                  <div className="absolute bottom-0 left-0 right-0 p-3 pb-2 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
-                    <p className="text-white text-[15px] font-bold text-left truncate mb-1.5 max-[450px]:text-sm drop-shadow-lg">
+                  {/* BOTTOM INFO */}
+                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
+                    <p className="text-white text-[15px] font-bold truncate mb-1 max-[450px]:text-sm">
                       {language === "EN"
                         ? item?.title
                         : item?.japanese_title}
                     </p>
-                    <p className="text-gray-200 text-[13px] font-semibold text-left max-[450px]:text-[12px] drop-shadow-md">
+                    <p className="text-gray-200 text-[13px] font-semibold max-[450px]:text-[12px]">
                       Episode {item?.episodeNum}
                     </p>
                   </div>
