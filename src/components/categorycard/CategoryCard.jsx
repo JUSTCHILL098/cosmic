@@ -119,10 +119,10 @@ const CategoryCard = React.memo(
                     />
 
                     {/* PLAY OVERLAY */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      <div className="h-14 w-14 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                        <Play className="h-6 w-6 text-white fill-white ml-[2px]" />
-                      </div>
+
+                  <div className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                    <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
+                   </div>
                     </div>
                   </div>
 
