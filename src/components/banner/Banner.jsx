@@ -1,64 +1,70 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faPlay,
-  faClosedCaptioning,
-  faMicrophone,
-  faCalendar,
-  faClock,
-  faStar,
-} from "@fortawesome/free-solid-svg-icons";
+  Play,
+  Info,
+  Star,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/src/context/LanguageContext";
-import "./Banner.css";
 
-const TAGS = ["Popular", "Trending", "New", "Classic", "TV", "Fantasy"];
-const TAG_COLORS = {
-  Popular: "bg-[#ffbade]/20 text-[#ffbade]",
-  Trending: "bg-[#ff7a7a]/20 text-[#ff7a7a]",
-  New: "bg-[#7affc4]/20 text-[#7affc4]",
-  Classic: "bg-white/15 text-white",
-  TV: "bg-[#7ab7ff]/20 text-[#7ab7ff]",
-  Fantasy: "bg-[#c77aff]/20 text-[#c77aff]",
+const GENRE_COLORS = {
+  Action: "bg-red-600",
+  Adventure: "bg-orange-600",
+  Fantasy: "bg-purple-600",
+  Drama: "bg-blue-600",
+  Romance: "bg-pink-600",
+  Comedy: "bg-yellow-500 text-black",
+  Horror: "bg-emerald-600",
+  SciFi: "bg-cyan-600",
+  Isekai: "bg-indigo-600",
+  Default: "bg-zinc-700",
 };
 
-function Banner({ item, index }) {
+export default function Banner({ item }) {
   const { language } = useLanguage();
   if (!item) return null;
 
-  const tag = TAGS[index % TAGS.length];
+  const title =
+    language === "EN" ? item.title : item.japanese_title ?? item.title;
+
+  const genre = item.genres?.[0] ?? "Default";
+  const tagColor = GENRE_COLORS[genre] || GENRE_COLORS.Default;
 
   return (
-    <section className="spotlight w-full h-full relative rounded-2xl overflow-hidden">
+    <section className="relative w-full h-full rounded-2xl overflow-hidden">
+
       {/* IMAGE */}
       <img
         src={item.poster}
-        alt={item.title}
-        className="absolute inset-0 object-cover w-full h-full"
+        alt={title}
+        className="absolute inset-0 w-full h-full object-cover"
       />
 
-      {/* DARK CINEMATIC GRADIENT (FIXED) */}
-      <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black via-black/70 to-transparent" />
+      {/* DARK GRADIENT */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent z-[1]" />
 
       {/* CONTENT */}
-      <div className="absolute left-0 bottom-14 w-[55%] p-6 z-[2]
-                      max-[1120px]:w-[70%]
+      <div className="absolute left-0 bottom-12 z-[2] w-[55%] px-8
+                      max-lg:w-[70%]
                       max-md:w-[90%]
                       max-md:bottom-8">
 
-        {/* TAG + META */}
-        <div className="flex items-center gap-3 flex-wrap text-sm text-white/70">
+        {/* META ROW (FIXED HEIGHT) */}
+        <div className="flex items-center gap-3 h-8 text-sm text-white/80">
 
-          {/* TAG */}
+          {/* GENRE TAG */}
           <span
-            className={`px-3 py-1 rounded-md text-xs font-semibold ${TAG_COLORS[tag]}`}
+            className={`px-3 py-1 rounded-md font-semibold text-xs text-white ${tagColor}`}
           >
-            {tag}
+            {genre}
           </span>
 
           {/* RATING */}
           {item.rating && (
             <div className="flex items-center gap-1">
-              <FontAwesomeIcon icon={faStar} className="text-yellow-400" />
+              <Star className="h-4 w-4 text-yellow-400" />
               <span>{item.rating}</span>
             </div>
           )}
@@ -66,80 +72,46 @@ function Banner({ item, index }) {
           {/* YEAR */}
           {item.tvInfo?.releaseDate && (
             <div className="flex items-center gap-1">
-              <FontAwesomeIcon icon={faCalendar} />
+              <Calendar className="h-4 w-4" />
               <span>{item.tvInfo.releaseDate}</span>
-            </div>
-          )}
-
-          {/* DURATION */}
-          {item.tvInfo?.duration && (
-            <div className="flex items-center gap-1">
-              <FontAwesomeIcon icon={faClock} />
-              <span>{item.tvInfo.duration}</span>
             </div>
           )}
         </div>
 
         {/* TITLE */}
-        <h3 className="text-white text-4xl font-bold mt-4 leading-tight
+        <h2 className="mt-4 text-4xl font-bold text-white leading-tight
                        max-md:text-2xl">
-          {language === "EN" ? item.title : item.japanese_title}
-        </h3>
+          {title}
+        </h2>
 
         {/* DESCRIPTION */}
         {item.description && (
-          <p className="text-white/70 mt-3 line-clamp-3 max-w-xl text-sm">
+          <p className="mt-3 max-w-xl text-sm text-white/70 line-clamp-3">
             {item.description}
           </p>
         )}
 
-        {/* SUB / DUB / QUALITY */}
-        {item.tvInfo && (
-          <div className="flex items-center gap-3 mt-4">
-
-            {item.tvInfo.quality && (
-              <span className="bg-white/15 px-2 py-1 rounded text-xs font-bold">
-                {item.tvInfo.quality}
-              </span>
-            )}
-
-            {item.tvInfo.episodeInfo?.sub && (
-              <span className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded text-xs">
-                <FontAwesomeIcon icon={faClosedCaptioning} />
-                {item.tvInfo.episodeInfo.sub}
-              </span>
-            )}
-
-            {item.tvInfo.episodeInfo?.dub && (
-              <span className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded text-xs">
-                <FontAwesomeIcon icon={faMicrophone} />
-                {item.tvInfo.episodeInfo.dub}
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* BUTTONS (FIXED — NO CUTTING) */}
-        <div className="flex gap-4 mt-6">
+        {/* BUTTONS (LUCIDE, SAME HEIGHT) */}
+        <div className="mt-6 flex gap-4">
 
           <Link
             to={`/watch/${item.id}`}
-            className="inline-flex items-center gap-2
-                       bg-white text-black px-6 py-3
-                       rounded-lg font-semibold
+            className="h-11 px-6 inline-flex items-center gap-2
+                       bg-white text-black rounded-lg font-semibold
                        hover:bg-gray-200 transition"
           >
-            <FontAwesomeIcon icon={faPlay} />
+            <Play className="h-4 w-4" />
             Watch Now
           </Link>
 
           <Link
             to={`/${item.id}`}
-            className="inline-flex items-center gap-2
-                       bg-white/10 border border-white/20
-                       text-white px-6 py-3 rounded-lg
-                       hover:bg-white/20 transition"
+            className="h-11 px-6 inline-flex items-center gap-2
+                       bg-zinc-800 border border-zinc-700
+                       text-white rounded-lg
+                       hover:bg-zinc-700 transition"
           >
+            <Info className="h-4 w-4" />
             Details
           </Link>
         </div>
@@ -147,5 +119,3 @@ function Banner({ item, index }) {
     </section>
   );
 }
-
-export default Banner;
