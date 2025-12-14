@@ -1,43 +1,82 @@
+import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay, Pagination } from "swiper/modules";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+
 import Banner from "../banner/Banner";
+import "./Spotlight.css";
 
 export default function Spotlight({ spotlights = [] }) {
+  if (!spotlights || spotlights.length === 0) {
+    return (
+      <div className="h-[400px] flex items-center justify-center text-white/60">
+        No spotlights available
+      </div>
+    );
+  }
+
   return (
     <div className="relative h-[500px] max-md:h-[360px] -mt-8">
-
       <Swiper
         slidesPerView={1}
         loop
-        autoplay={{ delay: 5000 }}
-        navigation={{
-          nextEl: ".next-btn",
-          prevEl: ".prev-btn",
+        autoplay={{
+          delay: 5000, // slower carousel
+          disableOnInteraction: false,
         }}
-        pagination={{ clickable: true }}
+        navigation={{
+          nextEl: ".button-next",
+          prevEl: ".button-prev",
+        }}
+        pagination={{
+          clickable: true,
+        }}
         modules={[Navigation, Autoplay, Pagination]}
-        className="h-full rounded-2xl"
+        className="h-full rounded-2xl overflow-hidden"
       >
-        {/* ARROWS */}
-        <button className="prev-btn absolute left-4 top-1/2 -translate-y-1/2 z-50
-                           h-9 w-9 rounded-full bg-black/50
-                           flex items-center justify-center">
-          <ChevronLeft className="h-5 w-5 text-white" />
+        {/* PREVIOUS ARROW */}
+        <button
+          className="button-prev inline-flex items-center justify-center
+                     h-8 w-8 rounded-full
+                     border border-white/20
+                     bg-black/40
+                     text-white
+                     shadow-sm
+                     hover:bg-white/10
+                     transition-colors
+                     absolute left-4 top-1/2 -translate-y-1/2 z-50"
+          aria-label="Previous slide"
+        >
+          <ArrowLeft className="h-4 w-4" />
         </button>
 
-        <button className="next-btn absolute right-4 top-1/2 -translate-y-1/2 z-50
-                           h-9 w-9 rounded-full bg-black/50
-                           flex items-center justify-center">
-          <ChevronRight className="h-5 w-5 text-white" />
+        {/* NEXT ARROW */}
+        <button
+          className="button-next inline-flex items-center justify-center
+                     h-8 w-8 rounded-full
+                     border border-white/20
+                     bg-black/40
+                     text-white
+                     shadow-sm
+                     hover:bg-white/10
+                     transition-colors
+                     absolute right-4 top-1/2 -translate-y-1/2 z-50"
+          aria-label="Next slide"
+        >
+          <ArrowRight className="h-4 w-4" />
         </button>
 
-        {spotlights.map((item, i) => (
-          <SwiperSlide key={item.id ?? i}>
-            <Banner item={item} />
+        {/* SLIDES */}
+        {spotlights.map((item, index) => (
+          <SwiperSlide
+            key={item.id ?? index}
+            className="relative w-full h-full"
+          >
+            <Banner item={item} index={index} />
           </SwiperSlide>
         ))}
       </Swiper>
