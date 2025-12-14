@@ -3,7 +3,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Link } from "react-router-dom";
 import { useEffect, useState, useRef, useMemo } from "react";
 import "swiper/css";
-import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { FaHistory, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useLanguage } from "@/src/context/LanguageContext";
@@ -55,28 +54,27 @@ const ContinueWatching = () => {
         </div>
 
         <div className="flex gap-x-3 pr-2 max-[350px]:hidden">
-          <button className="continue-btn-prev bg-gray-800 text-gray-300 p-3 rounded-lg hover:bg-gray-700 hover:text-white transition-all duration-300 shadow-lg">
+          <button className="continue-btn-prev bg-black text-gray-300 p-3 rounded-lg hover:text-white transition">
             <FaChevronLeft className="text-sm" />
           </button>
-          <button className="continue-btn-next bg-gray-800 text-gray-300 p-3 rounded-lg hover:bg-gray-700 hover:text-white transition-all duration-300 shadow-lg">
+          <button className="continue-btn-next bg-black text-gray-300 p-3 rounded-lg hover:text-white transition">
             <FaChevronRight className="text-sm" />
           </button>
         </div>
       </div>
 
-      {/* SWIPER */}
+      {/* SLIDER */}
       <div className="relative mx-auto overflow-hidden z-[1]">
         <Swiper
           ref={swiperRef}
-          className="w-full h-full"
           slidesPerView={3}
           spaceBetween={20}
           breakpoints={{
-            640: { slidesPerView: 4, spaceBetween: 20 },
-            768: { slidesPerView: 4, spaceBetween: 20 },
-            1024: { slidesPerView: 5, spaceBetween: 24 },
-            1300: { slidesPerView: 6, spaceBetween: 24 },
-            1600: { slidesPerView: 7, spaceBetween: 28 },
+            640: { slidesPerView: 4 },
+            768: { slidesPerView: 4 },
+            1024: { slidesPerView: 5 },
+            1300: { slidesPerView: 6 },
+            1600: { slidesPerView: 7 },
           }}
           modules={[Navigation]}
           navigation={{
@@ -90,17 +88,19 @@ const ContinueWatching = () => {
             .map((item, index) => (
               <SwiperSlide
                 key={`${item?.episodeId}-${index}`}
-                className="text-center flex justify-center items-center"
+                className="flex justify-center"
               >
-                <div className="w-full pb-[140%] relative overflow-hidden rounded-lg shadow-lg group">
+                <div className="w-full pb-[140%] relative overflow-hidden rounded-lg shadow-lg group bg-black">
+
                   {/* REMOVE BUTTON */}
                   <button
-                    className="absolute top-3 right-3 bg-black/70 text-gray-300 w-8 h-8 flex items-center justify-center rounded-lg text-sm z-10 hover:bg-white hover:text-black transition-all duration-300"
+                    className="absolute top-3 right-3 z-20 bg-black/60 text-gray-300 w-8 h-8 rounded-md hover:bg-white hover:text-black transition"
                     onClick={() => removeFromWatchList(item?.episodeId)}
                   >
                     ✖
                   </button>
 
+                  {/* POSTER */}
                   <Link
                     to={`/watch/${item?.id}?ep=${item?.episodeId}`}
                     className="absolute inset-0"
@@ -108,33 +108,39 @@ const ContinueWatching = () => {
                     <img
                       src={item?.poster}
                       alt={item?.title}
-                      className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:blur-sm"
-                      loading="lazy"
+                      className="w-full h-full object-cover transition duration-300 group-hover:scale-105 group-hover:blur-sm"
                     />
 
                     {/* PLAY OVERLAY */}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                      <div className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                        <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                      <div className="h-10 w-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                        <Play className="h-5 w-5 text-white fill-white ml-[1px]" />
                       </div>
                     </div>
                   </Link>
 
-                  {/* 18+ */}
+                  {/* 18+ TAG (GLASS STYLE) */}
                   {item?.adultContent === true && (
-                    <div className="absolute top-3 left-3 bg-red-600 text-white px-2 py-0.5 rounded-lg text-[12px] font-bold">
-                      18+
+                    <div className="absolute top-3 left-3 z-20">
+                      <div
+                        className="inline-flex items-center rounded-md px-2.5 py-0.5
+                                   font-semibold border shadow backdrop-blur-sm
+                                   text-xs sm:text-sm
+                                   bg-red-500/10 text-red-600 border-red-500/20"
+                      >
+                        18+
+                      </div>
                     </div>
                   )}
 
                   {/* BOTTOM INFO */}
                   <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
-                    <p className="text-white text-[15px] font-bold truncate mb-1 max-[450px]:text-sm">
+                    <p className="text-white text-sm font-bold truncate">
                       {language === "EN"
                         ? item?.title
                         : item?.japanese_title}
                     </p>
-                    <p className="text-gray-200 text-[13px] font-semibold max-[450px]:text-[12px]">
+                    <p className="text-gray-300 text-xs font-medium">
                       Episode {item?.episodeNum}
                     </p>
                   </div>
