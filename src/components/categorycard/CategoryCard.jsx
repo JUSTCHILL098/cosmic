@@ -24,7 +24,6 @@ const CategoryCard = React.memo(
     const { language } = useLanguage();
     const navigate = useNavigate();
 
-    // SAFE ARRAY
     const safeData = Array.isArray(data) ? data : [];
     const limitedData = limit ? safeData.slice(0, limit) : safeData;
 
@@ -56,18 +55,7 @@ const CategoryCard = React.memo(
         setItemsToRender(getItemsToRender());
       };
 
-      const newItems = getItemsToRender();
-
-      setItemsToRender((prev) => {
-        if (
-          JSON.stringify(prev.firstRow) !== JSON.stringify(newItems.firstRow) ||
-          JSON.stringify(prev.remainingItems) !==
-            JSON.stringify(newItems.remainingItems)
-        ) {
-          return newItems;
-        }
-        return prev;
-      });
+      setItemsToRender(getItemsToRender());
 
       window.addEventListener("resize", handleResize);
       return () => window.removeEventListener("resize", handleResize);
@@ -75,6 +63,7 @@ const CategoryCard = React.memo(
 
     return (
       <div className={`w-full ${className}`}>
+        {/* HEADER */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="font-semibold text-2xl text-white max-[478px]:text-[18px] capitalize tracking-wide">
             {label}
@@ -97,10 +86,7 @@ const CategoryCard = React.memo(
         {categoryPage && itemsToRender.firstRow.length > 0 && (
           <div className="grid grid-cols-4 gap-x-3 gap-y-8 mt-8 max-[758px]:hidden">
             {itemsToRender.firstRow.map((item) => (
-              <div
-                key={item.id}
-                className="flex flex-col category-card-container"
-              >
+              <div key={item.id} className="flex flex-col">
                 <div className="w-full pb-[140%] relative overflow-hidden rounded-lg shadow-lg group">
                   <div
                     className="absolute inset-0 cursor-pointer"
@@ -115,14 +101,14 @@ const CategoryCard = React.memo(
                     <img
                       src={item.poster}
                       alt={item.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:blur-sm"
                     />
 
                     {/* PLAY OVERLAY */}
-
-                  <div className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                    <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
-                   </div>
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                      <div className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                        <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
+                      </div>
                     </div>
                   </div>
 
@@ -174,13 +160,13 @@ const CategoryCard = React.memo(
                   <img
                     src={item.poster}
                     alt={item.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:blur-sm"
                   />
 
                   {/* PLAY OVERLAY */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <div className="h-14 w-14 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                      <Play className="h-6 w-6 text-white fill-white ml-[2px]" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                    <div className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                      <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
                     </div>
                   </div>
                 </div>
