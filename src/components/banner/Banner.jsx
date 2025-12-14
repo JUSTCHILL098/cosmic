@@ -1,115 +1,128 @@
 // weeb/src/components/banner/Banner.jsx
-import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlay, faInfoCircle, faStar, faCalendar } from "@fortawesome/free-solid-svg-icons";
+import {
+  faPlay,
+  faClosedCaptioning,
+  faMicrophone,
+  faCalendar,
+  faClock,
+  faStar,
+} from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
-import { useLanguage } from "../../context/LanguageContext";
+import { useLanguage } from "@/src/context/LanguageContext";
 
-/* Tag Colors */
-const TAGS = ["Popular", "Classic", "New Season", "Trending", "Fantasy", "TV"];
-const TAG_COLORS = {
-  Popular: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-  Classic: "bg-slate-700/20 text-slate-200 border-slate-600/20",
-  "New Season": "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
-  Trending: "bg-rose-500/10 text-rose-300 border-rose-500/20",
-  Fantasy: "bg-violet-500/10 text-violet-300 border-violet-500/20",
-  TV: "bg-cyan-500/10 text-cyan-300 border-cyan-500/20",
-};
-
-function TagPill({ tag }) {
-  return (
-    <span
-      className={`px-3 py-1 rounded-md text-xs font-semibold border ${TAG_COLORS[tag]}`}
-    >
-      {tag}
-    </span>
-  );
-}
-
-export default function Banner({ item, index }) {
+function Banner({ item }) {
   const { language } = useLanguage();
 
-  // ⚠️ PLACEHOLDER because we don’t know your real API fields yet
-  const poster = item.poster || item.image || item.bannerImage || item.cover;
-  const rating = item.rating || item.score || "90%";
-  const episodes = item.totalEpisodes || item.episodes || "??";
-  const year = item.year || item.releaseDate || "----";
-  const description = item.description || item.synopsis || "";
-  const title = language === "EN" ? item.title : item.japanese_title || item.title;
-
-  const tag = TAGS[(item.id ?? index) % TAGS.length];
+  if (!item) return null;
 
   return (
-    <section className="w-full relative">
-      <div className="relative rounded-2xl overflow-hidden border border-white/5 bg-card/30 backdrop-blur-sm">
-        <div className="relative h-[300px] sm:h-[400px] lg:h-[500px]">
+    <section className="w-full h-full">
+      <div className="relative h-[300px] sm:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden bg-card/30 backdrop-blur-sm">
 
-          {/* BG Image */}
-          <img src={poster} className="absolute inset-0 w-full h-full object-cover z-[10]" />
+        {/* Background Image */}
+        <img
+          src={item.poster}
+          alt={item.title}
+          className="absolute inset-0 w-full h-full object-cover z-[1]"
+        />
 
-          {/* Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-[20]" />
+        {/* Featured-style Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent z-[2]" />
 
-          {/* Content */}
-          <div className="absolute inset-0 flex items-end z-[30] p-6 lg:p-10">
-            <div className="space-y-3 max-w-2xl">
+        {/* Content */}
+        <div className="absolute inset-0 flex items-end z-[3]">
+          <div className="p-4 sm:p-6 lg:p-10 space-y-4 max-w-2xl">
 
-              {/* Tags + Info Row */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <TagPill tag={tag} />
+            {/* TAGS + META (Qtip style) */}
+            <div className="flex items-center gap-2 flex-wrap text-xs sm:text-sm text-muted-foreground">
 
-                <div className="flex items-center gap-4 text-white/70 text-xs sm:text-sm">
-                  <div className="flex items-center gap-1">
-                    <FontAwesomeIcon icon={faStar} className="text-yellow-400" />
-                    <span>{rating}</span>
-                  </div>
+              {/* TYPE */}
+              {item.tvInfo?.showType && (
+                <span className="px-3 py-1 rounded-md bg-amber-500/10 text-amber-500 border border-amber-500/20 font-semibold">
+                  {item.tvInfo.showType}
+                </span>
+              )}
 
-                  <div className="flex items-center gap-1">
-                    <FontAwesomeIcon icon={faCalendar} />
-                    <span>{year}</span>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <FontAwesomeIcon icon={faPlay} />
-                    <span>{episodes} eps</span>
-                  </div>
+              {/* DURATION */}
+              {item.tvInfo?.duration && (
+                <div className="flex items-center gap-1">
+                  <FontAwesomeIcon icon={faClock} className="h-4 w-4" />
+                  <span>{item.tvInfo.duration}</span>
                 </div>
-              </div>
+              )}
 
-              {/* Title */}
-              <h2 className="text-white text-2xl sm:text-3xl lg:text-4xl font-bold">
-                {title}
-              </h2>
+              {/* YEAR */}
+              {item.tvInfo?.releaseDate && (
+                <div className="flex items-center gap-1">
+                  <FontAwesomeIcon icon={faCalendar} className="h-4 w-4" />
+                  <span>{item.tvInfo.releaseDate}</span>
+                </div>
+              )}
 
-              {/* Description */}
-              <p className="text-white/70 text-xs sm:text-sm lg:text-base line-clamp-3">
-                {description}
-              </p>
+              {/* QUALITY */}
+              {item.tvInfo?.quality && (
+                <span className="px-2 py-[2px] rounded-md bg-white/10 text-white text-xs font-bold">
+                  {item.tvInfo.quality}
+                </span>
+              )}
 
-              {/* Buttons */}
-              <div className="flex gap-3">
-                <Link
-                  to={`/watch/${item.id}`}
-                  className="bg-white text-black px-4 py-2 rounded-md font-semibold flex items-center gap-2"
-                >
-                  <FontAwesomeIcon icon={faPlay} />
-                  Watch Now
-                </Link>
+              {/* SUB / DUB / EP COUNT */}
+              {item.tvInfo?.episodeInfo && (
+                <div className="flex rounded-md overflow-hidden">
 
-                <Link
-                  to={`/${item.id}`}
-                  className="border border-white/20 text-white px-4 py-2 rounded-md flex items-center gap-2"
-                >
-                  <FontAwesomeIcon icon={faInfoCircle} />
-                  Details
-                </Link>
-              </div>
+                  {item.tvInfo.episodeInfo.sub && (
+                    <div className="flex items-center gap-1 px-2 py-[2px] bg-[#B0E3AF] text-black text-xs font-semibold">
+                      <FontAwesomeIcon icon={faClosedCaptioning} />
+                      {item.tvInfo.episodeInfo.sub}
+                    </div>
+                  )}
 
+                  {item.tvInfo.episodeInfo.dub && (
+                    <div className="flex items-center gap-1 px-2 py-[2px] bg-[#B9E7FF] text-black text-xs font-semibold">
+                      <FontAwesomeIcon icon={faMicrophone} />
+                      {item.tvInfo.episodeInfo.dub}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          </div>
 
+            {/* TITLE */}
+            <h2 className="text-xl sm:text-2xl lg:text-4xl font-bold text-white">
+              {language === "EN" ? item.title : item.japanese_title}
+            </h2>
+
+            {/* DESCRIPTION */}
+            {item.description && (
+              <p className="text-muted-foreground text-xs sm:text-sm lg:text-base line-clamp-3">
+                {item.description}
+              </p>
+            )}
+
+            {/* BUTTONS */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              <Link
+                to={`/watch/${item.id}`}
+                className="inline-flex items-center justify-center bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-md font-semibold"
+              >
+                <FontAwesomeIcon icon={faPlay} className="mr-2" />
+                Watch Now
+              </Link>
+
+              <Link
+                to={`/${item.id}`}
+                className="inline-flex items-center justify-center border border-input bg-background/40 hover:bg-background/60 px-6 py-3 rounded-md font-semibold"
+              >
+                Details
+              </Link>
+            </div>
+
+          </div>
         </div>
       </div>
     </section>
   );
 }
+
+export default Banner;
