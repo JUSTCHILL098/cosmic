@@ -114,11 +114,13 @@ function Episodelist({
               onClick={() => setShowDropDown((p) => !p)}
               className="relative flex items-center gap-2 px-3 py-1.5
                          bg-black border border-zinc-700 rounded-md
-                         text-gray-300 cursor-pointer hover:text-white
-                         hover:border-zinc-500 transition"
+                         text-white cursor-pointer hover:border-zinc-500
+                         transition"
             >
               <FontAwesomeIcon icon={faList} />
-              <p className="text-[12px]">{selectedRange[0]}-{selectedRange[1]}</p>
+              <p className="text-[12px]">
+                {selectedRange[0]}-{selectedRange[1]}
+              </p>
               <FontAwesomeIcon icon={faAngleDown} className="text-[10px]" />
 
               {showDropDown && (
@@ -139,7 +141,7 @@ function Episodelist({
                                   cursor-pointer flex justify-between items-center
                                   ${item === activeRange
                                     ? "bg-zinc-900 text-white"
-                                    : "text-gray-400 hover:bg-zinc-900 hover:text-white"}`}
+                                    : "text-white hover:bg-zinc-900"}`}
                     >
                       {item}
                       {item === activeRange && (
@@ -160,12 +162,12 @@ function Episodelist({
                             focus-within:border-zinc-500 transition">
               <FontAwesomeIcon
                 icon={faMagnifyingGlass}
-                className="text-[12px] text-gray-400"
+                className="text-[12px] text-zinc-400"
               />
               <input
                 type="text"
                 className="w-full bg-transparent focus:outline-none
-                           text-[13px] text-white placeholder:text-gray-500"
+                           text-[13px] text-white placeholder:text-zinc-500"
                 placeholder="Go to episode..."
                 onChange={handleChange}
               />
@@ -174,7 +176,7 @@ function Episodelist({
         )}
       </div>
 
-      {/* EPISODES */}
+      {/* EPISODES GRID */}
       <div
         ref={listContainerRef}
         className="flex-1 overflow-y-auto bg-black max-h-[calc(100vh-200px)]"
@@ -188,6 +190,7 @@ function Episodelist({
                 activeEpisodeId === episodeNumber ||
                 currentEpisode === episodeNumber;
               const isSearched = searchedEpisode === item?.id;
+              const isFiller = item?.filler;
 
               return (
                 <div
@@ -202,9 +205,14 @@ function Episodelist({
                   }}
                   className={`h-[35px] flex items-center justify-center rounded-lg
                               text-[13px] font-medium cursor-pointer transition
-                              ${isActive
-                                ? "bg-white text-black ring-1 ring-white"
-                                : "bg-black text-gray-400 border border-zinc-800"}
+                              border border-zinc-800
+                              ${
+                                isActive
+                                  ? "bg-white text-black ring-1 ring-white"
+                                  : isFiller
+                                  ? "bg-black text-zinc-300"
+                                  : "bg-black text-white"
+                              }
                               hover:bg-zinc-900 hover:text-white
                               ${isSearched ? "ring-2 ring-white" : ""}`}
                 >
