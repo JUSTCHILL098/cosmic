@@ -50,17 +50,19 @@ export default function Banner({ item, index = 0 }) {
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent z-[1]" />
 
       {/* CONTENT */}
-      <div
-        className="
-          absolute z-[2]
-          left-0 bottom-14
-          px-10 w-[55%]
-          max-lg:w-[70%]
-          max-md:w-full
-          max-md:px-5
-          max-md:bottom-6
-        "
-      >
+     <div
+  className="
+    absolute z-[2]
+    left-0 bottom-20
+    px-10 w-[55%]
+    max-lg:w-[70%]
+
+    max-md:w-full
+    max-md:px-5
+    max-md:bottom-16
+  "
+>
+
         {/* TAG + META */}
         <div
           className="
