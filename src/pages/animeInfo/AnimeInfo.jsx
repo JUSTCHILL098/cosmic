@@ -5,52 +5,41 @@ import {
   Plus,
   Users,
   Share2,
-  Star
+  Star,
+  Calendar,
+  Film,
+  Video
 } from "lucide-react";
 
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
-import getNextEpisodeSchedule from "@/src/utils/getNextEpisodeSchedule.utils";
-
 import Loader from "@/src/components/Loader/Loader";
 import Error from "@/src/components/error/Error";
-import CategoryCard from "@/src/components/categorycard/CategoryCard";
 import Voiceactor from "@/src/components/voiceactor/Voiceactor";
-
+import CategoryCard from "@/src/components/categorycard/CategoryCard";
 import { useLanguage } from "@/src/context/LanguageContext";
-import { useMultiplayer } from "@/src/context/MultiplayerContext";
 import website_name from "@/src/config/website";
-
-/* ---------- helpers ---------- */
-
-const GENRE_STYLE =
-  "text-xs px-2 py-0.5 rounded uppercase font-semibold border";
 
 export default function AnimeInfo() {
   const { id } = useParams();
   const { language } = useLanguage();
-  const { createRoom } = useMultiplayer();
 
   const [animeInfo, setAnimeInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [tab, setTab] = useState("overview");
-  const [nextEp, setNextEp] = useState(null);
 
   useEffect(() => {
-    async function fetchAll() {
+    async function fetchData() {
       try {
         const data = await getAnimeInfo(id);
         setAnimeInfo(data.data);
-
-        const schedule = await getNextEpisodeSchedule(id);
-        setNextEp(schedule);
       } catch {
         setError(true);
       } finally {
         setLoading(false);
       }
     }
-    fetchAll();
+    fetchData();
     window.scrollTo(0, 0);
   }, [id]);
 
@@ -64,199 +53,200 @@ export default function AnimeInfo() {
   if (loading) return <Loader type="animeInfo" />;
   if (error || !animeInfo) return <Error />;
 
-  const {
-    title,
-    japanese_title,
-    poster,
-    animeInfo: info,
-    recommended_data
-  } = animeInfo;
+  const { title, japanese_title, poster, banner, animeInfo: info, recommended_data } =
+    animeInfo;
 
   const score = info?.["MAL Score"];
-  const year = info?.tvInfo?.releaseDate;
+  const year = info?.Season?.split(" ")?.[1];
   const format = info?.Format;
   const episodes = info?.Episodes;
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* ---------- HERO ---------- */}
-      <div className="relative h-[520px] max-md:h-[420px] overflow-hidden">
+    <main className="container mx-auto px-4 py-8 relative z-10 pb-20">
+      {/* ================= HERO ================= */}
+      <div className="relative mb-12 overflow-hidden rounded-3xl min-h-[520px]">
         {/* background */}
-        <img
-          src={poster}
-          className="absolute inset-0 w-full h-full object-cover scale-110"
-        />
-
-        {/* overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/90 to-black/40" />
+        <div className="absolute inset-0">
+          <img
+            src={banner || poster}
+            className="w-full h-full object-cover object-top scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/30" />
+        </div>
 
         {/* content */}
-        <div className="relative z-10 h-full container mx-auto px-6 flex items-end pb-12">
-          <div className="flex w-full gap-10 max-md:flex-col">
-
-            {/* LEFT */}
-            <div className="flex-1">
-              {/* top pills */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                {score && (
-                  <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-black/60 border border-white/20">
-                    <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                    <span>{score}%</span>
-                  </div>
-                )}
-                {year && <span className="px-3 py-1 rounded-full bg-black/60 border border-white/20">{year}</span>}
-                {format && <span className="px-3 py-1 rounded-full bg-black/60 border border-white/20">{format}</span>}
-                {episodes && <span className="px-3 py-1 rounded-full bg-black/60 border border-white/20">{episodes} Episodes</span>}
-              </div>
-
-              {/* title */}
-              <h1 className="text-5xl font-extrabold leading-tight max-md:text-3xl">
-                {language === "EN" ? title : japanese_title}
-              </h1>
-
-              {/* genres */}
-              <div className="flex flex-wrap gap-2 mt-4">
-                {info?.Genres?.map((g, i) => (
-                  <span
-                    key={g}
-                    className={`${GENRE_STYLE} ${
-                      i % 3 === 0
-                        ? "bg-green-500/10 text-green-400 border-green-500/20"
-                        : i % 3 === 1
-                        ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                        : "bg-white/10 text-white border-white/20"
-                    }`}
-                  >
-                    {g}
-                  </span>
-                ))}
-              </div>
-
-              {/* buttons */}
-              <div className="flex gap-3 mt-8 max-md:flex-col">
-                <Link
-                  to={`/watch/${animeInfo.id}`}
-                  className="inline-flex items-center gap-2 h-9 px-6 rounded-md bg-white text-black font-medium shadow-[0_0_25px_rgba(255,255,255,0.4)]"
-                >
-                  <Play className="h-4 w-4 fill-black" />
-                  Watch Now
-                </Link>
-
-                <button className="inline-flex items-center gap-2 h-9 px-6 rounded-md bg-black/60 border border-white/20">
-                  <Plus className="h-4 w-4" />
-                  Add
-                </button>
-
-                <button
-                  onClick={createRoom}
-                  className="inline-flex items-center gap-2 h-9 px-6 rounded-md bg-black/60 border border-white/20"
-                >
-                  <Users className="h-4 w-4" />
-                  Watch Together
-                </button>
-              </div>
-            </div>
-
-            {/* POSTER */}
-            <div className="w-[240px] shrink-0 relative">
-              <img
-                src={poster}
-                className="rounded-xl shadow-[0_0_60px_rgba(255,255,255,0.35)]"
-              />
-
-              {/* share */}
-              <button className="absolute -top-3 right-3 w-8 h-8 rounded-full bg-black/70 border border-white/20 flex items-center justify-center">
-                <Share2 className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ---------- DETAILS ---------- */}
-      <div className="container mx-auto px-6 -mt-6">
-        <div className="bg-black rounded-xl p-6">
-
-          {/* tabs */}
-          <div className="flex gap-6 border-b border-white/10 mb-6">
-            {["overview", "characters", "more"].map((t) => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`pb-3 capitalize ${
-                  tab === t
-                    ? "border-b-2 border-white text-white"
-                    : "text-white/50"
-                }`}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-
-          {/* OVERVIEW */}
-          {tab === "overview" && (
-            <div className="space-y-6">
-
-              {/* next episode */}
-              {nextEp?.nextEpisodeSchedule && (
-                <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                  <p className="text-sm text-white/70">Next Episode</p>
-                  <p className="text-lg font-semibold">
-                    {new Date(nextEp.nextEpisodeSchedule).toLocaleString()}
-                  </p>
+        <div className="relative grid grid-cols-1 md:grid-cols-12 gap-8 p-6 md:p-10 h-full">
+          {/* LEFT */}
+          <div className="md:col-span-8 lg:col-span-9 flex flex-col justify-center">
+            {/* pills */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {score && (
+                <div className="flex items-center gap-1 bg-yellow-500/20 px-3 py-1 rounded-full text-xs">
+                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                  <span className="font-medium">{score}%</span>
                 </div>
               )}
+              {year && (
+                <div className="flex items-center gap-1 bg-white/10 px-3 py-1 rounded-full text-xs">
+                  <Calendar className="h-3 w-3" />
+                  {year}
+                </div>
+              )}
+              {format && (
+                <div className="flex items-center gap-1 bg-white/10 px-3 py-1 rounded-full text-xs">
+                  <Film className="h-3 w-3" />
+                  {format}
+                </div>
+              )}
+              {episodes && (
+                <div className="flex items-center gap-1 bg-white/10 px-3 py-1 rounded-full text-xs">
+                  <Video className="h-3 w-3" />
+                  {episodes} Episodes
+                </div>
+              )}
+            </div>
 
-              {/* description */}
-              <div className="p-6 rounded-xl bg-white/5 border border-white/10">
-                <p className="text-white/80 leading-relaxed">
-                  {info?.Overview}
-                </p>
-              </div>
+            {/* title */}
+            <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
+              {language === "EN" ? title : japanese_title}
+            </h1>
 
-              {/* info grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  ["Format", format],
-                  ["Episodes", episodes],
-                  ["Duration", info?.Duration],
-                  ["Score", score ? `${score}%` : null],
-                  ["Status", info?.Status],
-                  ["Studio", info?.Studios],
-                  ["Source", info?.Source],
-                  ["Season", info?.Season],
-                ].map(
-                  ([label, value]) =>
-                    value && (
-                      <div
-                        key={label}
-                        className="p-4 rounded-lg bg-white/5 border border-white/10"
-                      >
-                        <p className="text-xs text-white/50 uppercase">{label}</p>
-                        <p className="text-sm font-semibold">{value}</p>
-                      </div>
-                    )
-                )}
+            {/* genres */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              {info?.Genres?.map((g, i) => (
+                <span
+                  key={g}
+                  className={`px-3 py-1 text-xs rounded-md backdrop-blur-md border ${
+                    i % 2 === 0
+                      ? "bg-emerald-400/10 text-emerald-400 border-emerald-400/20"
+                      : "bg-amber-400/10 text-amber-400 border-amber-400/20"
+                  }`}
+                >
+                  {g}
+                </span>
+              ))}
+            </div>
+
+            {/* buttons */}
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to={`/watch/${animeInfo.id}`}
+                className="inline-flex items-center gap-2 h-10 px-8 rounded-md bg-white text-black font-medium shadow-lg"
+              >
+                <Play className="h-4 w-4 fill-black" />
+                Watch Now
+              </Link>
+
+              <button className="inline-flex items-center gap-2 h-10 px-8 rounded-md bg-black/40 border border-white/20">
+                <Plus className="h-4 w-4" />
+                Add
+              </button>
+
+              <Link
+                to="/rooms"
+                className="inline-flex items-center gap-2 h-10 px-8 rounded-md bg-black/40 border border-white/20"
+              >
+                <Users className="h-4 w-4 animate-pulse" />
+                Watch Together
+              </Link>
+            </div>
+          </div>
+
+          {/* RIGHT POSTER */}
+          <div className="md:col-span-4 lg:col-span-3 flex justify-center md:justify-end">
+            <div className="relative w-[240px]">
+              <div className="absolute inset-[-6px] bg-gradient-to-r from-primary/40 via-primary/10 to-primary/40 rounded-2xl blur-lg opacity-70" />
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                <img src={poster} className="w-full h-full object-cover" />
+                <button className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 border border-white/20 flex items-center justify-center">
+                  <Share2 className="h-4 w-4" />
+                </button>
+                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                  <div className="flex justify-between text-sm">
+                    <div>
+                      <p className="text-white/70 text-xs">Episodes</p>
+                      <p className="font-bold">{episodes}</p>
+                    </div>
+                    <div>
+                      <p className="text-white/70 text-xs">Duration</p>
+                      <p className="font-bold">{info?.Duration}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          )}
-
-          {/* CHARACTERS */}
-          {tab === "characters" && (
-            <Voiceactor animeInfo={animeInfo} />
-          )}
-
-          {/* MORE LIKE THIS */}
-          {tab === "more" && recommended_data?.length > 0 && (
-            <CategoryCard
-              label="More Like This"
-              data={recommended_data}
-              showViewMore={false}
-            />
-          )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* ================= DETAILS ================= */}
+      <section>
+        <h2 className="text-2xl font-bold mb-1">Details</h2>
+        <p className="text-white/50 mb-4">
+          Explore more about {title}
+        </p>
+
+        {/* tabs */}
+        <div className="flex gap-4 border-b border-white/10 mb-6">
+          {["overview", "characters", "more"].map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-4 py-3 text-sm ${
+                tab === t
+                  ? "border-b-2 border-primary text-primary"
+                  : "text-white/50"
+              }`}
+            >
+              {t === "more" ? "More Like This" : t}
+            </button>
+          ))}
+        </div>
+
+        {/* OVERVIEW */}
+        {tab === "overview" && (
+          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                ["Format", format],
+                ["Episodes", episodes],
+                ["Duration", info?.Duration],
+                ["Score", score && `${score}%`],
+                ["Status", info?.Status],
+                ["Studio", info?.Studios],
+                ["Source", info?.Source],
+                ["Season", info?.Season],
+              ].map(
+                ([label, value]) =>
+                  value && (
+                    <div key={label}>
+                      <p className="text-xs text-white/50 uppercase">{label}</p>
+                      <p className="font-medium">{value}</p>
+                    </div>
+                  )
+              )}
+            </div>
+
+            <div className="text-white/80 leading-relaxed">
+              {info?.Overview}
+            </div>
+          </div>
+        )}
+
+        {/* CHARACTERS */}
+        {tab === "characters" && (
+          <Voiceactor animeInfo={animeInfo} />
+        )}
+
+        {/* MORE LIKE THIS */}
+        {tab === "more" && recommended_data?.length > 0 && (
+          <CategoryCard
+            label="More Like This"
+            data={recommended_data}
+            showViewMore={false}
+          />
+        )}
+      </section>
+    </main>
   );
 }
