@@ -5,9 +5,15 @@ import {
   Plus,
   Users,
   Share2,
-  Calendar,
+  Film,
   Clock,
-  Sparkles,
+  Star,
+  Layers,
+  Calendar,
+  Tv,
+  BookOpen,
+  Info,
+  UsersRound
 } from "lucide-react";
 
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
@@ -18,15 +24,22 @@ import Voiceactor from "@/src/components/voiceactor/Voiceactor";
 import website_name from "@/src/config/website";
 import { useLanguage } from "@/src/context/LanguageContext";
 
-/* ---------------- HELPERS ---------------- */
+/* ---------------- SMALL UI ---------------- */
 
-function StatPill({ children }) {
-  return (
-    <div className="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-medium">
-      {children}
+const StatPill = ({ children }) => (
+  <div className="px-3 py-1 rounded-full bg-black/50 border border-white/20 text-xs font-semibold">
+    {children}
+  </div>
+);
+
+const MetaItem = ({ icon: Icon, label, value }) =>
+  value ? (
+    <div className="flex items-center gap-2 text-sm text-white/80">
+      <Icon className="h-4 w-4 text-white/60" />
+      <span className="text-white/60">{label}:</span>
+      <span>{value}</span>
     </div>
-  );
-}
+  ) : null;
 
 /* ---------------- PAGE ---------------- */
 
@@ -45,7 +58,6 @@ export default function AnimeInfo() {
       try {
         const data = await getAnimeInfo(id);
         setAnimeInfo(data.data);
-
         const schedule = await getNextEpisodeSchedule(id);
         setNextEp(schedule);
       } catch {
@@ -72,41 +84,29 @@ export default function AnimeInfo() {
 
   const { title, japanese_title, poster, animeInfo: info } = animeInfo;
 
-  /* ---------------- COUNTDOWN ---------------- */
-  const countdown =
-    nextEp?.airingAt &&
-    Math.max(0, Math.floor((new Date(nextEp.airingAt) - Date.now()) / 1000));
-
-  const days = countdown ? Math.floor(countdown / 86400) : null;
-  const hours = countdown ? Math.floor((countdown % 86400) / 3600) : null;
-  const minutes = countdown ? Math.floor((countdown % 3600) / 60) : null;
-  const seconds = countdown ? countdown % 60 : null;
-
   return (
     <div className="relative min-h-screen bg-black text-white overflow-hidden">
-      {/* ---------------- BANNER ---------------- */}
+      {/* ---------------- BANNER BACKGROUND ---------------- */}
       <div className="absolute inset-x-0 top-0 h-[520px] -z-10">
         <img
           src={poster}
           alt=""
-          className="w-full h-full object-cover scale-110"
+          className="w-full h-full object-cover object-top scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/85 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/90 to-black" />
       </div>
 
       <div className="pt-[96px] px-4 max-w-[1400px] mx-auto">
         {/* ---------------- HEADER ---------------- */}
-        <div className="flex gap-8 max-lg:flex-col-reverse">
+        <div className="flex gap-10 max-lg:flex-col-reverse">
           {/* LEFT */}
           <div className="flex-1">
-            {/* STATS ROW */}
+            {/* STATS */}
             <div className="flex flex-wrap gap-2 mb-4">
               {info?.["MAL Score"] && <StatPill>{info["MAL Score"]}%</StatPill>}
               {info?.Season && <StatPill>{info.Season}</StatPill>}
               {info?.Format && <StatPill>{info.Format}</StatPill>}
-              {info?.Episodes && (
-                <StatPill>{info.Episodes} Episodes</StatPill>
-              )}
+              {info?.Episodes && <StatPill>{info.Episodes} Episodes</StatPill>}
             </div>
 
             {/* TITLE */}
@@ -117,7 +117,7 @@ export default function AnimeInfo() {
               <p className="text-white/50 mt-1">{japanese_title}</p>
             )}
 
-            {/* ACTIONS */}
+            {/* BUTTONS */}
             <div className="mt-6 flex gap-3 flex-wrap">
               <Link
                 to={`/watch/${animeInfo.id}`}
@@ -128,57 +128,19 @@ export default function AnimeInfo() {
                   shadow-[0_0_40px_rgba(255,255,255,0.35)]
                 "
               >
-                <Play className="h-4 w-4" />
-                Watch
+                <Play className="h-4 w-4 fill-black" />
+                Watch Now
               </Link>
 
-              <button className="h-9 px-6 rounded-md inline-flex items-center gap-2 bg-white/10 border border-white/20">
+              <button className="h-9 px-5 rounded-md inline-flex items-center gap-2 bg-black border border-white/20">
                 <Users className="h-4 w-4" />
                 Watch Together
               </button>
 
-              <button className="h-9 px-4 rounded-md bg-white/10 border border-white/20">
+              <button className="h-9 px-4 rounded-md bg-black border border-white/20">
                 <Plus className="h-4 w-4" />
               </button>
-
-              <button className="h-9 w-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
-                <Share2 className="h-4 w-4" />
-              </button>
             </div>
-
-            {/* NEXT EPISODE */}
-            {nextEp && (
-              <div className="mt-6 bg-white/5 border border-white/10 rounded-xl p-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
-                    <Calendar className="h-4 w-4 text-white/70" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-sm font-semibold">Next Episode</h3>
-                      <span className="px-2 py-0.5 rounded-md bg-white/10 text-xs">
-                        Ep {nextEp.episode}
-                      </span>
-                    </div>
-                    <p className="text-xs text-white/60 mb-1">
-                      {nextEp.title}
-                    </p>
-                    <div className="flex flex-wrap gap-3 text-xs">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {new Date(nextEp.airingAt).toDateString()}
-                      </div>
-                      {countdown && (
-                        <div className="flex items-center gap-1 font-mono text-white">
-                          <Sparkles className="h-3 w-3" />
-                          {days}d {hours}:{minutes}:{seconds}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* RIGHT POSTER */}
@@ -194,35 +156,76 @@ export default function AnimeInfo() {
           </div>
         </div>
 
+        {/* SHARE BUTTON */}
+        <div className="mt-6 flex justify-end">
+          <button className="h-8 w-8 rounded-full bg-black border border-white/20 flex items-center justify-center">
+            <Share2 className="h-4 w-4" />
+          </button>
+        </div>
+
         {/* ---------------- TABS ---------------- */}
-        <div className="mt-10">
+        <div className="mt-4">
           <div className="flex gap-6 border-b border-white/10 mb-6">
-            {["overview", "characters"].map((t) => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`pb-2 text-sm font-semibold ${
-                  tab === t
-                    ? "text-white border-b-2 border-white"
-                    : "text-white/50"
-                }`}
-              >
-                {t.toUpperCase()}
-              </button>
-            ))}
+            <button
+              onClick={() => setTab("overview")}
+              className={`pb-2 flex items-center gap-2 text-sm font-semibold ${
+                tab === "overview"
+                  ? "text-white border-b-2 border-white"
+                  : "text-white/50"
+              }`}
+            >
+              <Info className="h-4 w-4" /> Overview
+            </button>
+            <button
+              onClick={() => setTab("characters")}
+              className={`pb-2 flex items-center gap-2 text-sm font-semibold ${
+                tab === "characters"
+                  ? "text-white border-b-2 border-white"
+                  : "text-white/50"
+              }`}
+            >
+              <UsersRound className="h-4 w-4" /> Characters
+            </button>
           </div>
 
-          {/* OVERVIEW */}
+          {/* ---------------- OVERVIEW ---------------- */}
           {tab === "overview" && (
-            <div className="text-white/70 leading-relaxed max-w-4xl">
-              {info?.Overview}
+            <div className="bg-black/70 backdrop-blur-xl border border-white/10 rounded-xl p-6 space-y-6">
+              {/* META GRID */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <MetaItem icon={Film} label="Format" value={info?.Format} />
+                <MetaItem icon={Layers} label="Episodes" value={info?.Episodes} />
+                <MetaItem icon={Clock} label="Duration" value={info?.Duration} />
+                <MetaItem icon={Star} label="Score" value={`${info?.["MAL Score"]}%`} />
+                <MetaItem icon={Tv} label="Status" value={info?.Status} />
+                <MetaItem icon={Calendar} label="Season" value={info?.Season} />
+                <MetaItem icon={Users} label="Studio" value={info?.Studios} />
+                <MetaItem icon={BookOpen} label="Source" value={info?.Source} />
+              </div>
+
+              {/* GENRES */}
+              {info?.Genres && (
+                <div className="flex flex-wrap gap-2">
+                  {info.Genres.map((g) => (
+                    <span
+                      key={g}
+                      className="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs"
+                    >
+                      {g}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* DESCRIPTION */}
+              <p className="text-white/70 leading-relaxed">
+                {info?.Overview}
+              </p>
             </div>
           )}
 
-          {/* CHARACTERS */}
-          {tab === "characters" && (
-            <Voiceactor animeInfo={animeInfo} />
-          )}
+          {/* ---------------- CHARACTERS ---------------- */}
+          {tab === "characters" && <Voiceactor animeInfo={animeInfo} />}
         </div>
       </div>
     </div>
