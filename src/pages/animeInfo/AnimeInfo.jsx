@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
-import getNextEpisodeSchedule from "@/src/utils/getNextEpisodeSchedule";
+import getNextEpisodeSchedule from "@/src/utils/getNextEpisodeSchedule.utils";
 import website_name from "@/src/config/website";
 
 import { Play, Users, Calendar, Clock, Star } from "lucide-react";
