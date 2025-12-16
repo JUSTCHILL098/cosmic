@@ -28,35 +28,41 @@ export default function Spotlight({ spotlights = [] }) {
         modules={[Autoplay, Pagination]}
         className="h-full rounded-2xl overflow-hidden"
       >
-        {/* LEFT ARROW */}
+        {/* LEFT ARROW (HIDDEN ON MOBILE) */}
         <button
           type="button"
           onClick={() => swiperRef.current?.slidePrev()}
-          className="inline-flex items-center justify-center
-                     h-8 w-8 rounded-full
-                     border border-white/20
-                     bg-black/40 backdrop-blur-sm
-                     shadow-sm
-                     hover:bg-black/60
-                     transition-colors
-                     absolute left-4 top-1/2 -translate-y-1/2 z-50"
+          className="
+            hidden md:inline-flex
+            items-center justify-center
+            h-8 w-8 rounded-full
+            border border-white/20
+            bg-black/40 backdrop-blur-sm
+            shadow-sm
+            hover:bg-black/60
+            transition-colors
+            absolute left-4 top-1/2 -translate-y-1/2 z-50
+          "
           aria-label="Previous slide"
         >
           <ArrowLeft className="h-4 w-4 text-white" />
         </button>
 
-        {/* RIGHT ARROW */}
+        {/* RIGHT ARROW (HIDDEN ON MOBILE) */}
         <button
           type="button"
           onClick={() => swiperRef.current?.slideNext()}
-          className="inline-flex items-center justify-center
-                     h-8 w-8 rounded-full
-                     border border-white/20
-                     bg-black/40 backdrop-blur-sm
-                     shadow-sm
-                     hover:bg-black/60
-                     transition-colors
-                     absolute right-4 top-1/2 -translate-y-1/2 z-50"
+          className="
+            hidden md:inline-flex
+            items-center justify-center
+            h-8 w-8 rounded-full
+            border border-white/20
+            bg-black/40 backdrop-blur-sm
+            shadow-sm
+            hover:bg-black/60
+            transition-colors
+            absolute right-4 top-1/2 -translate-y-1/2 z-50
+          "
           aria-label="Next slide"
         >
           <ArrowRight className="h-4 w-4 text-white" />
