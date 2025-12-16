@@ -23,18 +23,22 @@ export default function Banner({ item, index = 0 }) {
       : item.japanese_title ?? item.title;
 
   const tag = pickTag(index);
-
   const rating = item.rating || item.score;
   const episodes =
     item.episodeCount ||
     item.tvInfo?.episodeInfo?.sub ||
     item.tvInfo?.episodeInfo?.dub;
-
   const year = item.tvInfo?.releaseDate || item.airedDate;
 
   return (
-    <section className="relative w-full h-full overflow-hidden rounded-2xl">
-
+    <section
+      className="
+        relative w-full overflow-hidden rounded-2xl
+        h-[520px]
+        max-md:h-[420px]
+        max-sm:h-[360px]
+      "
+    >
       {/* IMAGE */}
       <img
         src={item.poster}
@@ -51,11 +55,10 @@ export default function Banner({ item, index = 0 }) {
           absolute z-[2]
           left-0 bottom-14
           px-10 w-[55%]
-
           max-lg:w-[70%]
           max-md:w-full
           max-md:px-5
-          max-md:bottom-8
+          max-md:bottom-6
         "
       >
         {/* TAG + META */}
@@ -66,11 +69,12 @@ export default function Banner({ item, index = 0 }) {
             max-md:gap-2
           "
         >
-          {/* TAG */}
           <div
-            className={`inline-flex items-center rounded-md px-2.5 py-0.5
-                        font-semibold border shadow backdrop-blur-sm
-                        text-xs sm:text-sm ${tag.cls}`}
+            className={`
+              inline-flex items-center rounded-md px-2.5 py-0.5
+              font-semibold border shadow backdrop-blur-sm
+              text-xs sm:text-sm ${tag.cls}
+            `}
           >
             {tag.label}
           </div>
@@ -102,15 +106,15 @@ export default function Banner({ item, index = 0 }) {
           className="
             mt-4 font-semibold tracking-tight text-white leading-tight
             text-4xl
-
             max-md:text-2xl
+            max-sm:text-xl
             max-md:mt-3
           "
         >
           {title}
         </h2>
 
-        {/* DESCRIPTION (HIDDEN ON VERY SMALL SCREENS) */}
+        {/* DESCRIPTION */}
         {item.description && (
           <p
             className="
@@ -141,6 +145,9 @@ export default function Banner({ item, index = 0 }) {
               bg-white text-black
               text-sm font-medium shadow
               hover:bg-gray-200 transition
+              max-md:h-9
+              max-md:text-xs
+              max-md:px-5
               max-md:w-full
             "
           >
@@ -158,6 +165,9 @@ export default function Banner({ item, index = 0 }) {
               border border-white/20
               text-white text-sm font-medium
               hover:bg-black/60 transition
+              max-md:h-9
+              max-md:text-xs
+              max-md:px-5
               max-md:w-full
             "
           >
