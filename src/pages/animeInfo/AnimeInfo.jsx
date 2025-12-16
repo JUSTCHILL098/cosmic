@@ -9,9 +9,6 @@ import {
   Calendar,
   Film,
   Video,
-  Info,
-  Users as UsersIcon,
-  Sparkles
 } from "lucide-react";
 
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
@@ -20,23 +17,17 @@ import Loader from "@/src/components/Loader/Loader";
 import Error from "@/src/components/error/Error";
 import Voiceactor from "@/src/components/voiceactor/Voiceactor";
 import CategoryCard from "@/src/components/categorycard/CategoryCard";
-import website_name from "@/src/config/website";
-import { useLanguage } from "@/src/context/LanguageContext";
 
 export default function AnimeInfo() {
   const { id } = useParams();
-  const { language } = useLanguage();
 
   const [animeInfo, setAnimeInfo] = useState(null);
   const [nextEpisodeSchedule, setNextEpisodeSchedule] = useState(null);
   const [showNextEpisodeSchedule, setShowNextEpisodeSchedule] = useState(true);
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
   const [tab, setTab] = useState("overview");
   const [liked, setLiked] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -56,79 +47,66 @@ export default function AnimeInfo() {
     window.scrollTo(0, 0);
   }, [id]);
 
-  useEffect(() => {
-    if (animeInfo) {
-      document.title = `Watch ${animeInfo.title} on ${website_name}`;
-    }
-    return () => (document.title = website_name);
-  }, [animeInfo]);
-
   if (loading) return <Loader type="animeInfo" />;
   if (error || !animeInfo) return <Error />;
 
-  const { title, japanese_title, poster, banner, animeInfo: info } = animeInfo;
-
-  const score = info?.["MAL Score"];
-  const format = info?.Format;
-  const episodes = info?.Episodes;
-  const year = info?.Season?.split(" ")?.[1];
+  const info = animeInfo.animeInfo;
 
   return (
-    <main className="container mx-auto px-4 py-8 pb-24">
+    <main className="container mx-auto px-4 py-6 pb-24">
       {/* ================= HERO ================= */}
-      <div className="relative rounded-3xl overflow-hidden mb-12 min-h-[560px]">
-        {/* background */}
+      <div className="relative rounded-3xl overflow-hidden mb-10">
+        {/* Background */}
         <div className="absolute inset-0">
           <img
-            src={banner || poster}
-            className="w-full h-full object-cover object-top scale-110"
+            src={animeInfo.banner || animeInfo.poster}
+            className="w-full h-full object-cover object-top scale-105"
           />
-          <div className="absolute inset-0 bg-black/85" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
+          <div className="absolute inset-0 bg-black/55" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         </div>
 
-        <div className="relative grid grid-cols-1 md:grid-cols-12 gap-8 p-6 md:p-10">
+        <div className="relative grid grid-cols-1 md:grid-cols-12 gap-6 p-4 sm:p-6 md:p-10">
           {/* LEFT */}
           <div className="md:col-span-8 lg:col-span-9 flex flex-col justify-center">
             {/* Pills */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {score && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {info?.["MAL Score"] && (
                 <div className="flex items-center gap-1 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full text-xs">
                   <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                  <span>{score}%</span>
+                  {info["MAL Score"]}%
                 </div>
               )}
-              {year && (
+              {info?.Season && (
                 <div className="flex items-center gap-1 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full text-xs">
                   <Calendar className="h-3 w-3" />
-                  {year}
+                  {info.Season.split(" ")[1]}
                 </div>
               )}
-              {format && (
+              {info?.Format && (
                 <div className="flex items-center gap-1 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full text-xs">
                   <Film className="h-3 w-3" />
-                  {format}
+                  {info.Format}
                 </div>
               )}
-              {episodes && (
+              {info?.Episodes && (
                 <div className="flex items-center gap-1 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full text-xs">
                   <Video className="h-3 w-3" />
-                  {episodes} Episodes
+                  {info.Episodes} EPS
                 </div>
               )}
             </div>
 
-            {/* Title */}
-            <h1 className="text-4xl md:text-5xl font-extrabold mb-2">
-              {language === "EN" ? title : japanese_title}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-2">
+              {animeInfo.title}
             </h1>
 
             {/* Genres */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              {info?.Genres?.map((g, i) => (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {info?.Genres?.map((g) => (
                 <span
                   key={g}
-                  className="px-3 py-1 text-xs rounded-md bg-white/10 backdrop-blur-md border border-white/10"
+                  className="px-3 py-1 text-xs rounded-md bg-black/30 backdrop-blur-md border border-white/10"
                 >
                   {g}
                 </span>
@@ -136,23 +114,23 @@ export default function AnimeInfo() {
             </div>
 
             {/* Buttons */}
-            <div className="flex flex-wrap gap-3 mb-4">
+            <div className="flex flex-wrap gap-3 mb-3">
               <Link
                 to={`/watch/${animeInfo.id}`}
-                className="inline-flex items-center gap-2 h-10 px-8 rounded-md bg-white text-black font-medium"
+                className="inline-flex items-center gap-2 h-10 px-6 rounded-md bg-white text-black font-medium"
               >
                 <Play className="h-4 w-4 fill-black" />
                 Watch Now
               </Link>
 
-              <button className="inline-flex items-center gap-2 h-10 px-8 rounded-md bg-black/50 border border-white/20">
+              <button className="inline-flex items-center gap-2 h-10 px-6 rounded-md bg-black/40 border border-white/20">
                 <Plus className="h-4 w-4" />
                 Add
               </button>
 
               <Link
                 to="/rooms"
-                className="inline-flex items-center gap-2 h-10 px-8 rounded-md bg-black/50 border border-white/20"
+                className="inline-flex items-center gap-2 h-10 px-6 rounded-md bg-black/40 border border-white/20"
               >
                 <Users className="h-4 w-4 animate-pulse" />
                 Watch Together
@@ -162,24 +140,17 @@ export default function AnimeInfo() {
             {/* Next Episode */}
             {nextEpisodeSchedule?.nextEpisodeSchedule &&
               showNextEpisodeSchedule && (
-                <div className="mt-2 max-w-xl">
-                  <div className="p-3 rounded-lg bg-[#272727] flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Sparkles className="h-5 w-5 text-primary" />
-                      <div className="text-sm">
-                        <span className="text-gray-400">
-                          Next episode estimated at
-                        </span>
-                        <span className="ml-2 text-white font-medium">
-                          {new Date(
-                            new Date(
-                              nextEpisodeSchedule.nextEpisodeSchedule
-                            ).getTime() -
-                              new Date().getTimezoneOffset() * 60000
-                          ).toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
+                <div className="max-w-xl mt-2">
+                  <div className="p-3 rounded-lg bg-[#272727] flex justify-between items-center">
+                    <span className="text-sm text-gray-300">
+                      🚀 Next episode at{" "}
+                      {new Date(
+                        new Date(
+                          nextEpisodeSchedule.nextEpisodeSchedule
+                        ).getTime() -
+                          new Date().getTimezoneOffset() * 60000
+                      ).toLocaleString()}
+                    </span>
                     <button
                       onClick={() => setShowNextEpisodeSchedule(false)}
                       className="text-xl text-gray-400 hover:text-white"
@@ -191,15 +162,19 @@ export default function AnimeInfo() {
               )}
           </div>
 
-          {/* RIGHT POSTER */}
+          {/* POSTER */}
           <div className="md:col-span-4 lg:col-span-3 flex justify-center md:justify-end">
-            <div className="relative w-[280px]">
-              <div className="absolute inset-[-8px] bg-red-500/20 blur-2xl rounded-3xl" />
+            <div className="relative w-[220px] sm:w-[260px]">
+              {/* GLOW */}
+              <div className="absolute -inset-3 bg-primary/30 blur-2xl rounded-3xl opacity-80" />
               <div className="relative rounded-2xl overflow-hidden">
-                <img src={poster} className="w-full h-full object-cover" />
+                <img
+                  src={animeInfo.poster}
+                  className="w-full h-full object-cover"
+                />
                 <button
                   onClick={() => setLiked(!liked)}
-                  className="absolute top-2 right-2 w-9 h-9 rounded-full bg-black/60 border border-white/20 flex items-center justify-center"
+                  className="absolute top-2 right-2 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 flex items-center justify-center"
                 >
                   <Heart
                     className={`h-5 w-5 ${
@@ -215,46 +190,41 @@ export default function AnimeInfo() {
 
       {/* ================= DETAILS ================= */}
       <section>
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <h2 className="text-2xl font-bold">Details</h2>
-            <p className="text-white/50 text-sm">
-              Explore more about {title}
-            </p>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex gap-2 border-b border-white/10 mb-6 overflow-x-auto">
-          {[
-            ["overview", "Overview", Info],
-            ["characters", "Characters", UsersIcon],
-            ["more", "More Like This", Star],
-          ].map(([key, label, Icon]) => (
+        {/* TABLIST (UNCHANGED STRUCTURE) */}
+        <div
+          role="tablist"
+          className="inline-flex items-center w-full overflow-x-auto bg-muted/30 backdrop-blur-sm border-b border-border rounded-t-2xl gap-1"
+        >
+          {["overview", "characters", "more"].map((t) => (
             <button
-              key={key}
-              onClick={() => setTab(key)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm ${
-                tab === key
-                  ? "border-b-2 border-primary text-primary"
-                  : "text-white/50"
+              key={t}
+              role="tab"
+              aria-selected={tab === t}
+              onClick={() => setTab(t)}
+              className={`px-4 py-3 text-sm flex-shrink-0 ${
+                tab === t
+                  ? "border-b-2 border-primary text-primary bg-background"
+                  : "text-muted-foreground"
               }`}
             >
-              <Icon className="h-4 w-4" />
-              {label}
+              {t === "overview"
+                ? "Overview"
+                : t === "characters"
+                ? "Characters"
+                : "More Like This"}
             </button>
           ))}
         </div>
 
         {/* OVERVIEW */}
         {tab === "overview" && (
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 space-y-6">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="bg-muted/30 backdrop-blur-sm rounded-b-xl p-4 sm:p-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
               {[
-                ["Format", format],
-                ["Episodes", episodes],
+                ["Format", info?.Format],
+                ["Episodes", info?.Episodes],
                 ["Duration", info?.Duration],
-                ["Score", score && `${score}%`],
+                ["Score", info?.["MAL Score"] && `${info["MAL Score"]}%`],
                 ["Status", info?.Status],
                 ["Studio", info?.Studios],
                 ["Source", info?.Source],
@@ -263,23 +233,17 @@ export default function AnimeInfo() {
                 ([label, value]) =>
                   value && (
                     <div key={label}>
-                      <p className="text-xs text-white/50 uppercase">{label}</p>
+                      <p className="text-xs text-muted-foreground uppercase">
+                        {label}
+                      </p>
                       <p className="font-medium">{value}</p>
                     </div>
                   )
               )}
             </div>
 
-            <p className="text-white/80 leading-relaxed">
-              {expanded ? info?.Overview : info?.Overview?.slice(0, 280) + "..."}
-              {info?.Overview?.length > 280 && (
-                <button
-                  onClick={() => setExpanded(!expanded)}
-                  className="ml-2 underline text-primary"
-                >
-                  {expanded ? "Show less" : "Read more"}
-                </button>
-              )}
+            <p className="mt-6 text-sm text-muted-foreground leading-relaxed">
+              {info?.Overview}
             </p>
           </div>
         )}
