@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlay, faPlus, faUsers, faInfoCircle, faVideo, faStar } from "@fortawesome/free-solid-svg-icons";
+import { 
+  Play, 
+  Plus, 
+  Users, 
+  Info, 
+  Star, 
+  Calendar, 
+  Film, 
+  Video, 
+  ChevronRight 
+} from "lucide-react";
 
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
 import website_name from "@/src/config/website";
@@ -38,106 +47,117 @@ export default function AnimeInfo() {
   const { title, japanese_title, poster, banner, animeInfo: info } = animeInfo;
 
   return (
-    <div className="relative min-h-screen bg-[#0a0a0a] text-white">
+    <div className="relative min-h-screen bg-[#070707] text-white selection:bg-white/20">
       
-      {/* ---------------- HERO / BANNER AREA ---------------- */}
-      <div className="relative w-full h-[450px] md:h-[550px] overflow-hidden">
+      {/* ---------------- HERO BANNER (Tidy & Faded) ---------------- */}
+      <div className="absolute top-0 left-0 w-full h-[500px] overflow-hidden">
         <img
           src={banner || poster}
           alt=""
-          className="w-full h-full object-cover object-top opacity-40 scale-105"
+          className="w-full h-full object-cover object-top opacity-30 scale-105 blur-[2px]"
         />
-        {/* Deep Gradient Overlay to blend into background */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-transparent to-transparent hidden md:block" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070707] via-[#070707]/80 to-transparent" />
       </div>
 
-      {/* ---------------- MAIN CONTENT ---------------- */}
-      <div className="container mx-auto px-4 -mt-[300px] md:-mt-[350px] relative z-20">
+      <div className="container mx-auto px-4 pt-32 md:pt-44 relative z-10">
         
-        {/* UPPER HEADER SECTION: Title Left, Poster Right */}
-        <div className="flex flex-col lg:flex-row gap-10 items-end lg:items-center">
+        {/* ---------------- HEADER: Tidy Left, Poster Right ---------------- */}
+        <div className="flex flex-col lg:flex-row gap-10 items-start lg:items-center justify-between">
           
-          {/* LEFT: TITLE & ACTIONS */}
-          <div className="flex-1 space-y-6">
-            {/* Top Minimal Pills */}
-            <div className="flex flex-wrap gap-3 text-[11px] font-bold tracking-widest uppercase text-white/60">
-              <span className="flex items-center gap-1.5"><FontAwesomeIcon icon={faStar} className="text-yellow-500"/> {info?.["MAL Score"]}%</span>
+          {/* LEFT CONTENT (Small & Tidy) */}
+          <div className="flex-1 max-w-2xl">
+            {/* Minimal Pills Row */}
+            <div className="flex flex-wrap items-center gap-3 text-[10px] font-bold tracking-[0.2em] uppercase text-white/40 mb-3">
+              <span className="flex items-center gap-1.5 text-white/70">
+                <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" /> {info?.["MAL Score"]}%
+              </span>
               <span>•</span>
-              <span>{info?.Season}</span>
+              <span className="flex items-center gap-1"><Calendar className="w-3 h-3"/> {info?.Season}</span>
               <span>•</span>
-              <span>{info?.Format}</span>
+              <span className="flex items-center gap-1"><Film className="w-3 h-3"/> {info?.Format}</span>
               <span>•</span>
-              <span>{info?.Episodes} Episodes</span>
+              <span className="flex items-center gap-1"><Video className="w-3 h-3"/> {info?.Episodes} EPS</span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-tight">
+            <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-[1.1] mb-2">
               {language === "EN" ? title : japanese_title}
             </h1>
-
-            {/* Sub-genres as simple boxes */}
-            <div className="flex flex-wrap gap-2">
+            
+            {/* Genre Boxes (Small) */}
+            <div className="flex flex-wrap gap-1.5 mb-8">
               {info?.Genres?.map((g) => (
-                <Link key={g} to={`/genre/${g}`} className="px-3 py-1 bg-white/5 border border-white/10 rounded hover:bg-white/10 transition text-xs font-medium">
+                <Link key={g} to={`/genre/${g}`} className="px-2.5 py-0.5 bg-white/5 border border-white/10 rounded text-[10px] font-semibold text-white/60 hover:text-white transition">
                   {g}
                 </Link>
               ))}
             </div>
 
-            {/* Primary Action Buttons */}
-            <div className="flex flex-wrap gap-3 pt-4">
-              <Link to={`/watch/${id}`} className="h-12 px-10 rounded-xl bg-white text-black font-bold flex items-center gap-2 shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-105 transition">
-                <FontAwesomeIcon icon={faPlay} /> Watch Now
+            {/* ACTION BUTTONS (Big & Glowing) */}
+            <div className="flex flex-wrap gap-4 items-center">
+              <Link to={`/watch/${id}`} className="group relative">
+                {/* Persistent Glow for Watch Now */}
+                <div className="absolute -inset-1 bg-white/20 blur-xl rounded-xl opacity-100 group-hover:bg-white/40 transition duration-500" />
+                <button className="relative h-12 px-10 rounded-xl bg-white text-black font-bold flex items-center gap-3 shadow-[0_0_25px_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 transition-all">
+                  <Play className="w-4 h-4 fill-current" /> Watch Now
+                </button>
               </Link>
-              <button className="h-12 px-6 rounded-xl bg-white/5 border border-white/10 font-bold flex items-center gap-2 hover:bg-white/10 transition">
-                <FontAwesomeIcon icon={faPlus} /> Add
+
+              <button className="h-12 px-6 rounded-xl bg-white/5 border border-white/10 font-bold flex items-center gap-2 hover:bg-white/10 transition group">
+                <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" /> Add
               </button>
+
               <button className="h-12 px-6 rounded-xl bg-white/5 border border-white/10 font-bold flex items-center gap-2 hover:bg-white/10 transition">
-                <FontAwesomeIcon icon={faUsers} /> Watch Together
+                <Users className="w-4 h-4" /> Watch Together
               </button>
             </div>
           </div>
 
-          {/* RIGHT: POSTER WITH DYNAMIC GLOW */}
-          <div className="hidden lg:block relative group shrink-0">
-            <div className="absolute -inset-6 rounded-[2rem] opacity-40 blur-3xl group-hover:opacity-60 transition duration-700"
-                 style={{ backgroundImage: `url(${poster})`, backgroundSize: 'cover' }} />
+          {/* RIGHT POSTER (With Persistent Poster Glow) */}
+          <div className="hidden lg:block relative shrink-0">
+            {/* Image-based persistent glow */}
+            <div className="absolute -inset-8 opacity-50 blur-[60px] pointer-events-none scale-110">
+               <img src={poster} alt="" className="w-full h-full object-cover rounded-full" />
+            </div>
             <img 
               src={poster} 
-              className="relative w-[280px] rounded-2xl shadow-2xl border border-white/10 z-10" 
+              className="relative w-[240px] rounded-2xl shadow-2xl border border-white/10 z-10 brightness-110" 
               alt="poster" 
             />
           </div>
         </div>
 
         {/* ---------------- DETAILS SECTION ---------------- */}
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold mb-6">Details</h2>
+        <div className="mt-20 lg:mt-32">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
+              Details <ChevronRight className="w-4 h-4 text-white/20" />
+            </h2>
+          </div>
           
-          {/* Custom Modern Tabs */}
-          <div className="flex items-center gap-1 bg-white/5 backdrop-blur-md border-b border-white/10 rounded-t-2xl overflow-x-auto">
-            <TabBtn active={activeTab === "overview"} onClick={() => setActiveTab("overview")} icon={faInfoCircle} label="Overview" />
-            <TabBtn active={activeTab === "characters"} onClick={() => setActiveTab("characters")} icon={faUsers} label="Characters" />
-            <TabBtn active={activeTab === "more"} onClick={() => setActiveTab("more")} icon={faStar} label="More Like This" />
+          {/* Tab List (Tidy) */}
+          <div role="tablist" className="flex items-center gap-1 bg-white/5 backdrop-blur-xl border-b border-white/10 rounded-t-2xl overflow-x-auto scrollbar-hide">
+            <TabBtn active={activeTab === "overview"} onClick={() => setActiveTab("overview")} icon={<Info className="w-3.5 h-3.5" />} label="Overview" />
+            <TabBtn active={activeTab === "characters"} onClick={() => setActiveTab("characters")} icon={<Users className="w-3.5 h-3.5" />} label="Characters" />
+            <TabBtn active={activeTab === "more"} onClick={() => setActiveTab("more")} icon={<Star className="w-3.5 h-3.5" />} label="More Like This" />
           </div>
 
           {/* TAB CONTENT */}
-          <div className="bg-[#0c0c0c] border-x border-b border-white/10 rounded-b-2xl p-6 md:p-10">
+          <div className="bg-[#0c0c0c]/50 backdrop-blur-md border-x border-b border-white/10 rounded-b-2xl p-6 md:p-10 transition-all">
             {activeTab === "overview" && (
-              <div className="animate-in fade-in duration-500">
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
                 {/* Stats Grid Above Description */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-10 pb-10 border-b border-white/5">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-6 gap-x-12 mb-10 pb-10 border-b border-white/5">
                   <DetailItem label="Format" value={info?.Format} />
                   <DetailItem label="Episodes" value={info?.Episodes} />
                   <DetailItem label="Duration" value={info?.Duration} />
-                  <DetailItem label="Score" value={info?.["MAL Score"] + "%"} />
+                  <DetailItem label="Score" value={info?.["MAL Score"] ? `${info["MAL Score"]}%` : "N/A"} />
                   <DetailItem label="Status" value={info?.Status} />
                   <DetailItem label="Studio" value={info?.Studios} />
                   <DetailItem label="Source" value={info?.Source} />
                   <DetailItem label="Season" value={info?.Season} />
                 </div>
 
-                <p className="text-white/60 leading-relaxed text-lg max-w-4xl">
+                <p className="text-white/50 leading-relaxed text-sm md:text-base max-w-5xl">
                   {info?.Overview}
                 </p>
               </div>
@@ -150,33 +170,33 @@ export default function AnimeInfo() {
           </div>
         </div>
 
-        {/* RECENT / FOOTER SPACING */}
-        <div className="pb-20"></div>
+        <div className="pb-24"></div>
       </div>
     </div>
   );
 }
 
-/* ---------------- UI COMPONENTS ---------------- */
+/* ---------------- UI HELPERS (Tidy) ---------------- */
 
 function TabBtn({ active, onClick, icon, label }) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-8 py-4 text-sm font-bold transition-all border-b-2 whitespace-nowrap
-        ${active ? "border-white text-white bg-white/5" : "border-transparent text-white/30 hover:text-white"}`}
+      className={`flex items-center gap-2 px-6 py-4 text-xs font-bold transition-all border-b-2 whitespace-nowrap uppercase tracking-widest
+        ${active ? "border-white text-white bg-white/5" : "border-transparent text-white/20 hover:text-white/50"}`}
     >
-      <FontAwesomeIcon icon={icon} className="text-xs" />
+      {icon}
       {label}
     </button>
   );
 }
 
 function DetailItem({ label, value }) {
+  if (!value) return null;
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-[10px] uppercase tracking-[0.25em] text-white/30 font-bold">{label}</span>
-      <span className="text-sm font-semibold text-white/90">{value || "—"}</span>
+    <div className="flex flex-col gap-1.5">
+      <span className="text-[9px] uppercase tracking-[0.3em] text-white/20 font-extrabold">{label}</span>
+      <span className="text-xs font-semibold text-white/80">{Array.isArray(value) ? value.join(", ") : value}</span>
     </div>
   );
 }
