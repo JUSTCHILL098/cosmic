@@ -1,20 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import {
-  Play,
-  Heart,
-  Film,
-  Calendar,
-  Video,
-  Star,
-  Clock,
-  Info,
-  Users,
-} from "lucide-react";
+import { useParams, Link } from "react-router-dom";
+import { Info, Video, Users, Star, Play, Heart, Calendar, Film, Clock } from "lucide-react";
 
+// Your existing utils/components
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
 import getNextEpisodeSchedule from "@/src/utils/getNextEpisodeSchedule.utils";
-
 import Loader from "@/src/components/Loader/Loader";
 import Error from "@/src/components/error/Error";
 import Voiceactor from "@/src/components/voiceactor/Voiceactor";
@@ -22,12 +12,8 @@ import CategoryCard from "@/src/components/categorycard/CategoryCard";
 
 export default function AnimeInfo() {
   const { id } = useParams();
-
   const [animeInfo, setAnimeInfo] = useState(null);
-  const [nextEpisodeSchedule, setNextEpisodeSchedule] = useState(null);
-  const [showNextEpisodeSchedule, setShowNextEpisodeSchedule] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [liked, setLiked] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
@@ -35,16 +21,9 @@ export default function AnimeInfo() {
       try {
         const data = await getAnimeInfo(id);
         setAnimeInfo(data.data);
-
-        const nextEp = await getNextEpisodeSchedule(id);
-        setNextEpisodeSchedule(nextEp);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
+      } catch (e) { console.error(e); } 
+      finally { setLoading(false); }
     }
-
     fetchData();
     window.scrollTo(0, 0);
   }, [id]);
@@ -55,230 +34,118 @@ export default function AnimeInfo() {
   const info = animeInfo.animeInfo;
 
   return (
-    <div className="relative min-h-screen bg-black text-white">
-      {/* ================= HERO ================= */}
-      <div className="relative">
-        {/* Background */}
-        <div className="absolute inset-0">
-          <img
-            src={animeInfo.banner || animeInfo.poster}
-            className="w-full h-full object-cover object-top scale-105 saturate-125"
-          />
-          <div className="absolute inset-0 bg-black/45" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-        </div>
-
-        <div className="relative z-10 container mx-auto px-4 pt-28 pb-10">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-            {/* LEFT */}
-            <div className="md:col-span-8 space-y-4">
-              {/* Pills */}
-              <div className="flex flex-wrap gap-2">
-                <Pill icon={<Film />} color="indigo">
-                  {info?.Format}
-                </Pill>
-                <Pill icon={<Calendar />} color="emerald">
-                  {info?.Season?.split(" ")[1]}
-                </Pill>
-                <Pill icon={<Video />} color="amber">
-                  {info?.Episodes} Episodes
-                </Pill>
-                <Pill icon={<Star />} color="yellow">
-                  {info?.["MAL Score"]}%
-                </Pill>
-              </div>
-
-              <h1 className="text-3xl md:text-4xl font-bold">
-                {animeInfo.title}
-              </h1>
-
-              {/* Genres */}
-              <div className="flex flex-wrap gap-2">
-                {info?.Genres?.map((g) => (
-                  <Link
-                    key={g}
-                    to={`/genre/${g}`}
-                    className="px-3 py-1 text-xs font-semibold rounded-md
-                               bg-white/10 border border-white/20
-                               hover:bg-white/20 transition"
-                  >
-                    {g}
-                  </Link>
-                ))}
-              </div>
-
-              {/* Buttons */}
-              <div className="flex flex-wrap gap-3 pt-4">
-                <Link
-                  to={`/watch/${animeInfo.id}`}
-                  className="inline-flex items-center gap-2 h-10 px-8 rounded-md
-                             bg-primary text-black font-medium shadow-lg"
-                >
-                  <Play className="h-4 w-4 fill-current" />
-                  Watch Now
-                </Link>
-
-                <button
-                  className="h-10 px-6 rounded-md bg-black/50 border border-white/20"
-                >
-                  + Add
-                </button>
-
-                <Link
-                  to="/rooms"
-                  className="h-10 px-6 rounded-md bg-black/50 border border-white/20 inline-flex items-center gap-2"
-                >
-                  <Users className="h-4 w-4 animate-pulse" />
-                  Watch Together
-                </Link>
-              </div>
-
-              {/* Next Episode */}
-              {nextEpisodeSchedule?.nextEpisodeSchedule &&
-                showNextEpisodeSchedule && (
-                  <div className="mt-4 p-3 rounded-lg bg-black/60 flex justify-between items-center">
-                    <div className="text-sm">
-                      <span className="text-gray-400">
-                        Next episode estimated:
-                      </span>
-                      <span className="ml-2 font-medium">
-                        {new Date(
-                          nextEpisodeSchedule.nextEpisodeSchedule
-                        ).toLocaleString()}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => setShowNextEpisodeSchedule(false)}
-                      className="text-xl text-gray-400 hover:text-white"
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
-            </div>
-
-            {/* RIGHT / POSTER */}
-            <div className="md:col-span-4 flex justify-center md:justify-end">
-              <div className="relative w-56">
-                {/* Glow */}
-                <div className="absolute -inset-6 bg-primary/60 blur-3xl rounded-3xl opacity-80" />
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                  <img
-                    src={animeInfo.poster}
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    onClick={() => setLiked(!liked)}
-                    className="absolute top-2 right-2 w-9 h-9 rounded-full
-                               bg-black/50 backdrop-blur-sm flex items-center justify-center"
-                  >
-                    <Heart
-                      className={`h-5 w-5 ${
-                        liked ? "fill-red-500 text-red-500" : ""
-                      }`}
-                    />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-black text-white font-sans selection:bg-primary/30">
+      {/* HERO SECTION */}
+      <div className="relative h-[40vh] md:h-[60vh] w-full overflow-hidden">
+        <img 
+          src={animeInfo.banner || animeInfo.poster} 
+          className="w-full h-full object-cover object-top scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
       </div>
 
-      {/* ================= DETAILS ================= */}
-      <div className="container mx-auto px-4 pb-20">
-        {/* Tabs */}
-        <div className="flex gap-1 border-b border-white/10 bg-black/60 rounded-t-xl">
-          <Tab
-            active={activeTab === "overview"}
-            onClick={() => setActiveTab("overview")}
-            icon={<Info />}
-            label="Overview"
-          />
-          <Tab
-            active={activeTab === "characters"}
-            onClick={() => setActiveTab("characters")}
-            icon={<Users />}
-            label="Characters"
-          />
-          <Tab
-            active={activeTab === "more"}
-            onClick={() => setActiveTab("more")}
-            icon={<Star />}
-            label="More Like This"
-          />
-        </div>
+      <div className="container mx-auto px-4 -mt-32 relative z-10">
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* POSTER WITH GLOW */}
+          <div className="shrink-0 mx-auto md:mx-0">
+            <div className="relative group w-48 md:w-64">
+              <div className="absolute -inset-1 bg-primary/40 blur-2xl rounded-2xl opacity-0 group-hover:opacity-100 transition duration-500" />
+              <img 
+                src={animeInfo.poster} 
+                className="relative rounded-xl shadow-2xl border border-white/10 w-full object-cover aspect-[2/3]"
+              />
+            </div>
+            
+            <Link to={`/watch/${animeInfo.id}`} className="mt-6 block">
+              <button className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all h-11 rounded-lg px-8 gap-2 bg-[#ffbade] hover:bg-[#ffbade]/90 text-black shadow-lg shadow-[#ffbade]/20 w-full">
+                <Play className="h-4 w-4 fill-current" />
+                Watch Now
+              </button>
+            </Link>
+          </div>
 
-        {/* Overview */}
-        {activeTab === "overview" && (
-          <div className="bg-black/85 p-6 rounded-b-xl">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 mb-6">
-              <Detail label="Format" value={info?.Format} />
-              <Detail label="Episodes" value={info?.Episodes} />
-              <Detail label="Duration" value={info?.Duration} />
-              <Detail label="Score" value={`${info?.["MAL Score"]}%`} />
-              <Detail label="Status" value={info?.Status} />
-              <Detail label="Studio" value={info?.Studios} />
-              <Detail label="Source" value={info?.Source} />
-              <Detail label="Season" value={info?.Season} />
+          {/* MAIN INFO */}
+          <div className="flex-1 pt-4 md:pt-32">
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 text-center md:text-left">
+              {animeInfo.title}
+            </h1>
+            
+            <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-6">
+              {info?.Genres?.slice(0, 4).map((g) => (
+                <span key={g} className="px-3 py-1 text-[11px] font-bold uppercase tracking-widest rounded-full bg-white/5 border border-white/10 text-white/70">
+                  {g}
+                </span>
+              ))}
             </div>
 
-            <p className="text-white/80 leading-relaxed">
-              {info?.Overview}
-            </p>
-          </div>
-        )}
+            {/* TAB SYSTEM (Modern Scrollable) */}
+            <div className="mt-8">
+              <div role="tablist" className="inline-flex items-center rounded-t-2xl text-muted-foreground w-full justify-start bg-white/5 backdrop-blur-md border-b border-white/10 h-auto p-0 gap-1 overflow-x-auto flex-nowrap whitespace-nowrap ring-1 ring-white/10">
+                <ModernTab 
+                  active={activeTab === "overview"} 
+                  onClick={() => setActiveTab("overview")} 
+                  icon={<Info className="h-3.5 w-3.5" />} 
+                  label="Overview" 
+                />
+                <ModernTab 
+                  active={activeTab === "characters"} 
+                  onClick={() => setActiveTab("characters")} 
+                  icon={<Users className="h-3.5 w-3.5" />} 
+                  label="Characters" 
+                />
+                <ModernTab 
+                  active={activeTab === "more"} 
+                  onClick={() => setActiveTab("more")} 
+                  icon={<Star className="h-3.5 w-3.5" />} 
+                  label="Recommendations" 
+                />
+              </div>
 
-        {activeTab === "characters" && (
-          <div className="mt-8">
-            <Voiceactor animeInfo={animeInfo} />
-          </div>
-        )}
+              {/* TAB CONTENT: OVERVIEW */}
+              {activeTab === "overview" && (
+                <div className="p-6 bg-white/5 backdrop-blur-sm rounded-b-2xl border-x border-b border-white/10 animate-in fade-in duration-300">
+                  <p className="text-white/70 leading-relaxed text-sm md:text-base line-clamp-4 md:line-clamp-none">
+                    {info?.Overview}
+                  </p>
+                  
+                  {/* GRID DETAILS (Your Requested Design) */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-8 gap-y-6 mt-8 border-t border-white/10 pt-6">
+                    <DetailItem label="Format" value={info?.Format} />
+                    <DetailItem label="Episodes" value={info?.Episodes} />
+                    <DetailItem label="Duration" value={info?.Duration} />
+                    <DetailItem label="Score" value={`${info?.["MAL Score"]}%`} />
+                    <DetailItem label="Status" value={info?.Status} />
+                    <DetailItem label="Studio" value={info?.Studios} />
+                    <DetailItem label="Source" value={info?.Source} />
+                    <DetailItem label="Season" value={info?.Season} />
+                  </div>
+                </div>
+              )}
 
-        {activeTab === "more" && animeInfo?.recommended_data?.length > 0 && (
-          <div className="mt-8">
-            <CategoryCard
-              label="Recommended"
-              data={animeInfo.recommended_data}
-              showViewMore={false}
-            />
+              {/* OTHER TABS */}
+              {activeTab === "characters" && <div className="mt-4"><Voiceactor animeInfo={animeInfo} /></div>}
+              {activeTab === "more" && (
+                <div className="mt-4">
+                  <CategoryCard label="Recommended" data={animeInfo.recommended_data} showViewMore={false} />
+                </div>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
 }
 
-/* ================= COMPONENTS ================= */
-
-function Pill({ children, icon, color }) {
-  const colors = {
-    indigo: "bg-indigo-500/20 text-indigo-300 border-indigo-400/30",
-    emerald: "bg-emerald-500/20 text-emerald-300 border-emerald-400/30",
-    amber: "bg-amber-500/20 text-amber-300 border-amber-400/30",
-    yellow: "bg-yellow-500/20 text-yellow-300 border-yellow-400/30",
-  };
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border ${colors[color]}`}
-    >
-      {icon}
-      {children}
-    </span>
-  );
-}
-
-function Tab({ active, onClick, icon, label }) {
+// HELPER COMPONENTS
+function ModernTab({ active, onClick, icon, label }) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition
-        ${
-          active
-            &&
-          "border-primary text-white bg-black"
-        }`}
+      className={`inline-flex items-center justify-center whitespace-nowrap font-medium transition-all px-6 py-4 text-sm flex-shrink-0 gap-2 border-b-2
+        ${active 
+          ? "bg-white/10 text-white border-[#ffbade]" 
+          : "text-gray-400 border-transparent hover:text-white hover:bg-white/5"}`}
     >
       {icon}
       {label}
@@ -286,11 +153,15 @@ function Tab({ active, onClick, icon, label }) {
   );
 }
 
-function Detail({ label, value }) {
+function DetailItem({ label, value }) {
   return (
-    <div>
-      <span className="text-xs uppercase text-gray-400">{label}</span>
-      <p className="text-sm font-medium">{value}</p>
+    <div className="flex flex-col">
+      <span className="text-[10px] uppercase tracking-[0.15em] text-gray-500 mb-1 font-bold">
+        {label}
+      </span>
+      <span className="text-sm font-medium text-white/90">
+        {value || "N/A"}
+      </span>
     </div>
   );
 }
