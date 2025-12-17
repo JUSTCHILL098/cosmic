@@ -12,10 +12,10 @@ export const MultiplayerProvider = ({ children }) => {
   const isSyncing = useRef(false);
 
   useEffect(() => {
+    // REPLACE THIS URL WITH YOUR RENDER URL
     const newSocket = io("https://server-81ja.onrender.com");
     setSocket(newSocket);
 
-    // FIX: Listen for roomJoined to update the Joiner's UI
     newSocket.on("roomCreated", (data) => {
       setRoomCode(data.roomCode);
       setIsHost(true);
@@ -28,13 +28,8 @@ export const MultiplayerProvider = ({ children }) => {
       setMembers(data.members);
     });
 
-    newSocket.on("userJoined", (data) => {
-      setMembers(data.members);
-    });
-
-    newSocket.on("userLeft", (data) => {
-      setMembers(data.members);
-    });
+    newSocket.on("userJoined", (data) => setMembers(data.members));
+    newSocket.on("userLeft", (data) => setMembers(data.members));
 
     newSocket.on("videoAction", ({ action, time }) => {
       const art = playerInstance.current;
@@ -50,7 +45,7 @@ export const MultiplayerProvider = ({ children }) => {
     });
 
     return () => newSocket.close();
-  }, [isHost]);
+  }, []);
 
   const createRoom = (name) => socket.emit("createRoom", { nickname: name });
   const joinRoom = (code, name) => socket.emit("joinRoom", { roomCode: code, nickname: name });
@@ -63,13 +58,8 @@ export const MultiplayerProvider = ({ children }) => {
 
   return (
     <MultiplayerContext.Provider value={{ 
-      isInRoom: !!roomCode, 
-      roomCode, 
-      isHost, 
-      members,
-      createRoom, 
-      joinRoom, 
-      syncVideoAction,
+      isInRoom: !!roomCode, roomCode, isHost, members,
+      createRoom, joinRoom, syncVideoAction,
       setPlayerReference: (art) => { playerInstance.current = art; }
     }}>
       {children}
