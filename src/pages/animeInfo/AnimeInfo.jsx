@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlay, faInfoCircle, faUsers, faStar, faVideo } from "@fortawesome/free-solid-svg-icons";
+import { faPlay, faPlus, faUsers, faInfoCircle, faVideo, faStar } from "@fortawesome/free-solid-svg-icons";
 
-// Your Utils & Components
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
 import website_name from "@/src/config/website";
 import Loader from "@/src/components/Loader/Loader";
 import Error from "@/src/components/error/Error";
-import Voiceactor from "@/src/components/voiceactor/Voiceactor";
 import CategoryCard from "@/src/components/categorycard/CategoryCard";
+import Voiceactor from "@/src/components/voiceactor/Voiceactor";
 import { useLanguage } from "@/src/context/LanguageContext";
 
 export default function AnimeInfo() {
-  const { language } = useLanguage();
   const { id } = useParams();
+  const { language } = useLanguage();
+
   const [animeInfo, setAnimeInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -35,115 +35,136 @@ export default function AnimeInfo() {
   if (loading) return <Loader type="animeInfo" />;
   if (error || !animeInfo) return <Error />;
 
-  const info = animeInfo.animeInfo;
+  const { title, japanese_title, poster, banner, animeInfo: info } = animeInfo;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
-      {/* --- HERO BANNER --- */}
-      <div className="relative h-[45vh] md:h-[65vh] w-full">
-        <img 
-          src={animeInfo.banner || animeInfo.poster} 
-          className="w-full h-full object-cover object-top opacity-60"
-          alt="background"
+    <div className="relative min-h-screen bg-[#0a0a0a] text-white">
+      
+      {/* ---------------- HERO / BANNER AREA ---------------- */}
+      <div className="relative w-full h-[450px] md:h-[550px] overflow-hidden">
+        <img
+          src={banner || poster}
+          alt=""
+          className="w-full h-full object-cover object-top opacity-40 scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent" />
+        {/* Deep Gradient Overlay to blend into background */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-transparent to-transparent hidden md:block" />
       </div>
 
-      <div className="container mx-auto px-4 -mt-40 md:-mt-56 relative z-10">
-        <div className="flex flex-col md:flex-row gap-8 items-start">
+      {/* ---------------- MAIN CONTENT ---------------- */}
+      <div className="container mx-auto px-4 -mt-[300px] md:-mt-[350px] relative z-20">
+        
+        {/* UPPER HEADER SECTION: Title Left, Poster Right */}
+        <div className="flex flex-col lg:flex-row gap-10 items-end lg:items-center">
           
-          {/* --- LEFT: POSTER & GLOW --- */}
-          <div className="flex flex-col gap-4 w-full md:w-64 shrink-0 items-center">
-            <div className="relative group">
-              {/* The Glow Effect */}
-              <div className="absolute -inset-4 bg-primary/30 blur-3xl rounded-full opacity-70 group-hover:opacity-100 transition duration-500" />
-              <img 
-                src={animeInfo.poster} 
-                className="relative w-48 md:w-64 rounded-2xl shadow-2xl border border-white/10 object-cover aspect-[2/3]"
-                alt={animeInfo.title}
-              />
+          {/* LEFT: TITLE & ACTIONS */}
+          <div className="flex-1 space-y-6">
+            {/* Top Minimal Pills */}
+            <div className="flex flex-wrap gap-3 text-[11px] font-bold tracking-widest uppercase text-white/60">
+              <span className="flex items-center gap-1.5"><FontAwesomeIcon icon={faStar} className="text-yellow-500"/> {info?.["MAL Score"]}%</span>
+              <span>•</span>
+              <span>{info?.Season}</span>
+              <span>•</span>
+              <span>{info?.Format}</span>
+              <span>•</span>
+              <span>{info?.Episodes} Episodes</span>
             </div>
 
-            {/* Glowing Watch Button */}
-            <Link to={`/watch/${id}`} className="w-full">
-              <button className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-white text-black font-bold hover:scale-[1.02] transition-transform shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-                <FontAwesomeIcon icon={faPlay} className="text-sm" />
-                Watch Now
+            <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-tight">
+              {language === "EN" ? title : japanese_title}
+            </h1>
+
+            {/* Sub-genres as simple boxes */}
+            <div className="flex flex-wrap gap-2">
+              {info?.Genres?.map((g) => (
+                <Link key={g} to={`/genre/${g}`} className="px-3 py-1 bg-white/5 border border-white/10 rounded hover:bg-white/10 transition text-xs font-medium">
+                  {g}
+                </Link>
+              ))}
+            </div>
+
+            {/* Primary Action Buttons */}
+            <div className="flex flex-wrap gap-3 pt-4">
+              <Link to={`/watch/${id}`} className="h-12 px-10 rounded-xl bg-white text-black font-bold flex items-center gap-2 shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-105 transition">
+                <FontAwesomeIcon icon={faPlay} /> Watch Now
+              </Link>
+              <button className="h-12 px-6 rounded-xl bg-white/5 border border-white/10 font-bold flex items-center gap-2 hover:bg-white/10 transition">
+                <FontAwesomeIcon icon={faPlus} /> Add
               </button>
-            </Link>
+              <button className="h-12 px-6 rounded-xl bg-white/5 border border-white/10 font-bold flex items-center gap-2 hover:bg-white/10 transition">
+                <FontAwesomeIcon icon={faUsers} /> Watch Together
+              </button>
+            </div>
           </div>
 
-          {/* --- RIGHT: TEXT CONTENT --- */}
-          <div className="flex-1 space-y-6 pt-2 md:pt-10">
-            <div className="space-y-2 text-center md:text-left">
-              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight">
-                {language === "EN" ? animeInfo.title : animeInfo.japanese_title}
-              </h1>
-              <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                {info?.Genres?.map((g) => (
-                  <span key={g} className="px-3 py-1 bg-white/5 border border-white/10 rounded-md text-[11px] font-bold uppercase tracking-wider text-white/60">
-                    {g}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* --- TAB NAVIGATION --- */}
-            <div className="mt-10">
-              <div className="flex items-center gap-1 bg-white/5 backdrop-blur-md border-b border-white/10 rounded-t-2xl overflow-x-auto no-scrollbar">
-                <TabButton active={activeTab === "overview"} onClick={() => setActiveTab("overview")} icon={faInfoCircle} label="Overview" />
-                <TabButton active={activeTab === "characters"} onClick={() => setActiveTab("characters")} icon={faUsers} label="Characters" />
-                <TabButton active={activeTab === "more"} onClick={() => setActiveTab("more")} icon={faStar} label="More Like This" />
-              </div>
-
-              {/* --- TAB CONTENT: OVERVIEW --- */}
-              {activeTab === "overview" && (
-                <div className="bg-white/5 backdrop-blur-sm p-6 rounded-b-2xl border-x border-b border-white/10 animate-in fade-in duration-500">
-                  
-                  {/* Metadata Grid (The part you wanted above the text) */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8 pb-8 border-b border-white/5">
-                    <DetailItem label="Format" value={info?.Format || "ONA"} />
-                    <DetailItem label="Episodes" value={info?.Episodes || "12"} />
-                    <DetailItem label="Duration" value={info?.Duration || "24 min"} />
-                    <DetailItem label="Score" value={`${info?.["MAL Score"]}%` || "58%"} />
-                    <DetailItem label="Status" value={info?.Status || "FINISHED"} />
-                    <DetailItem label="Studio" value={info?.Studios} />
-                    <DetailItem label="Source" value={info?.Source} />
-                    <DetailItem label="Season" value={info?.Season || "Fall 2025"} />
-                  </div>
-
-                  <p className="text-white/70 leading-relaxed text-sm md:text-base">
-                    {info?.Overview}
-                  </p>
-                </div>
-              )}
-
-              {/* Character Tab */}
-              {activeTab === "characters" && (
-                <div className="mt-6"><Voiceactor animeInfo={animeInfo} /></div>
-              )}
-
-              {/* Recommendations Tab */}
-              {activeTab === "more" && animeInfo?.recommended_data?.length > 0 && (
-                <div className="mt-6">
-                  <CategoryCard label="Recommended" data={animeInfo.recommended_data} showViewMore={false} />
-                </div>
-              )}
-            </div>
+          {/* RIGHT: POSTER WITH DYNAMIC GLOW */}
+          <div className="hidden lg:block relative group shrink-0">
+            <div className="absolute -inset-6 rounded-[2rem] opacity-40 blur-3xl group-hover:opacity-60 transition duration-700"
+                 style={{ backgroundImage: `url(${poster})`, backgroundSize: 'cover' }} />
+            <img 
+              src={poster} 
+              className="relative w-[280px] rounded-2xl shadow-2xl border border-white/10 z-10" 
+              alt="poster" 
+            />
           </div>
         </div>
+
+        {/* ---------------- DETAILS SECTION ---------------- */}
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold mb-6">Details</h2>
+          
+          {/* Custom Modern Tabs */}
+          <div className="flex items-center gap-1 bg-white/5 backdrop-blur-md border-b border-white/10 rounded-t-2xl overflow-x-auto">
+            <TabBtn active={activeTab === "overview"} onClick={() => setActiveTab("overview")} icon={faInfoCircle} label="Overview" />
+            <TabBtn active={activeTab === "characters"} onClick={() => setActiveTab("characters")} icon={faUsers} label="Characters" />
+            <TabBtn active={activeTab === "more"} onClick={() => setActiveTab("more")} icon={faStar} label="More Like This" />
+          </div>
+
+          {/* TAB CONTENT */}
+          <div className="bg-[#0c0c0c] border-x border-b border-white/10 rounded-b-2xl p-6 md:p-10">
+            {activeTab === "overview" && (
+              <div className="animate-in fade-in duration-500">
+                {/* Stats Grid Above Description */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-10 pb-10 border-b border-white/5">
+                  <DetailItem label="Format" value={info?.Format} />
+                  <DetailItem label="Episodes" value={info?.Episodes} />
+                  <DetailItem label="Duration" value={info?.Duration} />
+                  <DetailItem label="Score" value={info?.["MAL Score"] + "%"} />
+                  <DetailItem label="Status" value={info?.Status} />
+                  <DetailItem label="Studio" value={info?.Studios} />
+                  <DetailItem label="Source" value={info?.Source} />
+                  <DetailItem label="Season" value={info?.Season} />
+                </div>
+
+                <p className="text-white/60 leading-relaxed text-lg max-w-4xl">
+                  {info?.Overview}
+                </p>
+              </div>
+            )}
+
+            {activeTab === "characters" && <Voiceactor animeInfo={animeInfo} />}
+            {activeTab === "more" && (
+               <CategoryCard label="" data={animeInfo.recommended_data} limit={animeInfo.recommended_data.length} showViewMore={false} />
+            )}
+          </div>
+        </div>
+
+        {/* RECENT / FOOTER SPACING */}
+        <div className="pb-20"></div>
       </div>
     </div>
   );
 }
 
-// Sub-components for cleaner code
-function TabButton({ active, onClick, icon, label }) {
+/* ---------------- UI COMPONENTS ---------------- */
+
+function TabBtn({ active, onClick, icon, label }) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all whitespace-nowrap border-b-2 
-        ${active ? "border-primary text-white bg-white/5" : "border-transparent text-white/40 hover:text-white"}`}
+      className={`flex items-center gap-2 px-8 py-4 text-sm font-bold transition-all border-b-2 whitespace-nowrap
+        ${active ? "border-white text-white bg-white/5" : "border-transparent text-white/30 hover:text-white"}`}
     >
       <FontAwesomeIcon icon={icon} className="text-xs" />
       {label}
@@ -154,8 +175,8 @@ function TabButton({ active, onClick, icon, label }) {
 function DetailItem({ label, value }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">{label}</span>
-      <span className="text-sm font-semibold text-white/90">{value || "N/A"}</span>
+      <span className="text-[10px] uppercase tracking-[0.25em] text-white/30 font-bold">{label}</span>
+      <span className="text-sm font-semibold text-white/90">{value || "—"}</span>
     </div>
   );
 }
