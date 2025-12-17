@@ -12,7 +12,7 @@ export const MultiplayerProvider = ({ children }) => {
   const isSyncing = useRef(false);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3000");
+    const newSocket = io("https://server-81ja.onrender.com");
     setSocket(newSocket);
 
     // FIX: Listen for roomJoined to update the Joiner's UI
