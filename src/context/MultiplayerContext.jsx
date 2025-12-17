@@ -8,61 +8,40 @@ export const MultiplayerProvider = ({ children }) => {
   const [roomCode, setRoomCode] = useState(null);
   const [isHost, setIsHost] = useState(false);
   const [members, setMembers] = useState([]);
-  const [nickname, setNickname] = useState(localStorage.getItem('nickname') || 'Guest');
-  
-  const playerRef = useRef(null);
-  const isBlockingRemoteEvents = useRef(false);
+  const playerInstance = useRef(null);
+  const isSyncing = useRef(false);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3000"); // Replace with your deployed server URL later
+    const newSocket = io("https://server-81ja.onrender.com"); // Change this to your server URL
     setSocket(newSocket);
 
-    newSocket.on("roomCreated", (data) => {
-      setRoomCode(data.roomCode);
-      setIsHost(true);
-      setMembers(data.members);
-    });
-
-    newSocket.on("roomJoined", (data) => {
-      setRoomCode(data.roomCode);
-      setIsHost(false);
-      setMembers(data.members);
-    });
-
-    newSocket.on("userJoined", (data) => setMembers(data.members));
-    newSocket.on("userLeft", (data) => setMembers(data.members));
-
     newSocket.on("videoAction", ({ action, time }) => {
-      if (!playerRef.current) return;
-      
-      isBlockingRemoteEvents.current = true;
-      if (action === "play") playerRef.current.play();
-      if (action === "pause") playerRef.current.pause();
-      
-      if (Math.abs(playerRef.current.currentTime - time) > 1.5) {
-        playerRef.current.currentTime = time;
+      const art = playerInstance.current;
+      if (!art || isHost) return;
+
+      isSyncing.current = true;
+      if (action === "play") art.play();
+      if (action === "pause") art.pause();
+      if (Math.abs(art.currentTime - time) > 2) {
+        art.currentTime = time;
       }
-      
-      setTimeout(() => { isBlockingRemoteEvents.current = false; }, 500);
+      setTimeout(() => { isSyncing.current = false; }, 500);
     });
 
     return () => newSocket.close();
-  }, []);
+  }, [isHost]);
 
   const syncVideoAction = (action, time) => {
-    if (socket && roomCode && isHost && !isBlockingRemoteEvents.current) {
+    if (socket && roomCode && isHost && !isSyncing.current) {
       socket.emit("videoAction", { roomCode, action, time });
     }
   };
 
-  const createRoom = (name) => socket.emit("createRoom", { nickname: name });
-  const joinRoom = (code, name) => socket.emit("joinRoom", { roomCode: code, nickname: name });
-
   return (
     <MultiplayerContext.Provider value={{ 
-      socket, roomCode, isHost, members, nickname, setNickname,
-      createRoom, joinRoom, syncVideoAction,
-      setPlayerReference: (ref) => { playerRef.current = ref; }
+      isInRoom: !!roomCode, isHost, roomCode, members,
+      syncVideoAction,
+      setPlayerReference: (art) => { playerInstance.current = art; }
     }}>
       {children}
     </MultiplayerContext.Provider>
