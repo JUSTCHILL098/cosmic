@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { io } from 'socket.io-client';
 
 const MultiplayerContext = createContext();
@@ -9,49 +9,50 @@ export const MultiplayerProvider = ({ children }) => {
   const [isHost, setIsHost] = useState(false);
   const [members, setMembers] = useState([]);
   const [nickname, setNickname] = useState("");
-  const [isConnected, setIsConnected] = useState(false); // 1. ADD THIS STATE
+  const [isConnected, setIsConnected] = useState(false);
   
   const playerInstance = useRef(null);
   const isSyncing = useRef(false);
 
   useEffect(() => {
     const newSocket = io("https://server-81ja.onrender.com", {
-        transports: ['websocket'],
-        upgrade: false,
-        reconnectionAttempts: 5
+      transports: ['websocket'],
+      upgrade: false,
+      reconnectionAttempts: 5
     });
 
     newSocket.on("connect", () => {
-        console.log("✅ CONNECTED TO MULTIPLAYER!");
-        setIsConnected(true); // 2. UPDATE STATE TO TRUE
+      console.log("✅ CONNECTED TO MULTIPLAYER!");
+      setIsConnected(true);
     });
 
     newSocket.on("connect_error", (err) => {
-        console.log("❌ CONNECTION ERROR:", err.message);
-        setIsConnected(false); // 3. UPDATE STATE TO FALSE
+      console.log("❌ CONNECTION ERROR:", err.message);
+      setIsConnected(false);
     });
 
     newSocket.on("disconnect", () => {
-        setIsConnected(false); // 4. UPDATE STATE TO FALSE
+      setIsConnected(false);
+      setRoomCode(null); // Clear room on disconnect
     });
 
-    newSocket.on("roomCreated", (data) => { 
-        setRoomCode(data.roomCode); 
-        setIsHost(true); 
-        setMembers(data.members); 
+    newSocket.on("roomCreated", (data) => {
+      setRoomCode(data.roomCode);
+      setIsHost(true);
+      setMembers(data.members);
     });
 
-    newSocket.on("roomJoined", (data) => { 
-        setRoomCode(data.roomCode); 
-        setIsHost(false); 
-        setMembers(data.members); 
+    newSocket.on("roomJoined", (data) => {
+      setRoomCode(data.roomCode);
+      setIsHost(false);
+      setMembers(data.members);
     });
 
     newSocket.on("userJoined", (data) => setMembers(data.members));
 
     newSocket.on("videoAction", ({ action, time }) => {
       const art = playerInstance.current;
-      if (!art || isSyncing.current) return; 
+      if (!art || isSyncing.current) return;
       
       isSyncing.current = true;
       if (action === "play") art.play();
@@ -64,41 +65,48 @@ export const MultiplayerProvider = ({ children }) => {
     setSocket(newSocket);
     
     return () => {
-        newSocket.close();
+      newSocket.close();
     };
-  }, []); 
+  }, []);
 
-  const createRoom = (name) => {
-    if (!socket) return;
-    setNickname(name);
-    socket.emit("createRoom", { nickname: name });
-  };
+  // SAFE FUNCTIONS using useCallback
+  const createRoom = useCallback((name) => {
+    if (socket && isConnected) {
+      setNickname(name);
+      socket.emit("createRoom", { nickname: name });
+    } else {
+      console.warn("Cannot create room: Socket not connected");
+    }
+  }, [socket, isConnected]);
 
-  const joinRoom = (code, name) => {
-    if (!socket) return;
-    setNickname(name);
-    socket.emit("joinRoom", { roomCode: code, nickname: name });
-  };
+  const joinRoom = useCallback((code, name) => {
+    if (socket && isConnected) {
+      setNickname(name);
+      socket.emit("joinRoom", { roomCode: code, nickname: name });
+    }
+  }, [socket, isConnected]);
 
-  const syncVideoAction = (action, time) => {
+  const syncVideoAction = useCallback((action, time) => {
     if (socket && roomCode && isHost && !isSyncing.current) {
       socket.emit("videoAction", { roomCode, action, time });
     }
+  }, [socket, roomCode, isHost]);
+
+  const value = {
+    isConnected,
+    isInRoom: !!roomCode,
+    roomCode,
+    isHost,
+    members,
+    nickname,
+    createRoom,
+    joinRoom,
+    syncVideoAction,
+    setPlayerReference: (art) => { playerInstance.current = art; }
   };
 
   return (
-    <MultiplayerContext.Provider value={{ 
-      isConnected, // 5. PASS THE ACTUAL CONNECTION STATE
-      isInRoom: !!roomCode, 
-      roomCode, 
-      isHost, 
-      members, 
-      nickname,
-      createRoom, 
-      joinRoom, 
-      syncVideoAction,
-      setPlayerReference: (art) => { playerInstance.current = art; }
-    }}>
+    <MultiplayerContext.Provider value={value}>
       {children}
     </MultiplayerContext.Provider>
   );
