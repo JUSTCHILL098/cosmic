@@ -8,20 +8,32 @@ export const MultiplayerProvider = ({ children }) => {
   const [roomCode, setRoomCode] = useState(null);
   const [isHost, setIsHost] = useState(false);
   const [members, setMembers] = useState([]);
-  const [nickname, setNickname] = useState(""); // Added to track nickname
+  const [nickname, setNickname] = useState("");
+  const [isConnected, setIsConnected] = useState(false); // 1. ADD THIS STATE
+  
   const playerInstance = useRef(null);
   const isSyncing = useRef(false);
 
   useEffect(() => {
-    // 1. Connect once and only once
     const newSocket = io("https://server-81ja.onrender.com", {
         transports: ['websocket'],
         upgrade: false,
         reconnectionAttempts: 5
     });
 
-    newSocket.on("connect", () => console.log("✅ CONNECTED TO MULTIPLAYER!"));
-    newSocket.on("connect_error", (err) => console.log("❌ CONNECTION ERROR:", err.message));
+    newSocket.on("connect", () => {
+        console.log("✅ CONNECTED TO MULTIPLAYER!");
+        setIsConnected(true); // 2. UPDATE STATE TO TRUE
+    });
+
+    newSocket.on("connect_error", (err) => {
+        console.log("❌ CONNECTION ERROR:", err.message);
+        setIsConnected(false); // 3. UPDATE STATE TO FALSE
+    });
+
+    newSocket.on("disconnect", () => {
+        setIsConnected(false); // 4. UPDATE STATE TO FALSE
+    });
 
     newSocket.on("roomCreated", (data) => { 
         setRoomCode(data.roomCode); 
@@ -39,8 +51,7 @@ export const MultiplayerProvider = ({ children }) => {
 
     newSocket.on("videoAction", ({ action, time }) => {
       const art = playerInstance.current;
-      // Host shouldn't be controlled by incoming actions
-      if (!art || newSocket.id === art.hostId) return; 
+      if (!art || isSyncing.current) return; 
       
       isSyncing.current = true;
       if (action === "play") art.play();
@@ -53,19 +64,18 @@ export const MultiplayerProvider = ({ children }) => {
     setSocket(newSocket);
     
     return () => {
-        newSocket.off("connect");
-        newSocket.off("roomCreated");
-        newSocket.off("roomJoined");
         newSocket.close();
     };
-  }, []); // EMPTY ARRAY: This ensures we don't reconnect and drop the room
+  }, []); 
 
   const createRoom = (name) => {
+    if (!socket) return;
     setNickname(name);
     socket.emit("createRoom", { nickname: name });
   };
 
   const joinRoom = (code, name) => {
+    if (!socket) return;
     setNickname(name);
     socket.emit("joinRoom", { roomCode: code, nickname: name });
   };
@@ -78,12 +88,20 @@ export const MultiplayerProvider = ({ children }) => {
 
   return (
     <MultiplayerContext.Provider value={{ 
-      isInRoom: !!roomCode, roomCode, isHost, members, nickname,
-      createRoom, joinRoom, syncVideoAction,
+      isConnected, // 5. PASS THE ACTUAL CONNECTION STATE
+      isInRoom: !!roomCode, 
+      roomCode, 
+      isHost, 
+      members, 
+      nickname,
+      createRoom, 
+      joinRoom, 
+      syncVideoAction,
       setPlayerReference: (art) => { playerInstance.current = art; }
     }}>
       {children}
     </MultiplayerContext.Provider>
   );
 };
+
 export const useMultiplayer = () => useContext(MultiplayerContext);
