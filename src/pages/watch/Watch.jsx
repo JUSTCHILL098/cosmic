@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import Hls from "hls.js";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useParams, Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/src/context/LanguageContext";
@@ -35,12 +34,17 @@ export default function Watch() {
   let initialEpisodeId = queryParams.get("ep");
   const roomParam = queryParams.get("room");
   
-  // Multiplayer context integration
+  // Multiplayer context
   const { 
     isInRoom, 
     isHost, 
     roomCode: currentRoomCode,
+    syncVideoAction, 
     syncEpisodeChange,
+    roomVideoState,
+    shouldSyncVideo,
+    setShouldSyncVideo,
+    setPlayerReference,
     joinRoom,
     nickname
   } = useMultiplayer();
@@ -52,6 +56,7 @@ export default function Watch() {
   const [showNextEpisodeSchedule, setShowNextEpisodeSchedule] = useState(true);
 
   const {
+    // error,
     buffering,
     streamInfo,
     streamUrl,
@@ -96,32 +101,39 @@ export default function Watch() {
   const controlsRef = useRef(null);
   const episodesRef = useRef(null);
 
-  // 1. ORIGINAL LOGIC: Auto-join room if room parameter exists
+  // Auto-join room if room parameter exists in URL (only once)
   useEffect(() => {
     if (roomParam && !isInRoom && nickname && !currentRoomCode) {
+      console.log('Auto-joining room from URL:', roomParam);
       joinRoom(roomParam);
     }
   }, [roomParam, isInRoom, nickname, currentRoomCode, joinRoom]);
 
-  // 2. ORIGINAL LOGIC: Sync episode changes
+  // Sync episode changes in multiplayer
   useEffect(() => {
     if (isInRoom && isHost && episodeId && animeId) {
-      if (syncEpisodeChange) syncEpisodeChange(episodeId, animeId);
+      syncEpisodeChange(episodeId, animeId);
     }
   }, [episodeId, animeId, isInRoom, isHost, syncEpisodeChange]);
 
-  // 3. ORIGINAL LOGIC: Validating episodes and updating URL
   useEffect(() => {
     if (!episodes || episodes.length === 0) return;
-    const isValidEpisode = episodes.some(ep => ep.id.split('ep=')[1] === episodeId);
     
+    const isValidEpisode = episodes.some(ep => {
+      const epNumber = ep.id.split('ep=')[1];
+      return epNumber === episodeId; 
+    });
+    
+    // If missing or invalid episodeId, fallback to first
     if (!episodeId || !isValidEpisode) {
       const fallbackId = episodes[0].id.match(/ep=(\d+)/)?.[1];
-      if (fallbackId && fallbackId !== episodeId) setEpisodeId(fallbackId);
+      if (fallbackId && fallbackId !== episodeId) {
+        setEpisodeId(fallbackId);
+      }
       return;
     }
   
-    // PERSIST ROOM CODE IN URL
+    // Preserve room parameter when updating URL
     const newUrl = `/watch/${animeId}?ep=${episodeId}${currentRoomCode ? `&room=${currentRoomCode}` : ''}`;
     if (isFirstSet.current) {
       navigate(newUrl, { replace: true });
@@ -129,9 +141,10 @@ export default function Watch() {
     } else {
       navigate(newUrl);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [episodeId, animeId, navigate, episodes, currentRoomCode]);
 
-  // 4. ORIGINAL LOGIC: Document title
+  // Update document title
   useEffect(() => {
     if (animeInfo) {
       document.title = `Watch ${animeInfo.title} English Sub/Dub online Free on ${website_name}`;
@@ -139,36 +152,70 @@ export default function Watch() {
     return () => {
       document.title = `${website_name} | Free anime streaming platform`;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animeId, animeInfo]);
 
-  // 5. ORIGINAL LOGIC: Redirect if 0 episodes
+  // Redirect if no episodes
   useEffect(() => {
     if (totalEpisodes !== null && totalEpisodes === 0) {
       navigate(`/${animeId}`);
     }
-  }, [totalEpisodes, navigate, animeId]);
+  }, [streamInfo, episodeId, animeId, totalEpisodes, navigate]);
 
-  // 6. ORIGINAL LOGIC: The complex height adjustment observer
   useEffect(() => {
+    // Function to adjust the height of episodes list to match only video + controls
     const adjustHeight = () => {
       if (window.innerWidth > 1200) {
         if (videoContainerRef.current && controlsRef.current && episodesRef.current) {
-          const totalHeight = videoContainerRef.current.offsetHeight + controlsRef.current.offsetHeight;
+          // Calculate combined height of video container and controls
+          const videoHeight = videoContainerRef.current.offsetHeight;
+          const controlsHeight = controlsRef.current.offsetHeight;
+          const totalHeight = videoHeight + controlsHeight;
+          
+          // Apply the combined height to episodes container
           episodesRef.current.style.height = `${totalHeight}px`;
         }
-      } else if (episodesRef.current) {
-        episodesRef.current.style.height = 'auto';
+      } else {
+        if (episodesRef.current) {
+          episodesRef.current.style.height = 'auto';
+        }
       }
     };
 
-    const initialTimer = setTimeout(adjustHeight, 500);
+    // Initial adjustment with delay to ensure player is fully rendered
+    const initialTimer = setTimeout(() => {
+      adjustHeight();
+    }, 500);
+    
+    // Set up resize listener
     window.addEventListener('resize', adjustHeight);
-    const observer = new MutationObserver(() => setTimeout(adjustHeight, 100));
     
-    if (videoContainerRef.current) observer.observe(videoContainerRef.current, { attributes: true, childList: true, subtree: true });
-    if (controlsRef.current) observer.observe(controlsRef.current, { attributes: true, childList: true, subtree: true });
+    // Create MutationObserver to monitor player changes
+    const observer = new MutationObserver(() => {
+      setTimeout(adjustHeight, 100);
+    });
     
+    // Start observing both video container and controls
+    if (videoContainerRef.current) {
+      observer.observe(videoContainerRef.current, {
+        attributes: true,
+        childList: true,
+        subtree: true
+      });
+    }
+    
+    if (controlsRef.current) {
+      observer.observe(controlsRef.current, {
+        attributes: true,
+        childList: true,
+        subtree: true
+      });
+    }
+    
+    // Set up additional interval for continuous adjustments
     const intervalId = setInterval(adjustHeight, 1000);
+    
+    // Clean up
     return () => {
       clearTimeout(initialTimer);
       clearInterval(intervalId);
@@ -177,10 +224,14 @@ export default function Watch() {
     };
   }, [buffering, activeServerType, activeServerName, episodeId, streamUrl, episodes]);
 
-  // Helper Tag component
   function Tag({ bgColor, index, icon, text }) {
     return (
-      <div className={`flex space-x-1 justify-center items-center px-[4px] py-[1px] text-black font-semibold text-[13px] ${index === 0 ? "rounded-l-[4px]" : ""}`} style={{ backgroundColor: bgColor }}>
+      <div
+        className={`flex space-x-1 justify-center items-center px-[4px] py-[1px] text-black font-semibold text-[13px] ${
+          index === 0 ? "rounded-l-[4px]" : "rounded-none"
+        }`}
+        style={{ backgroundColor: bgColor }}
+      >
         {icon && <FontAwesomeIcon icon={icon} className="text-[12px]" />}
         <p className="text-[12px]">{text}</p>
       </div>
@@ -189,27 +240,58 @@ export default function Watch() {
 
   useEffect(() => {
     setTags([
-      { condition: animeInfo?.animeInfo?.tvInfo?.rating, bgColor: "#ffffff", text: animeInfo?.animeInfo?.tvInfo?.rating },
-      { condition: animeInfo?.animeInfo?.tvInfo?.quality, bgColor: "#FFBADE", text: animeInfo?.animeInfo?.tvInfo?.quality },
-      { condition: animeInfo?.animeInfo?.tvInfo?.sub, icon: faClosedCaptioning, bgColor: "#B0E3AF", text: animeInfo?.animeInfo?.tvInfo?.sub },
-      { condition: animeInfo?.animeInfo?.tvInfo?.dub, icon: faMicrophone, bgColor: "#B9E7FF", text: animeInfo?.animeInfo?.tvInfo?.dub },
+      {
+        condition: animeInfo?.animeInfo?.tvInfo?.rating,
+        bgColor: "#ffffff",
+        text: animeInfo?.animeInfo?.tvInfo?.rating,
+      },
+      {
+        condition: animeInfo?.animeInfo?.tvInfo?.quality,
+        bgColor: "#FFBADE",
+        text: animeInfo?.animeInfo?.tvInfo?.quality,
+      },
+      {
+        condition: animeInfo?.animeInfo?.tvInfo?.sub,
+        icon: faClosedCaptioning,
+        bgColor: "#B0E3AF",
+        text: animeInfo?.animeInfo?.tvInfo?.sub,
+      },
+      {
+        condition: animeInfo?.animeInfo?.tvInfo?.dub,
+        icon: faMicrophone,
+        bgColor: "#B9E7FF",
+        text: animeInfo?.animeInfo?.tvInfo?.dub,
+      },
     ]);
-  }, [animeInfo]);
+  }, [animeId, animeInfo]);
 
   return (
     <div className="w-full min-h-screen bg-[#0a0a0a]">
       <div className="w-full max-w-[1920px] mx-auto pt-16 pb-6 w-full max-[1200px]:pt-12">
         <div className="grid grid-cols-[minmax(0,70%),minmax(0,30%)] gap-6 w-full h-full max-[1200px]:flex max-[1200px]:flex-col">
-          
+          {/* Left Column - Player, Controls, Servers */}
           <div className="flex flex-col w-full gap-6">
+            {/* Room Status */}
             <RoomStatus />
             
             <div ref={playerRef} className="player w-full h-fit bg-black flex flex-col rounded-xl overflow-hidden">
+              {/* Video Container */}
               <div ref={videoContainerRef} className="w-full relative aspect-video bg-black">
                 {(() => {
-                  // FORCE INTERNAL PLAYER ONLY WHEN IN ROOM
-                  const isIframeServer = ["hd-1", "hd-4", "nest"].includes(activeServerName?.toLowerCase()) || activeServerType?.toLowerCase() === "slay" || activeServerName?.includes("VidAPI") || activeServerName?.toLowerCase() === "pahe";
+                  // MODIFIED: Only use iframe if NOT in a room
+                  const isIframeServer = ["hd-1", "hd-4", "nest"].includes(activeServerName?.toLowerCase()) || 
+                                       activeServerType?.toLowerCase() === "slay" || 
+                                       activeServerName?.includes("VidAPI") || 
+                                       activeServerName?.toLowerCase() === "pahe";
+                  
                   const shouldUseIframe = !isInRoom && isIframeServer;
+                  
+                  console.log("=== WATCH COMPONENT DEBUG ===");
+                  console.log("Buffering:", buffering);
+                  console.log("ActiveServerName:", activeServerName);
+                  console.log("ActiveServerType:", activeServerType);
+                  console.log("Should use iframe:", shouldUseIframe);
+                  console.log("============================");
 
                   return !buffering ? (shouldUseIframe ?
                   <IframePlayer
@@ -246,8 +328,26 @@ export default function Watch() {
                   </div>
                 );
                 })()}
+                <p className="text-center underline font-medium text-[15px] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none text-gray-300">
+                  {!buffering && !activeServerType ? (
+                    servers ? (
+                      <>
+                        Probably this server is down, try other servers
+                        <br /><br />
+                        Either reload or try again after sometime
+                      </>
+                    ) : (
+                      <>
+                        Probably streaming server is down
+                        <br /><br />
+                        Either reload or try again after sometime
+                      </>
+                    )
+                  ) : null}
+                </p>
               </div>
 
+              {/* Controls Section */}
               <div className="bg-[#121212]">
                 {!buffering && (
                   <div ref={controlsRef}>
@@ -268,7 +368,9 @@ export default function Watch() {
                   </div>
                 )}
 
+                {/* Title and Server Selection */}
                 <div className="px-3 py-2">
+                  <div>
                     <Servers
                       servers={servers}
                       activeEpisodeNum={activeEpisodeNum}
@@ -279,8 +381,10 @@ export default function Watch() {
                       activeServerType={activeServerType}
                       setActiveServerName={setActiveServerName}
                     />
+                  </div>
                 </div>
 
+                {/* Next Episode Schedule */}
                 {nextEpisodeSchedule?.nextEpisodeSchedule && showNextEpisodeSchedule && (
                   <div className="px-3 pb-3">
                     <div className="w-full p-3 rounded-lg bg-[#272727] flex items-center justify-between">
@@ -289,27 +393,63 @@ export default function Watch() {
                         <div>
                           <span className="text-gray-400 text-sm">Next episode estimated at</span>
                           <span className="ml-2 text-white text-sm font-medium">
-                            {new Date(new Date(nextEpisodeSchedule.nextEpisodeSchedule).getTime() - new Date().getTimezoneOffset() * 60000).toLocaleString()}
+                            {new Date(
+                              new Date(nextEpisodeSchedule.nextEpisodeSchedule).getTime() -
+                              new Date().getTimezoneOffset() * 60000
+                            ).toLocaleDateString("en-GB", {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                              hour12: true,
+                            })}
                           </span>
                         </div>
                       </div>
-                      <button className="text-2xl text-gray-500 hover:text-white" onClick={() => setShowNextEpisodeSchedule(false)}>×</button>
+                      <button
+                        className="text-2xl text-gray-500 hover:text-white transition-colors"
+                        onClick={() => setShowNextEpisodeSchedule(false)}
+                      >
+                        ×
+                      </button>
                     </div>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Mobile Seasons */}
+            {/* Mobile-only Seasons Section */}
             {seasons?.length > 0 && (
               <div className="hidden max-[1200px]:block bg-[#141414] rounded-lg p-4">
                 <h2 className="text-xl font-semibold mb-4 text-white">More Seasons</h2>
                 <div className="grid grid-cols-2 gap-2">
                   {seasons.map((season, index) => (
-                    <Link to={`/${season.id}`} key={index} className="relative w-full aspect-[3/1] rounded-lg overflow-hidden group">
-                      <img src={season.season_poster} alt="" className="w-full h-full object-cover scale-150 opacity-40" />
+                    <Link
+                      to={`/${season.id}`}
+                      key={index}
+                      className={`relative w-full aspect-[3/1] rounded-lg overflow-hidden cursor-pointer group ${
+                        animeId === String(season.id)
+                          ? "ring-2 ring-white/40 shadow-lg shadow-white/10"
+                          : ""
+                      }`}
+                    >
+                      <img
+                        src={season.season_poster}
+                        alt={season.season}
+                        className={`w-full h-full object-cover scale-150 ${
+                          animeId === String(season.id)
+                            ? "opacity-50"
+                            : "opacity-40 group-hover:opacity-50 transition-opacity"
+                        }`}
+                      />
                       <div className="absolute inset-0 z-30 flex items-center justify-center">
-                        <p className="text-[14px] font-bold text-white text-center">{season.season}</p>
+                        <p className={`text-[14px] font-bold text-center px-2 transition-colors duration-300 ${
+                          animeId === String(season.id) ? "text-white" : "text-white/90 group-hover:text-white"
+                        }`}>
+                          {season.season}
+                        </p>
                       </div>
                     </Link>
                   ))}
@@ -317,35 +457,91 @@ export default function Watch() {
               </div>
             )}
 
-            {/* Anime Info */}
-            <div className="bg-[#141414] rounded-lg p-4">
-              <div className="flex gap-x-6">
-                {animeInfo?.poster && <img src={animeInfo.poster} alt="" className="w-[120px] h-[180px] object-cover rounded-md" />}
-                <div className="flex flex-col gap-y-4 flex-1">
-                  <h1 className="text-[28px] font-medium text-white leading-tight">
-                    {language ? animeInfo?.title : animeInfo?.japanese_title}
-                  </h1>
-                  <div className="flex flex-wrap gap-2">
-                    {tags.map(({ condition, icon, text }, index) => condition && <Tag key={index} bgColor={tags[index].bgColor} icon={icon} text={text} index={index} />)}
+            {/* Mobile-only Episodes Section */}
+            <div className="hidden max-[1200px]:block">
+              <div ref={episodesRef} className="episodes flex-shrink-0 bg-[#141414] rounded-lg overflow-hidden">
+                {!episodes ? (
+                  <div className="h-full flex items-center justify-center">
+                    <BouncingLoader />
                   </div>
-                  <p className="text-[15px] text-gray-400 leading-relaxed">
-                    {isFullOverview ? animeInfo?.animeInfo?.Overview : `${animeInfo?.animeInfo?.Overview?.slice(0, 270)}...`}
-                    <button className="ml-2 text-white" onClick={() => setIsFullOverview(!isFullOverview)}>{isFullOverview ? "Show Less" : "Read More"}</button>
-                  </p>
+                ) : (
+                  <Episodelist
+                    episodes={episodes}
+                    currentEpisode={episodeId}
+                    onEpisodeClick={(id) => setEpisodeId(id)}
+                    totalEpisodes={totalEpisodes}
+                    isInRoom={isInRoom}
+                    isHost={isHost}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Anime Info Section */}
+            <div className="bg-[#141414] rounded-lg p-4">
+              <div className="flex gap-x-6 max-[600px]:flex-row max-[600px]:gap-4">
+                {animeInfo && animeInfo?.poster ? (
+                  <img
+                    src={`${animeInfo?.poster}`}
+                    alt=""
+                    className="w-[120px] h-[180px] object-cover rounded-md max-[600px]:w-[100px] max-[600px]:h-[150px]"
+                  />
+                ) : (
+                  <Skeleton className="w-[120px] h-[180px] rounded-md" />
+                )}
+                <div className="flex flex-col gap-y-4 flex-1">
+                  {animeInfo && animeInfo?.title ? (
+                    <Link to={`/${animeId}`} className="group">
+                      <h1 className="text-[28px] font-medium text-white leading-tight max-[600px]:text-[20px]">
+                        {language ? animeInfo?.title : animeInfo?.japanese_title}
+                      </h1>
+                    </Link>
+                  ) : (
+                    <Skeleton className="w-[170px] h-[20px] rounded-xl" />
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {animeInfo ? (
+                      tags.map(
+                        ({ condition, icon, text }, index) =>
+                          condition && (
+                            <span key={index} className="px-3 py-1 bg-[#1a1a1a] rounded-full text-sm flex items-center gap-x-1 text-gray-300">
+                              {icon && <FontAwesomeIcon icon={icon} className="text-[12px]" />}
+                              {text}
+                            </span>
+                          )
+                      )
+                    ) : (
+                      <Skeleton className="w-[70px] h-[20px] rounded-xl" />
+                    )}
+                  </div>
+                  {animeInfo?.animeInfo?.Overview && (
+                    <p className="text-[15px] text-gray-400 leading-relaxed max-[600px]:text-[13px]">
+                      {isFullOverview ? animeInfo?.animeInfo?.Overview : `${animeInfo?.animeInfo?.Overview.slice(0, 270)}...`}
+                      <button className="ml-2 text-gray-300 hover:text-white" onClick={() => setIsFullOverview(!isFullOverview)}>
+                        {isFullOverview ? "Show Less" : "Read More"}
+                      </button>
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Desktop Seasons */}
+            {/* Desktop-only Seasons Section */}
             {seasons?.length > 0 && (
               <div className="bg-[#141414] rounded-lg p-4 max-[1200px]:hidden">
                 <h2 className="text-xl font-semibold mb-4 text-white">More Seasons</h2>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {seasons.map((season, index) => (
-                    <Link to={`/${season.id}`} key={index} className="relative w-full aspect-[3/1] rounded-lg overflow-hidden group">
-                      <img src={season.season_poster} alt="" className="w-full h-full object-cover scale-150 opacity-40" />
+                    <Link
+                      to={`/${season.id}`}
+                      key={index}
+                      className={`relative w-full aspect-[3/1] rounded-lg overflow-hidden cursor-pointer group ${
+                        animeId === String(season.id) ? "ring-2 ring-white/40 shadow-lg" : ""
+                      }`}
+                    >
+                      <img src={season.season_poster} alt="" className="w-full h-full object-cover scale-150 opacity-40 group-hover:opacity-50 transition-opacity" />
                       <div className="absolute inset-0 z-30 flex items-center justify-center">
-                        <p className="text-[16px] font-bold text-white">{season.season}</p>
+                        <p className="text-[14px] sm:text-[16px] font-bold text-center px-2 text-white">{season.season}</p>
                       </div>
                     </Link>
                   ))}
@@ -354,10 +550,12 @@ export default function Watch() {
             )}
           </div>
 
-          {/* Right Column */}
+          {/* Right Column - Episodes and Related (Desktop Only) */}
           <div className="flex flex-col gap-6 h-full max-[1200px]:hidden">
             <div ref={episodesRef} className="episodes flex-shrink-0 bg-[#141414] rounded-lg overflow-hidden">
-              {!episodes ? <BouncingLoader /> : (
+              {!episodes ? (
+                <div className="h-full flex items-center justify-center"><BouncingLoader /></div>
+              ) : (
                 <Episodelist
                   episodes={episodes}
                   currentEpisode={episodeId}
@@ -368,16 +566,27 @@ export default function Watch() {
                 />
               )}
             </div>
-            {animeInfo?.related_data && (
+
+            {animeInfo && animeInfo.related_data ? (
               <div className="bg-[#141414] rounded-lg p-4">
                 <h2 className="text-xl font-semibold mb-4 text-white">Related Anime</h2>
                 <Sidecard data={animeInfo.related_data} className="!mt-0" />
               </div>
+            ) : (
+              <div className="mt-6"><SidecardLoader /></div>
             )}
           </div>
 
+          {/* Mobile-only Related Section */}
+          {animeInfo && animeInfo.related_data && (
+            <div className="hidden max-[1200px]:block bg-[#141414] rounded-lg p-4">
+              <h2 className="text-xl font-semibold mb-4 text-white">Related Anime</h2>
+              <Sidecard data={animeInfo.related_data} className="!mt-0" />
+            </div>
+          )}
         </div>
       </div>
+
       <SharePopup open={showSharePopup} onClose={() => setShowSharePopup(false)} />
       <MultiplayerPanel />
     </div>
