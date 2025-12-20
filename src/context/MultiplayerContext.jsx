@@ -1,7 +1,19 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
-import { io } from 'socket.io-client';
+import { io as socketIO } from 'socket.io-client';
+
+// FIX: Production builds sometimes lose 'global' or 'io' references
+if (typeof window !== "undefined") {
+    window.global = window;
+}
 
 const MultiplayerContext = createContext();
+
+// Defensive helper to find the 'io' function regardless of build minification
+const getIO = () => {
+    if (typeof socketIO === 'function') return socketIO;
+    if (socketIO && typeof socketIO.default === 'function') return socketIO.default;
+    return socketIO;
+};
 
 export const MultiplayerProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
@@ -15,82 +27,105 @@ export const MultiplayerProvider = ({ children }) => {
   const isSyncing = useRef(false);
 
   useEffect(() => {
-    const newSocket = io("https://server-81ja.onrender.com", {
-      transports: ['websocket'],
-      upgrade: false,
-      reconnectionAttempts: 5
-    });
+    let newSocket;
+    try {
+      const ioFunc = getIO();
+      newSocket = ioFunc("https://server-81ja.onrender.com", {
+        transports: ['websocket'],
+        upgrade: false,
+        reconnectionAttempts: 5,
+        timeout: 10000,
+      });
 
-    newSocket.on("connect", () => {
-      console.log("✅ CONNECTED TO MULTIPLAYER!");
-      setIsConnected(true);
-    });
+      newSocket.on("connect", () => {
+        console.log("✅ CONNECTED TO MULTIPLAYER!");
+        setIsConnected(true);
+      });
 
-    newSocket.on("connect_error", (err) => {
-      console.log("❌ CONNECTION ERROR:", err.message);
-      setIsConnected(false);
-    });
+      newSocket.on("connect_error", (err) => {
+        console.error("❌ CONNECTION ERROR:", err.message);
+        setIsConnected(false);
+      });
 
-    newSocket.on("disconnect", () => {
-      setIsConnected(false);
-      setRoomCode(null); // Clear room on disconnect
-    });
+      newSocket.on("disconnect", (reason) => {
+        console.warn("🔌 DISCONNECTED:", reason);
+        setIsConnected(false);
+        setRoomCode(null);
+      });
 
-    newSocket.on("roomCreated", (data) => {
-      setRoomCode(data.roomCode);
-      setIsHost(true);
-      setMembers(data.members);
-    });
+      newSocket.on("roomCreated", (data) => {
+        setRoomCode(data.roomCode);
+        setIsHost(true);
+        setMembers(data.members);
+      });
 
-    newSocket.on("roomJoined", (data) => {
-      setRoomCode(data.roomCode);
-      setIsHost(false);
-      setMembers(data.members);
-    });
+      newSocket.on("roomJoined", (data) => {
+        setRoomCode(data.roomCode);
+        setIsHost(false);
+        setMembers(data.members);
+      });
 
-    newSocket.on("userJoined", (data) => setMembers(data.members));
+      newSocket.on("userJoined", (data) => {
+        setMembers(data.members);
+      });
 
-    newSocket.on("videoAction", ({ action, time }) => {
-      const art = playerInstance.current;
-      if (!art || isSyncing.current) return;
-      
-      isSyncing.current = true;
-      if (action === "play") art.play();
-      if (action === "pause") art.pause();
-      if (Math.abs(art.currentTime - time) > 2) art.currentTime = time;
-      
-      setTimeout(() => { isSyncing.current = false; }, 500);
-    });
+      newSocket.on("videoAction", ({ action, time }) => {
+        const art = playerInstance.current;
+        if (!art || isSyncing.current) return;
+        
+        isSyncing.current = true;
+        try {
+          if (action === "play") art.play();
+          if (action === "pause") art.pause();
+          if (Math.abs(art.currentTime - time) > 2) art.currentTime = time;
+        } catch (e) {
+          console.error("Playback sync error:", e);
+        }
+        
+        setTimeout(() => { isSyncing.current = false; }, 500);
+      });
 
-    setSocket(newSocket);
+      setSocket(newSocket);
+
+    } catch (error) {
+      console.error("CRITICAL: Socket initialization failed", error);
+    }
     
     return () => {
-      newSocket.close();
+      if (newSocket) newSocket.close();
     };
   }, []);
 
-  // SAFE FUNCTIONS using useCallback
-  const createRoom = useCallback((name) => {
-    if (socket && isConnected) {
-      setNickname(name);
-      socket.emit("createRoom", { nickname: name });
+  // PRODUCTION-SAFE EMIT FUNCTION
+  const safeEmit = useCallback((eventName, data) => {
+    if (!socket || !isConnected) {
+      console.error(`Cannot emit ${eventName}: Socket not connected`);
+      return;
+    }
+
+    // This check prevents the "o is not a function" crash
+    if (socket.emit && typeof socket.emit === 'function') {
+      socket.emit(eventName, data);
     } else {
-      console.warn("Cannot create room: Socket not connected");
+      console.error("CRITICAL: socket.emit is missing or not a function", socket);
     }
   }, [socket, isConnected]);
+
+  const createRoom = useCallback((name) => {
+    setNickname(name || "User");
+    safeEmit("createRoom", { nickname: name || "User" });
+  }, [safeEmit]);
 
   const joinRoom = useCallback((code, name) => {
-    if (socket && isConnected) {
-      setNickname(name);
-      socket.emit("joinRoom", { roomCode: code, nickname: name });
-    }
-  }, [socket, isConnected]);
+    setNickname(name || "User");
+    safeEmit("joinRoom", { roomCode: code, nickname: name || "User" });
+  }, [safeEmit]);
 
   const syncVideoAction = useCallback((action, time) => {
-    if (socket && roomCode && isHost && !isSyncing.current) {
-      socket.emit("videoAction", { roomCode, action, time });
+    if (isHost && !isSyncing.current) {
+      safeEmit("videoAction", { roomCode, action, time });
     }
-  }, [socket, roomCode, isHost]);
+  }, [safeEmit, roomCode, isHost]);
 
   const value = {
     isConnected,
@@ -102,7 +137,9 @@ export const MultiplayerProvider = ({ children }) => {
     createRoom,
     joinRoom,
     syncVideoAction,
-    setPlayerReference: (art) => { playerInstance.current = art; }
+    setPlayerReference: (art) => { 
+        playerInstance.current = art; 
+    }
   };
 
   return (
