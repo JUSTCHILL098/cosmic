@@ -110,7 +110,7 @@ const CategoryCard = React.memo(
               onMouseEnter={() => setHoveredId(item.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
-              <Qtip id={item.id} />
+              <Qtip id={item.id} poster={item.poster} />
             </div>
           )}
 
