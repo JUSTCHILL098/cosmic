@@ -1,9 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faClosedCaptioning,
-  faMicrophone,
-} from "@fortawesome/free-solid-svg-icons";
 import { Play } from "lucide-react";
 import { FaChevronRight } from "react-icons/fa";
 import "./CategoryCard.css";
@@ -60,6 +55,7 @@ const CategoryCard = React.memo(
 
       setItemsToRender(getItemsToRender());
       window.addEventListener("resize", handleResize);
+
       return () => window.removeEventListener("resize", handleResize);
     }, [getItemsToRender]);
 
@@ -94,8 +90,9 @@ const CategoryCard = React.memo(
                   onMouseEnter={() => setHoveredId(item.id)}
                   onMouseLeave={() => setHoveredId(null)}
                 >
+                  {/* POSTER */}
                   <div
-                    className="absolute inset-0 cursor-pointer"
+                    className="absolute inset-0 cursor-pointer z-10"
                     onClick={() =>
                       navigate(
                         path === "top-upcoming"
@@ -110,9 +107,9 @@ const CategoryCard = React.memo(
                       className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:blur-sm"
                     />
 
-                    {/* PLAY OVERLAY */}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                      <div className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                    {/* PLAY BUTTON ONLY (NO GREY BOX) */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                      <div className="h-10 w-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center">
                         <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
                       </div>
                     </div>
@@ -129,6 +126,7 @@ const CategoryCard = React.memo(
                     </div>
                   )}
 
+                  {/* 18+ BADGE */}
                   {(item.tvInfo?.rating === "18+" ||
                     item?.adultContent === true) && (
                     <div className="absolute top-3 left-3 bg-red-600 text-white px-2 py-0.5 rounded text-[12px] font-bold z-20">
@@ -169,7 +167,7 @@ const CategoryCard = React.memo(
                 onMouseLeave={() => setHoveredId(null)}
               >
                 <div
-                  className="absolute inset-0 cursor-pointer"
+                  className="absolute inset-0 cursor-pointer z-10"
                   onClick={() =>
                     navigate(
                       path === "top-upcoming"
@@ -184,9 +182,9 @@ const CategoryCard = React.memo(
                     className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:blur-sm"
                   />
 
-                  {/* PLAY OVERLAY */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                    <div className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                  {/* PLAY BUTTON ONLY */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                    <div className="h-10 w-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center">
                       <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
                     </div>
                   </div>
