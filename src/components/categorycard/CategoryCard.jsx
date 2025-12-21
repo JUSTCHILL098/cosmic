@@ -9,6 +9,7 @@ import { FaChevronRight } from "react-icons/fa";
 import "./CategoryCard.css";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { Link, useNavigate } from "react-router-dom";
+import Qtip from "@/src/components/qtip/Qtip";
 
 const CategoryCard = React.memo(
   ({
@@ -88,29 +89,42 @@ const CategoryCard = React.memo(
             {itemsToRender.firstRow.map((item) => (
               <div key={item.id} className="flex flex-col">
                 <div className="w-full pb-[140%] relative overflow-hidden rounded-lg shadow-lg group">
-                  <div
-                    className="absolute inset-0 cursor-pointer"
-                    onClick={() =>
-                      navigate(
-                        path === "top-upcoming"
-                          ? `/${item.id}`
-                          : `/watch/${item.id}`
-                      )
-                    }
-                  >
-                    <img
-                      src={item.poster}
-                      alt={item.title}
-                      className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:blur-sm"
-                    />
 
-                    {/* PLAY OVERLAY */}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                      <div className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                        <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
+                  {/* 🔥 QTIP APPLIED HERE */}
+                  <Qtip text="Play" position="top">
+                    <div
+                      className="absolute inset-0 cursor-pointer"
+                      onClick={() =>
+                        navigate(
+                          path === "top-upcoming"
+                            ? `/${item.id}`
+                            : `/watch/${item.id}`
+                        )
+                      }
+                    >
+                      <img
+                        src={item.poster}
+                        alt={item.title}
+                        className="w-full h-full object-cover transition-all duration-500
+                        group-hover:scale-105 group-hover:blur-sm"
+                      />
+
+                      {/* PLAY OVERLAY */}
+                      <div className="absolute inset-0 bg-black/40 opacity-0
+                      group-hover:opacity-100 transition-all duration-300
+                      flex items-center justify-center">
+                        <div
+                          className="h-10 w-10 rounded-full
+                          bg-black/25 backdrop-blur-md
+                          flex items-center justify-center
+                          transition-all duration-300
+                          group-hover:scale-110"
+                        >
+                          <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </Qtip>
 
                   {(item.tvInfo?.rating === "18+" ||
                     item?.adultContent === true) && (
@@ -147,29 +161,42 @@ const CategoryCard = React.memo(
           {itemsToRender.remainingItems.map((item) => (
             <div key={item.id} className="flex flex-col">
               <div className="w-full pb-[140%] relative overflow-hidden rounded-lg shadow-lg group">
-                <div
-                  className="absolute inset-0 cursor-pointer"
-                  onClick={() =>
-                    navigate(
-                      path === "top-upcoming"
-                        ? `/${item.id}`
-                        : `/watch/${item.id}`
-                    )
-                  }
-                >
-                  <img
-                    src={item.poster}
-                    alt={item.title}
-                    className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:blur-sm"
-                  />
 
-                  {/* PLAY OVERLAY */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                    <div className="h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                      <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
+                {/* 🔥 SAME QTIP HERE */}
+                <Qtip text="Play" position="top">
+                  <div
+                    className="absolute inset-0 cursor-pointer"
+                    onClick={() =>
+                      navigate(
+                        path === "top-upcoming"
+                          ? `/${item.id}`
+                          : `/watch/${item.id}`
+                      )
+                    }
+                  >
+                    <img
+                      src={item.poster}
+                      alt={item.title}
+                      className="w-full h-full object-cover transition-all duration-500
+                      group-hover:scale-105 group-hover:blur-sm"
+                    />
+
+                    <div className="absolute inset-0 bg-black/40 opacity-0
+                    group-hover:opacity-100 transition-all duration-300
+                    flex items-center justify-center">
+                      <div
+                        className="h-10 w-10 rounded-full
+                        bg-black/25 backdrop-blur-md
+                        flex items-center justify-center
+                        transition-all duration-300
+                        group-hover:scale-110"
+                      >
+                        <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Qtip>
+
               </div>
 
               <Link
