@@ -28,7 +28,6 @@ const CategoryCard = React.memo(
     const safeData = Array.isArray(data) ? data : [];
     const limitedData = limit ? safeData.slice(0, limit) : safeData;
 
-    /* ✅ ONLY ADDITION */
     const [hoveredId, setHoveredId] = useState(null);
 
     const [itemsToRender, setItemsToRender] = useState({
@@ -60,7 +59,6 @@ const CategoryCard = React.memo(
       };
 
       setItemsToRender(getItemsToRender());
-
       window.addEventListener("resize", handleResize);
       return () => window.removeEventListener("resize", handleResize);
     }, [getItemsToRender]);
@@ -92,7 +90,7 @@ const CategoryCard = React.memo(
             {itemsToRender.firstRow.map((item) => (
               <div key={item.id} className="flex flex-col">
                 <div
-                  className="w-full pb-[140%] relative overflow-hidden rounded-lg shadow-lg group"
+                  className="w-full pb-[140%] relative overflow-visible rounded-lg shadow-lg group"
                   onMouseEnter={() => setHoveredId(item.id)}
                   onMouseLeave={() => setHoveredId(null)}
                 >
@@ -120,7 +118,7 @@ const CategoryCard = React.memo(
                     </div>
                   </div>
 
-                  {/* ✅ ONLY ADDITION */}
+                  {/* QTIP */}
                   {hoveredId === item.id && (
                     <div
                       className="absolute left-full top-1/2 -translate-y-1/2 ml-4 z-50"
@@ -133,7 +131,7 @@ const CategoryCard = React.memo(
 
                   {(item.tvInfo?.rating === "18+" ||
                     item?.adultContent === true) && (
-                    <div className="absolute top-3 left-3 bg-red-600 text-white px-2 py-0.5 rounded text-[12px] font-bold">
+                    <div className="absolute top-3 left-3 bg-red-600 text-white px-2 py-0.5 rounded text-[12px] font-bold z-20">
                       18+
                     </div>
                   )}
@@ -166,7 +164,7 @@ const CategoryCard = React.memo(
           {itemsToRender.remainingItems.map((item) => (
             <div key={item.id} className="flex flex-col">
               <div
-                className="w-full pb-[140%] relative overflow-hidden rounded-lg shadow-lg group"
+                className="w-full pb-[140%] relative overflow-visible rounded-lg shadow-lg group"
                 onMouseEnter={() => setHoveredId(item.id)}
                 onMouseLeave={() => setHoveredId(null)}
               >
@@ -194,7 +192,7 @@ const CategoryCard = React.memo(
                   </div>
                 </div>
 
-                {/* ✅ ONLY ADDITION */}
+                {/* QTIP */}
                 {hoveredId === item.id && (
                   <div
                     className="absolute left-full top-1/2 -translate-y-1/2 ml-4 z-50"
