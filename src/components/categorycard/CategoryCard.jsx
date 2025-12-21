@@ -126,14 +126,22 @@ const CategoryCard = React.memo(
                     </div>
                   )}
 
-                  {/* 18+ BADGE */}
-                  {(item.tvInfo?.rating === "18+" ||
-                    item?.adultContent === true) && (
-                    <div className="absolute top-3 left-3 bg-red-600 text-white px-2 py-0.5 rounded text-[12px] font-bold z-20">
-                      18+
-                    </div>
-                  )}
-                </div>
+                  {/* 18+ TAG (GLASS STYLE) */}
+{(
+  item?.adultContent === true ||
+  item?.tvInfo?.rating?.toString().includes("18")
+) && (
+  <div className="absolute top-3 left-3 z-20">
+    <div
+      className="inline-flex items-center rounded-md px-2.5 py-0.5
+                 font-semibold border shadow backdrop-blur-sm
+                 text-xs sm:text-sm
+                 bg-red-500/10 text-red-600 border-red-500/20"
+    >
+      18+
+    </div>
+  </div>
+)}
 
                 <Link
                   to={`/${item.id}`}
