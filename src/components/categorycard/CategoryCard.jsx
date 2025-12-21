@@ -55,6 +55,7 @@ const CategoryCard = React.memo(
 
       setItemsToRender(getItemsToRender());
       window.addEventListener("resize", handleResize);
+
       return () => window.removeEventListener("resize", handleResize);
     }, [getItemsToRender]);
 
@@ -82,84 +83,78 @@ const CategoryCard = React.memo(
         {/* CATEGORY PAGE FIRST ROW */}
         {categoryPage && itemsToRender.firstRow.length > 0 && (
           <div className="grid grid-cols-4 gap-x-3 gap-y-8 mt-8 max-[758px]:hidden">
-            {itemsToRender.firstRow.map((item) => {
-              const isAdult =
-                item?.adultContent === true ||
-                /18|adult|r\+|rx/i.test(item?.tvInfo?.rating ?? "");
-
-              return (
-                <div key={item.id} className="flex flex-col">
+            {itemsToRender.firstRow.map((item) => (
+              <div key={item.id} className="flex flex-col">
+                <div
+                  className="w-full pb-[140%] relative overflow-visible rounded-lg shadow-lg group"
+                  onMouseEnter={() => setHoveredId(item.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                >
+                  {/* POSTER */}
                   <div
-                    className="w-full pb-[140%] relative overflow-visible rounded-lg shadow-lg group"
-                    onMouseEnter={() => setHoveredId(item.id)}
-                    onMouseLeave={() => setHoveredId(null)}
+                    className="absolute inset-0 cursor-pointer z-10"
+                    onClick={() =>
+                      navigate(
+                        path === "top-upcoming"
+                          ? `/${item.id}`
+                          : `/watch/${item.id}`
+                      )
+                    }
                   >
-                    {/* POSTER */}
-                    <div
-                      className="absolute inset-0 cursor-pointer z-10"
-                      onClick={() =>
-                        navigate(
-                          path === "top-upcoming"
-                            ? `/${item.id}`
-                            : `/watch/${item.id}`
-                        )
-                      }
-                    >
-                      <img
-                        src={item.poster}
-                        alt={item.title}
-                        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:blur-sm"
-                      />
+                    <img
+                      src={item.poster}
+                      alt={item.title}
+                      className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:blur-sm"
+                    />
 
-                      {/* PLAY BUTTON */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                        <div className="h-10 w-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center">
-                          <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
-                        </div>
+                    {/* PLAY BUTTON (NO GREY BOX) */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                      <div className="h-10 w-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center">
+                        <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
                       </div>
                     </div>
-
-                    {/* QTIP */}
-                    {hoveredId === item.id && (
-                      <div
-                        className="absolute left-full top-1/2 -translate-y-1/2 ml-4 z-50"
-                        onMouseEnter={() => setHoveredId(item.id)}
-                        onMouseLeave={() => setHoveredId(null)}
-                      >
-                        <Qtip id={item.id} poster={item.poster} />
-                      </div>
-                    )}
-
-                    {/* 18+ TAG */}
-                    {isAdult && (
-                      <div className="absolute top-3 left-3 z-20">
-                        <div
-                          className="inline-flex items-center rounded-md px-2.5 py-0.5
-                                     font-semibold border shadow backdrop-blur-sm
-                                     text-xs sm:text-sm
-                                     bg-red-500/10 text-red-600 border-red-500/20"
-                        >
-                          18+
-                        </div>
-                      </div>
-                    )}
                   </div>
 
-                  <Link
-                    to={`/${item.id}`}
-                    className="text-white font-semibold mt-3 line-clamp-1"
-                  >
-                    {language === "EN" ? item.title : item.japanese_title}
-                  </Link>
+                  {/* QTIP */}
+                  {hoveredId === item.id && (
+                    <div
+                      className="absolute left-full top-1/2 -translate-y-1/2 ml-4 z-50"
+                      onMouseEnter={() => setHoveredId(item.id)}
+                      onMouseLeave={() => setHoveredId(null)}
+                    >
+                      <Qtip id={item.id} poster={item.poster} />
+                    </div>
+                  )}
 
-                  {item.description && (
-                    <div className="line-clamp-3 text-[13px] text-gray-400 mt-3 max-[1200px]:hidden">
-                      {item.description}
+                  {/* 18+ TAG (SOURCE OF TRUTH: adultContent ONLY) */}
+                  {item?.adultContent === true && (
+                    <div className="absolute top-3 left-3 z-20">
+                      <div
+                        className="inline-flex items-center rounded-md px-2.5 py-0.5
+                                   font-semibold border shadow backdrop-blur-sm
+                                   text-xs sm:text-sm
+                                   bg-red-500/10 text-red-600 border-red-500/20"
+                      >
+                        18+
+                      </div>
                     </div>
                   )}
                 </div>
-              );
-            })}
+
+                <Link
+                  to={`/${item.id}`}
+                  className="text-white font-semibold mt-3 line-clamp-1"
+                >
+                  {language === "EN" ? item.title : item.japanese_title}
+                </Link>
+
+                {item.description && (
+                  <div className="line-clamp-3 text-[13px] text-gray-400 mt-3 max-[1200px]:hidden">
+                    {item.description}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
 
