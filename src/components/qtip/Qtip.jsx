@@ -32,12 +32,20 @@ function Qtip({ id }) {
     fetchQtipInfo();
   }, [id]);
 
+  /* 🔑 IMAGE RESOLUTION (BANNER-COMPATIBLE) */
+  const imageSrc =
+    qtip?.poster ||
+    qtip?.image ||
+    qtip?.cover ||
+    qtip?.thumbnail;
+
   return (
     <div
       className="
-        w-[320px] rounded-xl overflow-hidden
+        w-[320px]
+        rounded-xl
+        overflow-hidden
         bg-black
-        backdrop-blur-xl
         shadow-2xl
         z-50
         animate-qtip-in
@@ -49,15 +57,17 @@ function Qtip({ id }) {
         </div>
       ) : (
         <>
-          {/* SMALL BANNER IMAGE (LIKE BANNER, BUT COMPACT) */}
-          <div className="relative h-[90px] w-full">
-            <img
-              src={qtip.poster}
-              alt={qtip.title}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-          </div>
+          {/* IMAGE (SAME STRUCTURE AS BANNER, SMALLER HEIGHT) */}
+          {imageSrc && (
+            <div className="relative h-[90px] w-full">
+              <img
+                src={imageSrc}
+                alt={qtip.title}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+            </div>
+          )}
 
           {/* CONTENT */}
           <div className="p-4 flex flex-col gap-y-2">
@@ -66,20 +76,18 @@ function Qtip({ id }) {
               {qtip.title}
             </h1>
 
-            {/* RATING + META */}
-            <div className="w-full flex items-center gap-x-3 mt-1">
-              {qtip?.rating && (
-                <div className="flex gap-x-1 items-center text-white/80">
-                  <FontAwesomeIcon
-                    icon={faStar}
-                    className="text-yellow-400 text-[13px]"
-                  />
-                  <p className="text-[13px]">{qtip.rating}</p>
-                </div>
-              )}
-            </div>
+            {/* RATING */}
+            {qtip?.rating && (
+              <div className="flex items-center gap-x-1 text-white/80">
+                <FontAwesomeIcon
+                  icon={faStar}
+                  className="text-yellow-400 text-[13px]"
+                />
+                <span className="text-[13px]">{qtip.rating}</span>
+              </div>
+            )}
 
-            {/* TRANSLUCENT PILLS */}
+            {/* TRANSLUCENT INFO PILLS */}
             <div className="flex flex-wrap gap-1 mt-1">
               {qtip?.quality && (
                 <div className="px-2 py-[2px] rounded bg-white/25 backdrop-blur-md text-white text-[12px] font-semibold">
@@ -114,17 +122,17 @@ function Qtip({ id }) {
               )}
             </div>
 
-            {/* SYNOPSIS (ORIGINAL DESCRIPTION) */}
+            {/* SYNOPSIS */}
             {qtip?.description && (
               <p className="text-white/70 text-[13px] leading-4 line-clamp-3 mt-1">
                 {qtip.description}
               </p>
             )}
 
-            {/* ORIGINAL EXTRA INFO (NOT REMOVED) */}
-            <div className="flex flex-col gap-y-[2px] mt-1">
+            {/* ORIGINAL EXTRA FIELDS (NOT REMOVED) */}
+            <div className="flex flex-col gap-y-[2px] mt-1 text-[12px] text-white/60">
               {qtip?.japaneseTitle && (
-                <p className="text-[12px] text-white/60">
+                <p>
                   Japanese:{" "}
                   <span className="text-white">
                     {qtip.japaneseTitle}
@@ -133,28 +141,28 @@ function Qtip({ id }) {
               )}
 
               {qtip?.Synonyms && (
-                <p className="text-[12px] text-white/60">
+                <p>
                   Synonyms:{" "}
                   <span className="text-white">{qtip.Synonyms}</span>
                 </p>
               )}
 
               {qtip?.airedDate && (
-                <p className="text-[12px] text-white/60">
+                <p>
                   Aired:{" "}
                   <span className="text-white">{qtip.airedDate}</span>
                 </p>
               )}
 
               {qtip?.status && (
-                <p className="text-[12px] text-white/60">
+                <p>
                   Status:{" "}
                   <span className="text-white">{qtip.status}</span>
                 </p>
               )}
 
               {qtip?.genres && (
-                <div className="text-[12px] text-white/60 flex flex-wrap">
+                <div className="flex flex-wrap">
                   Genres:&nbsp;
                   {qtip.genres.map((genre, index) => (
                     <Link
@@ -203,7 +211,6 @@ function Qtip({ id }) {
             transform: scale(1) translateY(0);
           }
         }
-
         .animate-qtip-in {
           animation: qtipIn 0.18s ease-out forwards;
         }
