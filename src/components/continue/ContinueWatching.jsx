@@ -1,230 +1,156 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Play } from "lucide-react";
-import { FaChevronRight } from "react-icons/fa";
-import "./CategoryCard.css";
+import { Navigation } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Link } from "react-router-dom";
+import { useEffect, useState, useRef, useMemo } from "react";
+import "swiper/css";
+import "swiper/css/navigation";
+import { FaHistory, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useLanguage } from "@/src/context/LanguageContext";
-import { Link, useNavigate } from "react-router-dom";
-import Qtip from "@/src/components/qtip/Qtip";
+import { Play } from "lucide-react";
 
-const CategoryCard = React.memo(
-  ({
-    label,
-    data = [],
-    showViewMore = true,
-    className,
-    categoryPage = false,
-    cardStyle,
-    path,
-    limit,
-  }) => {
-    const { language } = useLanguage();
-    const navigate = useNavigate();
+const ContinueWatching = () => {
+  const [watchList, setWatchList] = useState([]);
+  const { language } = useLanguage();
+  const swiperRef = useRef(null);
 
-    const safeData = Array.isArray(data) ? data : [];
-    const limitedData = limit ? safeData.slice(0, limit) : safeData;
+  useEffect(() => {
+    try {
+      const data = JSON.parse(
+        localStorage.getItem("continueWatching") || "[]"
+      );
+      setWatchList(Array.isArray(data) ? data : []);
+    } catch {
+      setWatchList([]);
+    }
+  }, []);
 
-    const [hoveredId, setHoveredId] = useState(null);
+  const memoizedWatchList = useMemo(
+    () => (Array.isArray(watchList) ? watchList : []),
+    [watchList]
+  );
 
-    const [itemsToRender, setItemsToRender] = useState({
-      firstRow: [],
-      remainingItems: [],
+  const removeFromWatchList = (episodeId) => {
+    setWatchList((prevList) => {
+      const safePrev = Array.isArray(prevList) ? prevList : [];
+      const updatedList = safePrev.filter(
+        (item) => item.episodeId !== episodeId
+      );
+      localStorage.setItem("continueWatching", JSON.stringify(updatedList));
+      return updatedList;
     });
+  };
 
-    const getItemsToRender = useCallback(() => {
-      if (categoryPage) {
-        const firstRow =
-          window.innerWidth > 758 && limitedData.length > 4
-            ? limitedData.slice(0, 4)
-            : [];
+  if (memoizedWatchList.length === 0) return null;
 
-        const remainingItems =
-          window.innerWidth > 758 && limitedData.length > 4
-            ? limitedData.slice(4)
-            : limitedData.slice(0);
-
-        return { firstRow, remainingItems };
-      }
-
-      return { firstRow: [], remainingItems: limitedData.slice(0) };
-    }, [categoryPage, limitedData]);
-
-    useEffect(() => {
-      const handleResize = () => {
-        setItemsToRender(getItemsToRender());
-      };
-
-      setItemsToRender(getItemsToRender());
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }, [getItemsToRender]);
-
-    return (
-      <div className={`w-full ${className}`}>
-        {/* HEADER */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="font-semibold text-2xl text-white max-[478px]:text-[18px] capitalize tracking-wide">
-            {label}
+  return (
+    <div className="mt-8">
+      {/* HEADER */}
+      <div className="flex items-center justify-between max-md:pl-4 mb-6">
+        <div className="flex items-center gap-x-3">
+          <FaHistory className="text-gray-200 text-xl" />
+          <h1 className="text-gray-200 text-2xl font-bold tracking-tight max-[450px]:text-xl">
+            Continue Watching
           </h1>
-
-          {showViewMore && (
-            <Link
-              to={`/${path}`}
-              className="flex items-center gap-x-1 py-1 px-2 -mr-2 rounded-md
-              text-[13px] font-medium text-[#ffffff80] hover:text-white
-              transition-all duration-300 group"
-            >
-              View all
-              <FaChevronRight className="text-[10px] transition-transform duration-300 group-hover:translate-x-0.5" />
-            </Link>
-          )}
         </div>
 
-        {/* CATEGORY PAGE FIRST ROW */}
-        {categoryPage && itemsToRender.firstRow.length > 0 && (
-          <div className="grid grid-cols-4 gap-x-3 gap-y-8 mt-8 max-[758px]:hidden">
-            {itemsToRender.firstRow.map((item) => {
-              // 🔥 NORMALIZED ADULT FLAG (same behavior as ContinueWatching)
-              const isAdult =
-                item?.adultContent === true ||
-                ["R", "R+", "Rx", "18"].includes(item?.tvInfo?.rating);
-
-              return (
-                <div key={item.id} className="flex flex-col">
-                  <div
-                    className="w-full pb-[140%] relative overflow-visible rounded-lg shadow-lg group"
-                    onMouseEnter={() => setHoveredId(item.id)}
-                    onMouseLeave={() => setHoveredId(null)}
-                  >
-                    {/* POSTER */}
-                    <div
-                      className="absolute inset-0 cursor-pointer z-10"
-                      onClick={() =>
-                        navigate(
-                          path === "top-upcoming"
-                            ? `/${item.id}`
-                            : `/watch/${item.id}`
-                        )
-                      }
-                    >
-                      <img
-                        src={item.poster}
-                        alt={item.title}
-                        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:blur-sm"
-                      />
-
-                      {/* PLAY BUTTON */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                        <div className="h-10 w-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center">
-                          <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* QTIP */}
-                    {hoveredId === item.id && (
-                      <div
-                        className="absolute left-full top-1/2 -translate-y-1/2 ml-4 z-50"
-                        onMouseEnter={() => setHoveredId(item.id)}
-                        onMouseLeave={() => setHoveredId(null)}
-                      >
-                        <Qtip id={item.id} poster={item.poster} />
-                      </div>
-                    )}
-
-                    {/* 18+ BADGE (NOW MATCHES CONTINUE WATCHING) */}
-                    {isAdult && (
-                      <div className="absolute top-3 left-3 z-20">
-                        <div
-                          className="inline-flex items-center rounded-md px-2.5 py-0.5
-                                     font-semibold border shadow backdrop-blur-sm
-                                     text-xs sm:text-sm
-                                     bg-red-500/10 text-red-600 border-red-500/20"
-                        >
-                          18+
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <Link
-                    to={`/${item.id}`}
-                    className="text-white font-semibold mt-3 line-clamp-1"
-                  >
-                    {language === "EN" ? item.title : item.japanese_title}
-                  </Link>
-
-                  {item.description && (
-                    <div className="line-clamp-3 text-[13px] text-gray-400 mt-3 max-[1200px]:hidden">
-                      {item.description}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* MAIN GRID */}
-        <div
-          className={`grid ${
-            cardStyle ||
-            "grid-cols-6 max-[1400px]:grid-cols-4 max-[758px]:grid-cols-3 max-[478px]:grid-cols-3"
-          } gap-x-3 gap-y-8 mt-6 max-[478px]:gap-x-2`}
-        >
-          {itemsToRender.remainingItems.map((item) => (
-            <div key={item.id} className="flex flex-col">
-              <div
-                className="w-full pb-[140%] relative overflow-visible rounded-lg shadow-lg group"
-                onMouseEnter={() => setHoveredId(item.id)}
-                onMouseLeave={() => setHoveredId(null)}
-              >
-                <div
-                  className="absolute inset-0 cursor-pointer z-10"
-                  onClick={() =>
-                    navigate(
-                      path === "top-upcoming"
-                        ? `/${item.id}`
-                        : `/watch/${item.id}`
-                    )
-                  }
-                >
-                  <img
-                    src={item.poster}
-                    alt={item.title}
-                    className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:blur-sm"
-                  />
-
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                    <div className="h-10 w-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center">
-                      <Play className="h-4 w-4 text-white fill-white ml-[1px]" />
-                    </div>
-                  </div>
-                </div>
-
-                {hoveredId === item.id && (
-                  <div
-                    className="absolute left-full top-1/2 -translate-y-1/2 ml-4 z-50"
-                    onMouseEnter={() => setHoveredId(item.id)}
-                    onMouseLeave={() => setHoveredId(null)}
-                  >
-                    <Qtip id={item.id} poster={item.poster} />
-                  </div>
-                )}
-              </div>
-
-              <Link
-                to={`/${item.id}`}
-                className="text-white font-semibold mt-3 line-clamp-1"
-              >
-                {language === "EN" ? item.title : item.japanese_title}
-              </Link>
-            </div>
-          ))}
+        <div className="flex gap-x-3 pr-2 max-[350px]:hidden">
+          <button className="continue-btn-prev bg-black text-gray-300 p-3 rounded-lg hover:text-white transition">
+            <FaChevronLeft className="text-sm" />
+          </button>
+          <button className="continue-btn-next bg-black text-gray-300 p-3 rounded-lg hover:text-white transition">
+            <FaChevronRight className="text-sm" />
+          </button>
         </div>
       </div>
-    );
-  }
-);
 
-CategoryCard.displayName = "CategoryCard";
-export default CategoryCard;
+      {/* SLIDER */}
+      <div className="relative mx-auto overflow-hidden z-[1]">
+        <Swiper
+          ref={swiperRef}
+          slidesPerView={3}
+          spaceBetween={20}
+          breakpoints={{
+            640: { slidesPerView: 4 },
+            768: { slidesPerView: 4 },
+            1024: { slidesPerView: 5 },
+            1300: { slidesPerView: 6 },
+            1600: { slidesPerView: 7 },
+          }}
+          modules={[Navigation]}
+          navigation={{
+            nextEl: ".continue-btn-next",
+            prevEl: ".continue-btn-prev",
+          }}
+        >
+          {memoizedWatchList
+            .slice()
+            .reverse()
+            .map((item, index) => (
+              <SwiperSlide
+                key={`${item?.episodeId}-${index}`}
+                className="flex justify-center"
+              >
+                <div className="w-full pb-[140%] relative overflow-hidden rounded-lg shadow-lg group bg-black">
+
+                  {/* REMOVE BUTTON */}
+                  <button
+                    className="absolute top-3 right-3 z-20 bg-black/60 text-gray-300 w-8 h-8 rounded-md hover:bg-white hover:text-black transition"
+                    onClick={() => removeFromWatchList(item?.episodeId)}
+                  >
+                    ✖
+                  </button>
+
+                  {/* POSTER */}
+                  <Link
+                    to={`/watch/${item?.id}?ep=${item?.episodeId}`}
+                    className="absolute inset-0"
+                  >
+                    <img
+                      src={item?.poster}
+                      alt={item?.title}
+                      className="w-full h-full object-cover transition duration-300 group-hover:scale-105 group-hover:blur-sm"
+                    />
+
+                    {/* PLAY OVERLAY */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                      <div className="h-10 w-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                        <Play className="h-5 w-5 text-white fill-white ml-[1px]" />
+                      </div>
+                    </div>
+                  </Link>
+
+                  {/* 18+ TAG (GLASS STYLE) */}
+                  {item?.adultContent === true && (
+                    <div className="absolute top-3 left-3 z-20">
+                      <div
+                        className="inline-flex items-center rounded-md px-2.5 py-0.5
+                                   font-semibold border shadow backdrop-blur-sm
+                                   text-xs sm:text-sm
+                                   bg-red-500/10 text-red-600 border-red-500/20"
+                      >
+                        18+
+                      </div>
+                    </div>
+                  )}
+
+                  {/* BOTTOM INFO */}
+                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
+                    <p className="text-white text-sm font-bold truncate">
+                      {language === "EN"
+                        ? item?.title
+                        : item?.japanese_title}
+                    </p>
+                    <p className="text-gray-300 text-xs font-medium">
+                      Episode {item?.episodeNum}
+                    </p>
+                  </div>
+                </div>
+              </SwiperSlide>
+            ))}
+        </Swiper>
+      </div>
+    </div>
+  );
+};
+
+export default ContinueWatching;
