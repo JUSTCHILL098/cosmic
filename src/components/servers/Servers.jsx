@@ -18,7 +18,7 @@ function Servers({
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
 
-  /* 🔊 AUDIO STATE (NEW, SIMPLE) */
+  /* 🔊 AUDIO STATE */
   const [audio, setAudio] = useState(
     () => localStorage.getItem("audio") || "SUB"
   );
@@ -75,18 +75,19 @@ function Servers({
         </span>
       </p>
 
-      {/* STREAM OPTIONS */}
+      {/* CONTROLS */}
       <div className="flex items-center gap-4 flex-wrap overflow-visible">
         {/* PROVIDER */}
         <div
           ref={wrapperRef}
           className="relative flex items-center gap-2 overflow-visible"
         >
-          <span className="text-xs text-muted-foreground">
-            Provider:
+          {/* CHANGED WEIGHT */}
+          <span className="text-xs font-medium text-gray-400">
+            Provider
           </span>
 
-          {/* PROVIDER BUTTON — DARK INDIGO GLASS */}
+          {/* PROVIDER BUTTON */}
           <button
             type="button"
             aria-haspopup="menu"
@@ -135,7 +136,7 @@ function Servers({
                     onClick={() => handleSelect(server)}
                     className={`
                       relative flex cursor-pointer select-none
-                      items-center gap-2 rounded-sm px-2 py-1.5 text-sm
+                      items-center rounded-sm px-2 py-1.5 text-sm
                       transition-colors
                       ${
                         active
@@ -145,18 +146,7 @@ function Servers({
                     `}
                   >
                     <div className="flex items-center justify-between w-full">
-                      <div className="flex items-center gap-2">
-                        <span>{server.serverName}</span>
-                        <span
-                          className="
-                            inline-flex items-center rounded-md
-                            text-[10px] px-1 py-0
-                            bg-purple-900/40 text-purple-300
-                          "
-                        >
-                          {server.type.toUpperCase()}
-                        </span>
-                      </div>
+                      <span>{server.serverName}</span>
 
                       {active && (
                         <FontAwesomeIcon
@@ -172,7 +162,7 @@ function Servers({
           )}
         </div>
 
-        {/* 🔊 AUDIO BUTTON (NEW) */}
+        {/* AUDIO BUTTON (SINGLE SOURCE OF TRUTH) */}
         <button
           onClick={toggleAudio}
           className="
