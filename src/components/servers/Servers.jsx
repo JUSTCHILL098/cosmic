@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faVolumeHigh } from "@fortawesome/free-solid-svg-icons";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { useMultiplayer } from "@/src/context/MultiplayerContext";
 
 function Servers({
@@ -16,25 +16,14 @@ function Servers({
   const { isInRoom } = useMultiplayer();
 
   const [open, setOpen] = useState(false);
+  const [audio, setAudio] = useState("dub"); // dub | sub
   const wrapperRef = useRef(null);
 
-  /* 🔊 AUDIO STATE (REAL SOURCE OF TRUTH) */
-  const [audio, setAudio] = useState(
-    () => localStorage.getItem("audio") || "SUB"
-  );
+  // filter servers by audio
+  const audioServers =
+    servers?.filter((s) => s.type === audio) || [];
 
-  const toggleAudio = () => {
-    const next = audio === "SUB" ? "DUB" : "SUB";
-    setAudio(next);
-    localStorage.setItem("audio", next);
-  };
-
-  /* ✅ FILTER SERVERS BY AUDIO */
-  const filteredServers = servers?.filter(
-    (s) => s.type === audio.toLowerCase()
-  );
-
-  const activeServer = filteredServers?.find(
+  const activeServer = audioServers.find(
     (s) => s.data_id === activeServerId
   );
 
@@ -50,13 +39,10 @@ function Servers({
     setOpen(false);
   };
 
-  /* AUTO-SWITCH SERVER WHEN AUDIO CHANGES */
-  useEffect(() => {
-    if (filteredServers?.length) {
-      handleSelect(filteredServers[0]);
-    }
-    // eslint-disable-next-line
-  }, [audio, servers]);
+  const toggleAudio = () => {
+    setAudio((prev) => (prev === "dub" ? "sub" : "dub"));
+    setOpen(false);
+  };
 
   // close on outside click
   useEffect(() => {
@@ -68,6 +54,14 @@ function Servers({
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
   }, []);
+
+  // auto-pick first server when audio changes
+  useEffect(() => {
+    if (audioServers.length) {
+      handleSelect(audioServers[0]);
+    }
+    // eslint-disable-next-line
+  }, [audio]);
 
   if (serverLoading) return null;
 
@@ -81,70 +75,109 @@ function Servers({
         </span>
       </p>
 
+      {/* CONTROLS */}
       <div className="flex items-center gap-4 flex-wrap overflow-visible">
-        {/* PROVIDER */}
         <div
           ref={wrapperRef}
-          className="relative flex items-center gap-2"
+          className="relative flex items-center gap-4 overflow-visible"
         >
-          <span className="text-xs font-medium text-gray-400">
-            Provider
-          </span>
+          {/* PROVIDER */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground">
+              Provider:
+            </span>
 
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            className="
-              flex items-center gap-2
-              h-7 px-2.5 text-xs rounded-md
-              border border-indigo-400/20
-              bg-indigo-950/40 backdrop-blur-md
-              text-indigo-200
-              hover:bg-indigo-900/50
-            "
-          >
-            {activeServer?.serverName || "Select"}
-            <FontAwesomeIcon icon={faEye} className="h-3 w-3" />
-          </button>
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              className="
+                h-7 px-2.5 text-xs rounded-md flex items-center gap-2
+                border border-indigo-400/20
+                bg-indigo-950/40 backdrop-blur-md
+                text-indigo-200
+                hover:bg-indigo-900/50
+              "
+            >
+              <span>{activeServer?.serverName || "Select"}</span>
+              <FontAwesomeIcon icon={faEye} className="h-3 w-3" />
+            </button>
+          </div>
 
+          {/* SEPARATOR */}
+          <div className="h-6 w-px bg-border" />
+
+          {/* AUDIO */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground">
+              Audio:
+            </span>
+
+            <button
+              type="button"
+              onClick={toggleAudio}
+              className="
+                h-7 px-2.5 text-xs rounded-md flex items-center gap-2
+                border border-indigo-400/20
+                bg-indigo-950/40 backdrop-blur-md
+                text-indigo-200
+                hover:bg-indigo-900/50
+              "
+            >
+              <span>{audio.toUpperCase()}</span>
+              <FontAwesomeIcon icon={faEye} className="h-3 w-3" />
+            </button>
+          </div>
+
+          {/* PROVIDER DROPDOWN */}
           {open && (
-            <div className="
-              absolute bottom-full left-0 mb-2
-              z-[9999] w-44
-              rounded-md border border-white/10
-              bg-black/70 backdrop-blur-xl
-            ">
-              {filteredServers.map((server) => (
-                <div
-                  key={server.data_id}
-                  onClick={() => handleSelect(server)}
-                  className="
-                    px-2 py-1.5 text-sm cursor-pointer
-                    hover:bg-white/10 text-gray-200
-                  "
-                >
-                  {server.serverName}
-                </div>
-              ))}
+            <div
+              className="
+                absolute bottom-full left-0 mb-2 z-[9999]
+                w-44 rounded-md
+                border border-white/10
+                bg-black/70 backdrop-blur-xl
+                shadow-2xl
+              "
+            >
+              <div className="px-2 py-1.5 text-sm font-semibold text-gray-300">
+                Select Provider
+              </div>
+
+              <div className="-mx-1 my-1 h-px bg-white/10" />
+
+              {audioServers.map((server) => {
+                const active =
+                  server.data_id === activeServerId;
+
+                return (
+                  <div
+                    key={server.data_id}
+                    onClick={() => handleSelect(server)}
+                    className={`
+                      px-2 py-1.5 text-sm cursor-pointer rounded-sm
+                      transition-colors
+                      ${
+                        active
+                          ? "bg-indigo-900/40 text-indigo-300"
+                          : "hover:bg-white/10 text-gray-200"
+                      }
+                    `}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{server.serverName}</span>
+                      {active && (
+                        <FontAwesomeIcon
+                          icon={faEye}
+                          className="h-3 w-3"
+                        />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
-
-        {/* 🔊 AUDIO BUTTON (NOW FUNCTIONAL) */}
-        <button
-          onClick={toggleAudio}
-          className="
-            flex items-center gap-2
-            h-7 px-2.5 text-xs rounded-md
-            border border-indigo-400/20
-            bg-indigo-950/40 backdrop-blur-md
-            text-indigo-200
-            hover:bg-indigo-900/50
-          "
-        >
-          {audio}
-          <FontAwesomeIcon icon={faVolumeHigh} className="h-3 w-3" />
-        </button>
 
         {isInRoom && (
           <span className="text-xs text-blue-400">
