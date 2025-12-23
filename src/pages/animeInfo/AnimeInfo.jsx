@@ -58,9 +58,8 @@ export default function AnimeInfo() {
           
           {/* LEFT: INFO & BUTTONS */}
           <div className="lg:col-span-9 space-y-8">
-            {/* Meta Pills - Using Geist Mono weights */}
             <div className="flex flex-wrap items-center gap-3">
-              <HeroBadge icon={<Star className="h-3 w-3 fill-primary" />} label={`${info?.["MAL Score"]}%`} color="bg-primary/20 text-primary" />
+              <HeroBadge icon={<Star className="h-3 w-3 fill-primary text-primary" />} label={`${info?.["MAL Score"]}%`} color="bg-primary/10 text-primary border-primary/20" />
               <HeroBadge icon={<Calendar className="h-3 w-3" />} label={info?.Season?.split(" ")[1] || "2025"} />
               <HeroBadge icon={<Film className="h-3 w-3" />} label={info?.Format} />
               <HeroBadge icon={<Video className="h-3 w-3" />} label={`${info?.Episodes} Episodes`} />
@@ -91,7 +90,7 @@ export default function AnimeInfo() {
             </div>
           </div>
 
-          {/* RIGHT: POSTER (Using your rounded-2xl style) */}
+          {/* RIGHT: POSTER CARD */}
           <div className="hidden lg:flex lg:col-span-3 justify-end items-start">
              <div className="relative w-full max-w-[280px] group">
                 <div className="absolute -inset-2 bg-primary/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -123,7 +122,7 @@ export default function AnimeInfo() {
              </button>
           </div>
 
-          {/* Tabs */}
+          {/* Tab Navigation */}
           <div className="flex bg-white/5 border border-white/10 p-1 backdrop-blur-md">
             <TabBtn active={activeTab === "overview"} onClick={() => setActiveTab("overview")} icon={<Info className="w-3.5 h-3.5" />} label="Overview" />
             <TabBtn active={activeTab === "characters"} onClick={() => setActiveTab("characters")} icon={<Users className="w-3.5 h-3.5" />} label="Characters" />
@@ -134,7 +133,7 @@ export default function AnimeInfo() {
             {activeTab === "overview" && (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 animate-in fade-in duration-500">
                 
-                {/* Text Side & Relations */}
+                {/* Text Side */}
                 <div className="lg:col-span-8 space-y-10">
                    <div className="space-y-4">
                       <h3 className="text-primary text-[10px] font-black uppercase tracking-[0.4em]">Synopsis</h3>
@@ -143,7 +142,7 @@ export default function AnimeInfo() {
                       </p>
                    </div>
 
-                   {/* Relations (From your HTML) */}
+                   {/* Relations Grid */}
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <RelationSection title="Related Anime" items={[
                         { name: "Tomoshibi", type: "other", link: "#" },
@@ -155,7 +154,7 @@ export default function AnimeInfo() {
                    </div>
                 </div>
 
-                {/* Stats Side */}
+                {/* Stats Side Grid */}
                 <div className="lg:col-span-4">
                   <div className="grid grid-cols-2 gap-x-6 gap-y-8 bg-black/40 p-6 border border-white/5">
                     <DetailItem label="Format" value={info?.Format} />
