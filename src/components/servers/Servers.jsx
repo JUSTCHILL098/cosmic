@@ -1,28 +1,34 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faVolumeHigh } from "@fortawesome/free-solid-svg-icons";
 import { useMultiplayer } from "@/src/context/MultiplayerContext";
 
 function Servers({
   servers,
+  audios = ["Sub", "Dub"],
   activeEpisodeNum,
   activeServerId,
   setActiveServerId,
   setActiveServerType,
   setActiveServerName,
+  activeAudio,
+  setActiveAudio,
   serverLoading,
 }) {
   const { isInRoom } = useMultiplayer();
 
-  const [open, setOpen] = useState(false);
-  const wrapperRef = useRef(null);
+  const [serverOpen, setServerOpen] = useState(false);
+  const [audioOpen, setAudioOpen] = useState(false);
+
+  const serverRef = useRef(null);
+  const audioRef = useRef(null);
 
   const activeServer = servers?.find(
     (s) => s.data_id === activeServerId
   );
 
-  const handleSelect = (server) => {
+  const selectServer = (server) => {
     setActiveServerId(server.data_id);
     setActiveServerType(server.type);
     setActiveServerName(server.serverName);
@@ -31,14 +37,23 @@ function Servers({
     localStorage.setItem("server_type", server.type);
     localStorage.setItem("server_data_id", server.data_id);
 
-    setOpen(false);
+    setServerOpen(false);
   };
 
-  // close on outside click
+  const selectAudio = (audio) => {
+    setActiveAudio(audio);
+    localStorage.setItem("audio_type", audio);
+    setAudioOpen(false);
+  };
+
+  // outside click close
   useEffect(() => {
     const close = (e) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
-        setOpen(false);
+      if (serverRef.current && !serverRef.current.contains(e.target)) {
+        setServerOpen(false);
+      }
+      if (audioRef.current && !audioRef.current.contains(e.target)) {
+        setAudioOpen(false);
       }
     };
     document.addEventListener("mousedown", close);
@@ -47,7 +62,7 @@ function Servers({
 
   useEffect(() => {
     if (!activeServer && servers?.length) {
-      handleSelect(servers[0]);
+      selectServer(servers[0]);
     }
     // eslint-disable-next-line
   }, [servers]);
@@ -55,8 +70,7 @@ function Servers({
   if (serverLoading) return null;
 
   return (
-    <div className="w-full bg-[#0b0b0b] p-4 rounded-lg relative overflow-visible">
-      {/* INFO */}
+    <div className="w-full bg-[#070b1a] p-4 rounded-lg relative overflow-visible">
       <p className="text-sm text-gray-300 mb-3">
         You are watching{" "}
         <span className="font-semibold">
@@ -64,58 +78,43 @@ function Servers({
         </span>
       </p>
 
-      {/* STREAM OPTIONS */}
-      <div className="flex items-center gap-4 flex-wrap overflow-visible">
-        {/* PROVIDER */}
-        <div
-          ref={wrapperRef}
-          className="relative flex items-center gap-2 overflow-visible"
-        >
-          <span className="text-xs text-muted-foreground">
-            Provider:
-          </span>
+      <div className="flex items-center gap-5 flex-wrap overflow-visible">
 
-          {/* GLASS BUTTON */}
+        {/* ================= SERVER ================= */}
+        <div ref={serverRef} className="relative overflow-visible">
+          <span className="text-xs text-gray-400 mr-2">Provider:</span>
+
+          {/* DARK BLUE GLASS BUTTON */}
           <button
-            type="button"
-            aria-haspopup="menu"
-            aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => setServerOpen((v) => !v)}
             className="
-              justify-center gap-2 whitespace-nowrap font-medium
-              transition-colors focus-visible:outline-none
-              focus-visible:ring-1 focus-visible:ring-ring
-              disabled:pointer-events-none disabled:opacity-50
-              [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0
-              rounded-md flex items-center space-x-1.5
-              h-7 px-2.5 text-xs
-
-              border border-white/10
-              bg-white/10 backdrop-blur-md
-              text-indigo-200
-              hover:bg-white/20
+              h-7 px-2.5 text-xs flex items-center gap-2 rounded-md
+              border border-blue-400/10
+              bg-blue-950/40 backdrop-blur-lg
+              text-blue-200
+              hover:bg-blue-900/50
+              transition
             "
           >
-            <span>{activeServer?.serverName || "Select"}</span>
+            {activeServer?.serverName || "Select"}
             <FontAwesomeIcon icon={faEye} className="h-3 w-3" />
           </button>
 
-          {/* DROPDOWN (OPENS UPWARD, OUTSIDE CONTAINER) */}
-          {open && (
+          {/* SERVER DROPDOWN */}
+          {serverOpen && (
             <div
               className="
-                absolute bottom-full left-0 mb-2
-                z-[9999] w-44
-                rounded-md border border-white/10
-                bg-black/70 backdrop-blur-xl
+                absolute bottom-full left-0 mb-2 z-[9999] w-48
+                rounded-md border border-blue-400/10
+                bg-blue-950/70 backdrop-blur-xl
                 shadow-2xl
               "
             >
-              <div className="px-2 py-1.5 text-sm font-semibold text-gray-300">
+              <div className="px-2 py-1.5 text-sm font-semibold text-blue-200">
                 Select Provider
               </div>
 
-              <div className="-mx-1 my-1 h-px bg-white/10" />
+              <div className="h-px bg-blue-400/10 my-1" />
 
               {servers.map((server) => {
                 const active = server.data_id === activeServerId;
@@ -123,43 +122,73 @@ function Servers({
                 return (
                   <div
                     key={server.data_id}
-                    onClick={() => handleSelect(server)}
+                    onClick={() => selectServer(server)}
                     className={`
-                      relative flex cursor-pointer select-none
-                      items-center gap-2 rounded-sm px-2 py-1.5 text-sm
-                      transition-colors
+                      px-2 py-1.5 text-sm cursor-pointer rounded
+                      flex items-center justify-between
                       ${
                         active
-                          ? "bg-indigo-900/40 text-indigo-300"
-                          : "hover:bg-white/10 text-gray-200"
+                          ? "bg-blue-900/50 text-blue-300"
+                          : "hover:bg-blue-900/30 text-gray-200"
                       }
                     `}
                   >
-                    <div className="flex items-center justify-between w-full">
-                      <div className="flex items-center gap-2">
-                        <span>{server.serverName}</span>
-
-                        <span
-                          className="
-                            inline-flex items-center rounded-md
-                            text-[10px] px-1 py-0
-                            bg-purple-900/40 text-purple-300
-                          "
-                        >
-                          {server.type.toUpperCase()}
-                        </span>
-                      </div>
-
-                      {active && (
-                        <FontAwesomeIcon
-                          icon={faEye}
-                          className="h-3 w-3"
-                        />
-                      )}
-                    </div>
+                    <span>{server.serverName}</span>
+                    <span className="text-[10px] px-1 rounded bg-indigo-900/40 text-indigo-300">
+                      {server.type.toUpperCase()}
+                    </span>
                   </div>
                 );
               })}
+            </div>
+          )}
+        </div>
+
+        {/* ================= AUDIO ================= */}
+        <div ref={audioRef} className="relative overflow-visible">
+          <span className="text-xs text-gray-400 mr-2">Audio:</span>
+
+          <button
+            onClick={() => setAudioOpen((v) => !v)}
+            className="
+              h-7 px-2.5 text-xs flex items-center gap-2 rounded-md
+              border border-blue-400/10
+              bg-blue-950/40 backdrop-blur-lg
+              text-blue-200
+              hover:bg-blue-900/50
+              transition
+            "
+          >
+            {activeAudio || "Sub"}
+            <FontAwesomeIcon icon={faVolumeHigh} className="h-3 w-3" />
+          </button>
+
+          {/* AUDIO DROPDOWN */}
+          {audioOpen && (
+            <div
+              className="
+                absolute bottom-full left-0 mb-2 z-[9999] w-28
+                rounded-md border border-blue-400/10
+                bg-blue-950/70 backdrop-blur-xl
+                shadow-2xl
+              "
+            >
+              {audios.map((audio) => (
+                <div
+                  key={audio}
+                  onClick={() => selectAudio(audio)}
+                  className={`
+                    px-2 py-1.5 text-sm cursor-pointer rounded
+                    ${
+                      audio === activeAudio
+                        ? "bg-blue-900/50 text-blue-300"
+                        : "hover:bg-blue-900/30 text-gray-200"
+                    }
+                  `}
+                >
+                  {audio}
+                </div>
+              ))}
             </div>
           )}
         </div>
