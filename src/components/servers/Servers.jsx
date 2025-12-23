@@ -1,11 +1,7 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faEye,
-  faFilm,
-  faSliders,
-} from "@fortawesome/free-solid-svg-icons";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { useMultiplayer } from "@/src/context/MultiplayerContext";
 
 function Servers({
@@ -13,23 +9,20 @@ function Servers({
   activeEpisodeNum,
   activeServerId,
   setActiveServerId,
-  serverLoading,
   setActiveServerType,
   setActiveServerName,
+  serverLoading,
 }) {
   const { isInRoom } = useMultiplayer();
 
-  const [providerOpen, setProviderOpen] = useState(false);
-  const [audioOpen, setAudioOpen] = useState(false);
-
-  const providerRef = useRef(null);
-  const audioRef = useRef(null);
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef(null);
 
   const activeServer = servers?.find(
     (s) => s.data_id === activeServerId
   );
 
-  const handleServerSelect = (server) => {
+  const handleSelect = (server) => {
     setActiveServerId(server.data_id);
     setActiveServerType(server.type);
     setActiveServerName(server.serverName);
@@ -38,33 +31,23 @@ function Servers({
     localStorage.setItem("server_type", server.type);
     localStorage.setItem("server_data_id", server.data_id);
 
-    setProviderOpen(false);
-    setAudioOpen(false);
+    setOpen(false);
   };
 
-  // Close dropdown on outside click
+  // close on outside click
   useEffect(() => {
-    const handler = (e) => {
-      if (
-        providerRef.current &&
-        !providerRef.current.contains(e.target)
-      ) {
-        setProviderOpen(false);
-      }
-      if (
-        audioRef.current &&
-        !audioRef.current.contains(e.target)
-      ) {
-        setAudioOpen(false);
+    const close = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        setOpen(false);
       }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
   }, []);
 
   useEffect(() => {
     if (!activeServer && servers?.length) {
-      handleServerSelect(servers[0]);
+      handleSelect(servers[0]);
     }
     // eslint-disable-next-line
   }, [servers]);
@@ -72,7 +55,7 @@ function Servers({
   if (serverLoading) return null;
 
   return (
-    <div className="w-full bg-[#0f0f0f] p-4 rounded-lg">
+    <div className="w-full bg-[#0b0b0b] p-4 rounded-lg relative overflow-visible">
       {/* INFO */}
       <p className="text-sm text-gray-300 mb-3">
         You are watching{" "}
@@ -82,83 +65,104 @@ function Servers({
       </p>
 
       {/* STREAM OPTIONS */}
-      <div className="flex items-center gap-4 flex-wrap">
+      <div className="flex items-center gap-4 flex-wrap overflow-visible">
         {/* PROVIDER */}
-        <div ref={providerRef} className="relative flex items-center gap-2">
-          <span className="text-xs text-gray-400">Provider:</span>
+        <div
+          ref={wrapperRef}
+          className="relative flex items-center gap-2 overflow-visible"
+        >
+          <span className="text-xs text-muted-foreground">
+            Provider:
+          </span>
 
+          {/* GLASS BUTTON */}
           <button
-            onClick={() => setProviderOpen((v) => !v)}
-            className="h-7 px-2.5 text-xs rounded-md flex items-center gap-1.5
-              bg-indigo-100 text-indigo-700
-              dark:bg-indigo-900/30 dark:text-indigo-300
-              hover:bg-indigo-200 dark:hover:bg-indigo-900/50"
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+            className="
+              justify-center gap-2 whitespace-nowrap font-medium
+              transition-colors focus-visible:outline-none
+              focus-visible:ring-1 focus-visible:ring-ring
+              disabled:pointer-events-none disabled:opacity-50
+              [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0
+              rounded-md flex items-center space-x-1.5
+              h-7 px-2.5 text-xs
+
+              border border-white/10
+              bg-white/10 backdrop-blur-md
+              text-indigo-200
+              hover:bg-white/20
+            "
           >
             <span>{activeServer?.serverName || "Select"}</span>
             <FontAwesomeIcon icon={faEye} className="h-3 w-3" />
           </button>
 
-          {providerOpen && (
-            <Dropdown
-              title="Select Provider"
-              items={servers || []}
-              activeId={activeServerId}
-              onSelect={handleServerSelect}
-            />
+          {/* DROPDOWN (OPENS UPWARD, OUTSIDE CONTAINER) */}
+          {open && (
+            <div
+              className="
+                absolute bottom-full left-0 mb-2
+                z-[9999] w-44
+                rounded-md border border-white/10
+                bg-black/70 backdrop-blur-xl
+                shadow-2xl
+              "
+            >
+              <div className="px-2 py-1.5 text-sm font-semibold text-gray-300">
+                Select Provider
+              </div>
+
+              <div className="-mx-1 my-1 h-px bg-white/10" />
+
+              {servers.map((server) => {
+                const active = server.data_id === activeServerId;
+
+                return (
+                  <div
+                    key={server.data_id}
+                    onClick={() => handleSelect(server)}
+                    className={`
+                      relative flex cursor-pointer select-none
+                      items-center gap-2 rounded-sm px-2 py-1.5 text-sm
+                      transition-colors
+                      ${
+                        active
+                          ? "bg-indigo-900/40 text-indigo-300"
+                          : "hover:bg-white/10 text-gray-200"
+                      }
+                    `}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-2">
+                        <span>{server.serverName}</span>
+
+                        <span
+                          className="
+                            inline-flex items-center rounded-md
+                            text-[10px] px-1 py-0
+                            bg-purple-900/40 text-purple-300
+                          "
+                        >
+                          {server.type.toUpperCase()}
+                        </span>
+                      </div>
+
+                      {active && (
+                        <FontAwesomeIcon
+                          icon={faEye}
+                          className="h-3 w-3"
+                        />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
-
-        <div className="h-6 w-px bg-gray-700" />
-
-        {/* AUDIO */}
-        <div ref={audioRef} className="relative flex items-center gap-2">
-          <span className="text-xs text-gray-400">Audio:</span>
-
-          <button
-            onClick={() => setAudioOpen((v) => !v)}
-            className="h-7 px-2.5 text-xs rounded-md flex items-center gap-1.5
-              bg-indigo-100 text-indigo-700
-              dark:bg-indigo-900/30 dark:text-indigo-300
-              hover:bg-indigo-200 dark:hover:bg-indigo-900/50"
-          >
-            <span>{activeServer?.type?.toUpperCase()}</span>
-            <FontAwesomeIcon icon={faEye} className="h-3 w-3" />
-          </button>
-
-          {audioOpen && (
-            <Dropdown
-              title="Select Audio"
-              items={servers || []}
-              activeId={activeServerId}
-              onSelect={handleServerSelect}
-            />
-          )}
-        </div>
-
-        {/* SUBTITLES */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400">Subtitles:</span>
-          <button
-            className="h-7 px-2.5 text-xs rounded-md flex items-center gap-1.5
-              bg-amber-100 text-amber-700
-              dark:bg-amber-900/30 dark:text-amber-300
-              hover:bg-amber-200 dark:hover:bg-amber-900/50"
-          >
-            <span>Add Custom Subtitle</span>
-            <FontAwesomeIcon icon={faFilm} className="h-3 w-3" />
-          </button>
-        </div>
-
-        {/* PRIORITY */}
-        <button
-          className="h-7 px-2.5 text-xs rounded-md flex items-center gap-1.5
-            bg-red-100 text-red-700
-            dark:bg-red-900/30 dark:text-red-300
-            hover:bg-red-200 dark:hover:bg-red-900/50"
-        >
-          <FontAwesomeIcon icon={faSliders} className="h-3 w-3" />
-          <span>Priority Settings</span>
-        </button>
 
         {isInRoom && (
           <span className="text-xs text-blue-400">
@@ -171,52 +175,3 @@ function Servers({
 }
 
 export default Servers;
-
-/* ========================= */
-/* DROPDOWN COMPONENT */
-/* ========================= */
-
-function Dropdown({ title, items, activeId, onSelect }) {
-  return (
-    <div
-      className="absolute top-9 left-0 z-50 w-40
-        rounded-md border border-gray-700
-        bg-[#121212] shadow-lg"
-    >
-      <div className="px-2 py-1.5 text-sm font-semibold text-gray-300">
-        {title}
-      </div>
-
-      <div className="h-px bg-gray-700 my-1" />
-
-      {items.map((item) => {
-        const active = item.data_id === activeId;
-
-        return (
-          <div
-            key={item.data_id}
-            onClick={() => onSelect(item)}
-            className={`px-2 py-1.5 text-sm cursor-pointer rounded-sm
-              flex items-center justify-between
-              ${
-                active
-                  ? "bg-indigo-900/30 text-indigo-300"
-                  : "hover:bg-gray-800 text-gray-200"
-              }`}
-          >
-            <div className="flex items-center gap-2">
-              <span>{item.serverName}</span>
-              <span className="text-[10px] px-1 rounded bg-purple-900/40 text-purple-300">
-                {item.type.toUpperCase()}
-              </span>
-            </div>
-
-            {active && (
-              <FontAwesomeIcon icon={faEye} className="h-3 w-3" />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
