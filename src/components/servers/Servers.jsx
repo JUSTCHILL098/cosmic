@@ -1,203 +1,201 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useRef, useState } from "react";
+import {
+  faClosedCaptioning,
+  faFile,
+  faMicrophone,
+  faLanguage,
+  faVolumeHigh,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faVolumeHigh } from "@fortawesome/free-solid-svg-icons";
+import BouncingLoader from "../ui/bouncingloader/Bouncingloader";
+import "./Servers.css";
+import { useEffect, useState } from "react";
 import { useMultiplayer } from "@/src/context/MultiplayerContext";
 
 function Servers({
   servers,
-  audios = ["Sub", "Dub"],
   activeEpisodeNum,
   activeServerId,
   setActiveServerId,
+  serverLoading,
   setActiveServerType,
   setActiveServerName,
-  activeAudio,
-  setActiveAudio,
-  serverLoading,
 }) {
   const { isInRoom } = useMultiplayer();
 
-  const [serverOpen, setServerOpen] = useState(false);
-  const [audioOpen, setAudioOpen] = useState(false);
-
-  const serverRef = useRef(null);
-  const audioRef = useRef(null);
-
-  const activeServer = servers?.find(
-    (s) => s.data_id === activeServerId
+  /* ---------------- AUDIO STATE (NEW) ---------------- */
+  const [audioType, setAudioType] = useState(
+    () => localStorage.getItem("audio_type") || "SUB"
   );
 
-  const selectServer = (server) => {
+  const handleAudioSelect = (type) => {
+    setAudioType(type);
+    localStorage.setItem("audio_type", type);
+  };
+
+  /* ---------------- SERVER LOGIC (UNCHANGED) ---------------- */
+  const handleServerSelect = (server) => {
     setActiveServerId(server.data_id);
     setActiveServerType(server.type);
     setActiveServerName(server.serverName);
-
     localStorage.setItem("server_name", server.serverName);
     localStorage.setItem("server_type", server.type);
     localStorage.setItem("server_data_id", server.data_id);
-
-    setServerOpen(false);
   };
 
-  const selectAudio = (audio) => {
-    setActiveAudio(audio);
-    localStorage.setItem("audio_type", audio);
-    setAudioOpen(false);
-  };
+  const isIframeCompatible = (server) =>
+    server.type === "slay" || server.isVidapi || server.isPahe;
 
-  // outside click close
-  useEffect(() => {
-    const close = (e) => {
-      if (serverRef.current && !serverRef.current.contains(e.target)) {
-        setServerOpen(false);
-      }
-      if (audioRef.current && !audioRef.current.contains(e.target)) {
-        setAudioOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
-  }, []);
+  const filteredServers = isInRoom
+    ? servers?.filter(isIframeCompatible) || []
+    : servers || [];
+
+  const subServers = filteredServers.filter((s) => s.type === "sub");
+  const dubServers = filteredServers.filter((s) => s.type === "dub");
+  const rawServers = filteredServers.filter((s) => s.type === "raw");
+  const multiServers = filteredServers.filter((s) => s.type === "multi");
+  const slayServers = filteredServers.filter((s) => s.type === "slay");
 
   useEffect(() => {
-    if (!activeServer && servers?.length) {
-      selectServer(servers[0]);
+    if (servers && servers.length > 0 && !activeServerId) {
+      handleServerSelect(servers[0]);
     }
     // eslint-disable-next-line
   }, [servers]);
 
-  if (serverLoading) return null;
-
   return (
-    <div className="w-full bg-[#070b1a] p-4 rounded-lg relative overflow-visible">
-      <p className="text-sm text-gray-300 mb-3">
-        You are watching{" "}
-        <span className="font-semibold">
-          Episode {activeEpisodeNum}
-        </span>
-      </p>
+    <div className="relative bg-[#111111] p-4 w-full min-h-[100px] flex justify-center items-center">
+      {serverLoading ? (
+        <BouncingLoader />
+      ) : (
+        <div className="w-full h-full rounded-lg grid grid-cols-[30%,70%] overflow-hidden max-[600px]:flex max-[600px]:flex-col">
 
-      <div className="flex items-center gap-5 flex-wrap overflow-visible">
+          {/* LEFT INFO */}
+          <div className="bg-[#e0e0e0] px-6 text-black flex flex-col justify-center items-center gap-y-2 max-[600px]:bg-transparent max-[600px]:text-white">
+            <p className="text-center font-medium text-[14px]">
+              You are watching
+              <br />
+              <span className="font-semibold">
+                Episode {activeEpisodeNum}
+              </span>
+            </p>
 
-        {/* ================= SERVER ================= */}
-        <div ref={serverRef} className="relative overflow-visible">
-          <span className="text-xs text-gray-400 mr-2">Provider:</span>
+            {/* 🔊 AUDIO SELECTOR (NEW, BUTTON ONLY) */}
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-xs opacity-80">Audio:</span>
 
-          {/* DARK BLUE GLASS BUTTON */}
-          <button
-            onClick={() => setServerOpen((v) => !v)}
-            className="
-              h-7 px-2.5 text-xs flex items-center gap-2 rounded-md
-              border border-blue-400/10
-              bg-blue-950/40 backdrop-blur-lg
-              text-blue-200
-              hover:bg-blue-900/50
-              transition
-            "
-          >
-            {activeServer?.serverName || "Select"}
-            <FontAwesomeIcon icon={faEye} className="h-3 w-3" />
-          </button>
-
-          {/* SERVER DROPDOWN */}
-          {serverOpen && (
-            <div
-              className="
-                absolute bottom-full left-0 mb-2 z-[9999] w-48
-                rounded-md border border-blue-400/10
-                bg-blue-950/70 backdrop-blur-xl
-                shadow-2xl
-              "
-            >
-              <div className="px-2 py-1.5 text-sm font-semibold text-blue-200">
-                Select Provider
-              </div>
-
-              <div className="h-px bg-blue-400/10 my-1" />
-
-              {servers.map((server) => {
-                const active = server.data_id === activeServerId;
-
-                return (
-                  <div
-                    key={server.data_id}
-                    onClick={() => selectServer(server)}
-                    className={`
-                      px-2 py-1.5 text-sm cursor-pointer rounded
-                      flex items-center justify-between
-                      ${
-                        active
-                          ? "bg-blue-900/50 text-blue-300"
-                          : "hover:bg-blue-900/30 text-gray-200"
-                      }
-                    `}
-                  >
-                    <span>{server.serverName}</span>
-                    <span className="text-[10px] px-1 rounded bg-indigo-900/40 text-indigo-300">
-                      {server.type.toUpperCase()}
-                    </span>
-                  </div>
-                );
-              })}
+              <button
+                onClick={() =>
+                  handleAudioSelect(audioType === "SUB" ? "DUB" : "SUB")
+                }
+                className="
+                  flex items-center gap-2
+                  px-3 py-1 text-xs rounded-md
+                  border border-indigo-400/20
+                  bg-indigo-950/40 backdrop-blur-md
+                  text-indigo-200
+                  hover:bg-indigo-900/50
+                  transition
+                "
+              >
+                {audioType}
+                <FontAwesomeIcon
+                  icon={faVolumeHigh}
+                  className="text-[11px]"
+                />
+              </button>
             </div>
-          )}
+          </div>
+
+          {/* RIGHT SERVERS (UNCHANGED) */}
+          <div className="bg-[#1f1f1f] flex flex-col">
+
+            {/* RAW */}
+            {rawServers.length > 0 && (
+              <ServerRow
+                icon={faFile}
+                label="RAW"
+                servers={rawServers}
+                activeServerId={activeServerId}
+                onSelect={handleServerSelect}
+              />
+            )}
+
+            {/* SUB */}
+            {subServers.length > 0 && (
+              <ServerRow
+                icon={faClosedCaptioning}
+                label="SUB"
+                servers={subServers}
+                activeServerId={activeServerId}
+                onSelect={handleServerSelect}
+              />
+            )}
+
+            {/* DUB */}
+            {dubServers.length > 0 && (
+              <ServerRow
+                icon={faMicrophone}
+                label="DUB"
+                servers={dubServers}
+                activeServerId={activeServerId}
+                onSelect={handleServerSelect}
+              />
+            )}
+
+            {/* MULTI */}
+            {multiServers.length > 0 && (
+              <ServerRow
+                icon={faLanguage}
+                label="MULTI"
+                servers={multiServers}
+                activeServerId={activeServerId}
+                onSelect={handleServerSelect}
+              />
+            )}
+
+            {/* SLAY */}
+            {slayServers.length > 0 && (
+              <ServerRow
+                icon={faMicrophone}
+                label="SLAY"
+                servers={slayServers}
+                activeServerId={activeServerId}
+                onSelect={handleServerSelect}
+              />
+            )}
+          </div>
         </div>
+      )}
+    </div>
+  );
+}
 
-        {/* ================= AUDIO ================= */}
-        <div ref={audioRef} className="relative overflow-visible">
-          <span className="text-xs text-gray-400 mr-2">Audio:</span>
+/* ---------------- REUSABLE ROW (UNCHANGED STYLE) ---------------- */
+function ServerRow({ icon, label, servers, activeServerId, onSelect }) {
+  return (
+    <div className="servers px-2 flex items-center flex-wrap gap-y-1 ml-2">
+      <div className="flex items-center gap-x-2 min-w-[65px]">
+        <FontAwesomeIcon icon={icon} className="text-[#e0e0e0] text-[13px]" />
+        <p className="font-bold text-[14px]">{label}:</p>
+      </div>
 
-          <button
-            onClick={() => setAudioOpen((v) => !v)}
-            className="
-              h-7 px-2.5 text-xs flex items-center gap-2 rounded-md
-              border border-blue-400/10
-              bg-blue-950/40 backdrop-blur-lg
-              text-blue-200
-              hover:bg-blue-900/50
-              transition
-            "
+      <div className="flex gap-1.5 ml-2 flex-wrap">
+        {servers.map((item) => (
+          <div
+            key={item.data_id}
+            className={`px-6 py-[5px] rounded-lg cursor-pointer ${
+              activeServerId === item.data_id
+                ? "bg-[#e0e0e0] text-black"
+                : "bg-[#373737] text-white"
+            }`}
+            onClick={() => onSelect(item)}
           >
-            {activeAudio || "Sub"}
-            <FontAwesomeIcon icon={faVolumeHigh} className="h-3 w-3" />
-          </button>
-
-          {/* AUDIO DROPDOWN */}
-          {audioOpen && (
-            <div
-              className="
-                absolute bottom-full left-0 mb-2 z-[9999] w-28
-                rounded-md border border-blue-400/10
-                bg-blue-950/70 backdrop-blur-xl
-                shadow-2xl
-              "
-            >
-              {audios.map((audio) => (
-                <div
-                  key={audio}
-                  onClick={() => selectAudio(audio)}
-                  className={`
-                    px-2 py-1.5 text-sm cursor-pointer rounded
-                    ${
-                      audio === activeAudio
-                        ? "bg-blue-900/50 text-blue-300"
-                        : "hover:bg-blue-900/30 text-gray-200"
-                    }
-                  `}
-                >
-                  {audio}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {isInRoom && (
-          <span className="text-xs text-blue-400">
-            👥 Multiplayer mode
-          </span>
-        )}
+            <p className="text-[13px] font-semibold">
+              {item.serverName}
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   );
