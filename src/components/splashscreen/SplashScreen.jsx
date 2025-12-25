@@ -1,166 +1,159 @@
 import React, { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import Navbar from "../navbar/Navbar.jsx";
-import "./SplashScreen.css";
+import { 
+  Bell, Share2, Smartphone, Tablet, Laptop, Tv, 
+  Gamepad, ChevronLeft, ChevronRight, Check, X, 
+  Library, Calendar, Play, MessageCircle, Globe, Heart 
+} from "lucide-react";
 
-/**
- * Final SplashScreen.jsx
- * - Creates inline SVG mask for "LUNAR" so no external mask file required.
- * - Adds diagonal streaks + twinkling stars.
- * - Smooth marquee and preview window.
- * - Uses Geist font via injected <link>.
- */
+const libraryItems = [
+  { title: "Attack on Titan", desc: "Humanity fights for survival against giant humanoid Titans." },
+  { title: "Demon Slayer", desc: "A boy hunts demons to cure his sister." },
+  { title: "One Piece", desc: "Pirates search for the ultimate treasure." },
+  { title: "Jujutsu Kaisen", desc: "Students battle curses using special techniques." },
+  { title: "My Hero Academia", desc: "A boy without powers strives to be a hero." },
+  { title: "Chainsaw Man", desc: "A devil hunter merges with his pet devil." },
+  { title: "Spy x Family", desc: "A spy, assassin, and telepath form a fake family." }
+];
+
+const animeTitles = [
+  "Solo Leveling ソロレベリング", "One Piece ワンピース", "Dragon Ball ドラゴンボール",
+  "Attack on Titan 進撃の巨人", "Demon Slayer 鬼滅の刃", "Naruto ナルト",
+  "Jujutsu Kaisen 呪術廻戦", "Death Note デスノート", "Bleach ブリーチ"
+];
+
+const NotificationItem = ({ title, time, desc, isNew }) => (
+  <div className="notification-card">
+    <div className="notif-icon-bg">
+      <Bell className="notif-icon" />
+    </div>
+    <div className="notif-content">
+      <div className="notif-header">
+        <h4>{title} {isNew && <span className="badge-new">NEW</span>}</h4>
+        <span className="notif-time">{time}</span>
+      </div>
+      <p className="notif-desc">{desc}</p>
+      {isNew && (
+        <div className="notif-actions">
+          <button className="btn-mark"><Check className="h-3 w-3 mr-1" /> Mark read</button>
+          <button className="btn-dismiss"><X className="h-3 w-3 mr-1" /> Dismiss</button>
+        </div>
+      )}
+    </div>
+  </div>
+);
 
 export default function SplashScreen() {
   const videoRef = useRef(null);
-  const navigate = useNavigate();
-
-  const items = [
-    "Solo Leveling ソロレベリング",
-    "One Piece ワンピース",
-    "Dragon Ball ドラゴンボール",
-    "Attack on Titan 進撃の巨人",
-    "Demon Slayer 鬼滅の刃",
-    "Naruto ナルト",
-    "Jujutsu Kaisen 呪術廻戦",
-    "Death Note デスノート",
-    "Bleach ブリーチ",
-    "Hunter x Hunter ハンター×ハンター",
-    "Fullmetal Alchemist 鋼の錬金術師",
-    "My Hero Academia 僕のヒーローアカデミア",
-    "Chainsaw Man チェンソーマン",
-    "Tokyo Ghoul 東京喰種",
-    "Spy x Family スパイファミリー",
-    "Violet Evergarden ヴァイオレット・エヴァーガーデン",
-    "Vinland Saga ヴィンランド・サガ",
-    "Cowboy Bebop カウボーイビバップ",
-    "Evangelion 新世紀エヴァンゲリオン",
-    "Your Name 君の名は",
-  ];
 
   useEffect(() => {
-    // inject Geist fonts
-    const addLink = (href) => {
-      if (!document.querySelector(`link[href="${href}"]`)) {
-        const l = document.createElement("link");
-        l.rel = "stylesheet";
-        l.href = href;
-        document.head.appendChild(l);
-      }
-    };
-    addLink("https://fonts.cdnfonts.com/css/geist-mono");
-    addLink("https://fonts.cdnfonts.com/css/geist");
-
-    // ensure video tries to autoplay
-    if (videoRef.current) {
-      videoRef.current
-        .play()
-        .catch(() => {
-          /* autoplay blocked: it's fine, video will be paused */
-        });
-    }
+    // Add font links
+    const link = document.createElement("link");
+    link.href = "https://fonts.cdnfonts.com/css/geist-mono";
+    link.rel = "stylesheet";
+    document.head.appendChild(link);
   }, []);
 
-  // build inline SVG mask data URL for "LUNAR"
-  const maskSvg = encodeURIComponent(
-    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200'>
-      <rect width='1200' height='200' fill='black'/>
-      <style>
-        @import url('https://fonts.cdnfonts.com/css/geist-mono');
-        text { font-family: 'Geist Mono', monospace; font-weight: 900; font-size: 150px; letter-spacing: 8px; }
-      </style>
-      <text x='50%' y='72%' text-anchor='middle' fill='white'>LUNAR</text>
-    </svg>`
-  );
-  const maskDataUrl = `data:image/svg+xml;utf8,${maskSvg}`;
-
   return (
-    <main className="splash-root">
-      <Navbar />
-
-      {/* background layers */}
-      <div className="streaks-layer" aria-hidden />
-      <div className="twinkle-layer" aria-hidden />
-
-      <div className="splash-wrapper">
-        <section className="hero">
-          {/* status badge */}
-          <div className="status-wrap">
-            <div className="status-badge">
-              <span className="status-indicator">
-                <span className="ping" />
-                <span className="core" />
-              </span>
-              <span className="status-text">10 users watching now</span>
+    <div className="splash-container">
+      {/* HERO SECTION */}
+      <section className="hero-section">
+        <div className="hero-video-container">
+          <video 
+            ref={videoRef}
+            src="https://api.lunaranime.ru/static/intro.mp4" 
+            autoPlay loop muted playsInline 
+            className="hero-video"
+          />
+        </div>
+        
+        <div className="hero-overlay">
+          <div className="status-pill">
+            <span className="ping-dot"></span>
+            0 users watching now
+          </div>
+          <h1 className="hero-title">LUNAR</h1>
+          <div className="hero-content">
+            <p className="hero-subtitle">Your Complete Anime Entertainment Platform</p>
+            <p className="hero-small">Thousands of series in English & German and more</p>
+            <div className="hero-btns">
+              <button className="btn-primary"><Play className="h-4 w-4 fill-current" /> Start Watching</button>
+              <button className="btn-outline"><MessageCircle className="h-4 w-4" /> Discord</button>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* masked LUNAR */}
-          <div
-            className="mask-block"
-            style={{
-              WebkitMaskImage: `url("${maskDataUrl}")`,
-              maskImage: `url("${maskDataUrl}")`,
-              WebkitMaskSize: "contain",
-              maskSize: "contain",
-              WebkitMaskPosition: "center",
-              maskPosition: "center",
-              WebkitMaskRepeat: "no-repeat",
-              maskRepeat: "no-repeat",
-            }}
-          >
-            <video
-              ref={videoRef}
-              className="hero-video"
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="auto"
-            >
-              <source src="https://api.lunaranime.ru/static/intro.mp4" type="video/mp4" />
-            </video>
-          </div>
-
-          {/* subtitle */}
-          <p className="subhead">Your Complete Anime Entertainment Platform</p>
-          <p className="subdesc">Thousands of series in English &amp; German and more</p>
-
-          {/* CTAs */}
-          <div className="cta-row">
-            <button className="cta-primary" onClick={() => navigate("/home")}>
-              Start Watching
-            </button>
-            <a className="cta-ghost" href="#" onClick={(e)=>e.preventDefault()}>Discord</a>
-          </div>
-
-          {/* preview window */}
-          <div className="preview">
-            <div className="preview-top">
-              <div className="preview-dots" aria-hidden>
-                <div className="dot dot-red" />
-                <div className="dot dot-yellow" />
-                <div className="dot dot-green" />
-              </div>
-
-              <div className="preview-url">https://lunar.animes</div>
+      {/* MARQUEE STRIP */}
+      <div className="marquee-strip">
+        <div className="marquee-inner">
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="marquee-content">
+              {animeTitles.map((title, idx) => (
+                <React.Fragment key={idx}>
+                  <span className="marquee-text">{title}</span>
+                  <span className="marquee-dot"></span>
+                </React.Fragment>
+              ))}
             </div>
-
-            <div className="preview-body">
-              <img className="preview-img" src="https://i.imgur.com/Jp9w4wF.png" alt="preview" />
-            </div>
-          </div>
-        </section>
-
-        {/* marquee (duplicate items for smoothness) */}
-        <section className="marquee">
-          <div className="marquee-track" style={{ "--duration": "72s" }}>
-            {[...items, ...items].map((t, i) => (
-              <div className="marquee-item" key={i}>{t}</div>
-            ))}
-          </div>
-        </section>
+          ))}
+        </div>
       </div>
-    </main>
+
+      {/* OVERVIEW SECTION */}
+      <section className="overview-section">
+        <h2 className="section-title"><span>Overview</span></h2>
+        <p className="section-desc">Everything you need for your perfect anime experience</p>
+        <div className="overview-grid">
+          {[
+            { icon: Library, title: "Massive Library", badge: "Popular", color: "blue" },
+            { icon: Globe, title: "Global Content", badge: "International", color: "purple" },
+            { icon: Heart, title: "Favorites List", badge: "Essential", color: "indigo" }
+          ].map((item, i) => (
+            <div key={i} className="overview-card">
+              <span className={`card-badge ${item.color}`}>{item.badge}</span>
+              <item.icon className="card-icon" />
+              <h3>{item.title}</h3>
+              <p>Explore thousands of anime from every genre and era</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* BENTO GRID */}
+      <section className="bento-section">
+        <h2 className="section-title">Why Choose <span className="text-indigo">Lunar</span>?</h2>
+        <div className="bento-grid">
+          {/* Bento Card 1 */}
+          <div className="bento-card bento-col-1">
+            <div className="card-marquee">
+              <div className="card-marquee-inner">
+                {[...libraryItems, ...libraryItems].map((item, i) => (
+                  <div key={i} className="mini-card">
+                    <h4>{item.title}</h4>
+                    <p>{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="card-footer">
+              <Library className="footer-icon" />
+              <h3>Extensive Library</h3>
+            </div>
+          </div>
+
+          {/* Bento Card 2 */}
+          <div className="bento-card bento-col-2">
+            <div className="notif-wrapper">
+              <NotificationItem title="Attack on Titan" time="Just now" desc="New Season available!" isNew={true} />
+              <NotificationItem title="One Piece" time="Yesterday" desc="Episode 1067 is streaming" isNew={false} />
+            </div>
+            <div className="card-footer">
+              <Bell className="footer-icon" />
+              <h3>Smart Notifications</h3>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
