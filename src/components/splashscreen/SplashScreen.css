@@ -1,309 +1,216 @@
-/* ==========================================================
-   SplashScreen.css — Full, Clean, Fixed Version
-   Background glitch (half black/half blue) resolved.
-   ========================================================== */
-
-/* base */
-:root { 
-  --bg: #000; 
-  --muted: #94a3b8; 
-  --accent: #6366f1; 
+:root {
+  --bg-black: #000000;
+  --bg-zinc: #09090b;
+  --indigo: #6366f1;
+  --border: rgba(255, 255, 255, 0.1);
+  --font-mono: 'Geist Mono', monospace;
 }
 
-* { box-sizing: border-box; }
-
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  background: var(--bg);
+.splash-container {
+  background-color: var(--bg-black);
+  color: white;
+  font-family: var(--font-mono);
 }
 
-/* root container MUST fill the whole screen */
-#root, .splash-root {
-  min-height: 100vh;
-  width: 100%;
-  background: #000;
-  color: #fff;
-  font-family: "Geist Mono", monospace;
-  display: flex;
-  flex-direction: column;
-}
-
-/* main wrapper */
-.splash-wrapper {
+/* Hero Section with Video Mask */
+.hero-section {
   position: relative;
-  z-index: 5;
-  padding: 0 6%;
-  width: 100%;
-}
-
-/* ==========================================================
-   BACKGROUND LAYERS
-   ========================================================== */
-
-.streaks-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image:
-    repeating-linear-gradient(
-      -45deg,
-      rgba(255,255,255,0.06) 0 1px,
-      rgba(255,255,255,0.00) 1px 40px
-    );
-  opacity: 0.12;
-  mix-blend-mode: screen;
-  animation: streak-move 8s linear infinite;
-}
-
-@keyframes streak-move {
-  from { background-position: 0 0; }
-  to   { background-position: 0 -400px; }
-}
-
-.twinkle-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background-image:
-    radial-gradient(circle at 10% 20%, rgba(255,255,255,0.85) 0px, transparent 4px),
-    radial-gradient(circle at 25% 60%, rgba(255,255,255,0.75) 0px, transparent 3px),
-    radial-gradient(circle at 40% 35%, rgba(255,255,255,0.7) 0px, transparent 3px),
-    radial-gradient(circle at 60% 70%, rgba(255,255,255,0.6) 0px, transparent 3px),
-    radial-gradient(circle at 80% 30%, rgba(255,255,255,0.5) 0px, transparent 3px);
-  opacity: 0.08;
-  mix-blend-mode: screen;
-  animation: twinkle 6s linear infinite alternate;
-}
-
-@keyframes twinkle {
-  from { opacity: 0.06; transform: translateY(0); }
-  to   { opacity: 0.12; transform: translateY(-10px); }
-}
-
-/* everything above background needs proper z-index */
-.splash-root *,
-.splash-wrapper,
-.hero,
-.preview,
-.marquee {
-  position: relative;
-  z-index: 5;
-}
-
-/* ==========================================================
-   HERO SECTION
-   ========================================================== */
-
-.hero {
-  padding-top: 120px;
-  text-align: center;
-  margin: 0 auto;
-  max-width: 1100px;
-}
-
-/* status badge */
-.status-wrap {
+  height: 85vh;
+  overflow: hidden;
   display: flex;
   justify-content: center;
-  margin-bottom: 18px;
-  z-index: 5;
-  position: relative;
-}
-
-.status-badge {
-  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  background: rgba(99,102,241,0.12);
-  color: var(--accent);
-  border: 1px solid rgba(99,102,241,0.35);
-  font-weight: 700;
-  font-size: 13px;
 }
 
-.status-indicator { 
-  position: relative; 
-  width: 12px; 
-  height: 12px; 
-  display: inline-block; 
-}
-
-.ping {
+.hero-video-container {
   position: absolute;
   inset: 0;
-  border-radius: 50%;
-  background: rgba(99,102,241,0.6);
-  animation: ping 1.2s infinite;
-}
-
-.core {
-  position: absolute;
-  inset: 3px;
-  border-radius: 50%;
-  background: var(--accent);
-}
-
-@keyframes ping {
-  0%   { transform: scale(0.8); opacity: 1; }
-  100% { transform: scale(2.2); opacity: 0; }
-}
-
-/* masked block */
-.mask-block {
-  margin: 0 auto 8px;
-  width: 100%;
-  max-width: 1000px;
-  height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 40px 80px rgba(0,0,0,0.6) inset;
 }
 
 .hero-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
-/* text */
-.subhead {
-  margin-top: 14px;
-  color: #cbd5e1;
-  font-size: 18px;
-  letter-spacing: 1px;
-  font-family: "Geist";
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: black;
+  mix-blend-mode: multiply; /* This creates the "video inside text" effect if text is white */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 10;
 }
 
-.subdesc {
-  margin-top: 8px;
-  color: var(--muted);
-  font-size: 14px;
+.hero-title {
+  font-size: 10rem;
+  font-weight: 900;
+  color: white;
+  letter-spacing: -0.05em;
+  line-height: 1;
 }
 
-/* CTAs */
-.cta-row {
-  margin-top: 18px;
+.hero-content {
+  position: relative;
+  z-index: 20;
+  margin-top: -2rem;
+}
+
+/* Status Pill */
+.status-pill {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid var(--indigo);
+  color: var(--indigo);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.ping-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--indigo);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Marquee */
+.marquee-strip {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 0;
+  overflow: hidden;
+}
+
+.marquee-inner {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+
+.marquee-content {
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+  padding-right: 4rem;
+}
+
+.marquee-text {
+  color: #a1a1aa;
+  font-size: 1.125rem;
+  white-space: nowrap;
+}
+
+.marquee-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--indigo);
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+/* Bento Grid */
+.bento-section {
+  max-width: 1200px;
+  margin: 4rem auto;
+  padding: 0 1rem;
+}
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1rem;
+  height: 400px;
+}
+
+.bento-card {
+  background: var(--bg-zinc);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-footer {
+  padding: 1.5rem;
+  background: linear-gradient(transparent, var(--bg-zinc));
+  margin-top: auto;
+}
+
+.footer-icon {
+  width: 2rem;
+  height: 2rem;
+  color: #3f3f46;
+  margin-bottom: 0.5rem;
+}
+
+/* Notifications inside Bento */
+.notification-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  margin: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 8px;
   display: flex;
   gap: 12px;
-  justify-content: center;
 }
 
-.cta-primary {
-  background: var(--accent);
-  color: white;
-  padding: 10px 18px;
-  border-radius: 8px;
+.badge-new {
+  background: var(--indigo);
+  font-size: 0.6rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--indigo);
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
   border: none;
-  font-weight: 700;
-}
-
-.cta-ghost {
-  border: 1px solid rgba(255,255,255,0.06);
-  padding: 10px 18px;
   color: white;
-  border-radius: 8px;
-  background: transparent;
-}
-
-/* ==========================================================
-   PREVIEW WINDOW
-   ========================================================== */
-
-.preview {
-  margin-top: 34px;
-  background: #080808;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.03);
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.preview-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
-  background: #0b0b0b;
-  border-bottom: 1px solid rgba(255,255,255,0.02);
-}
-
-.preview-dots {
-  display: flex;
   gap: 8px;
-  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
 }
 
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-}
-
-.dot-red { background: #ff5f57; }
-.dot-yellow { background: #ffbd2e; }
-.dot-green { background: #28c840; }
-
-.preview-url {
-  flex: 1;
-  text-align: center;
-  color: #9ca3af;
-  font-size: 13px;
-}
-
-.preview-body { padding: 12px; }
-.preview-img { width: 100%; border-radius: 6px; display: block; }
-
-/* ==========================================================
-   MARQUEE
-   ========================================================== */
-
-.marquee {
-  margin-top: 42px;
-  border-top: 1px solid rgba(255,255,255,0.03);
-  border-bottom: 1px solid rgba(255,255,255,0.03);
-  padding: 12px 0;
-  overflow: hidden;
-}
-
-.marquee-track {
+.btn-outline {
+  background: transparent;
+  border: 1px solid #3f3f46;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  color: white;
   display: flex;
-  gap: 28px;
   align-items: center;
-  white-space: nowrap;
-  animation: marqueeLinear var(--duration, 80s) linear infinite;
+  gap: 8px;
+  cursor: pointer;
 }
 
-.marquee-item {
-  color: #cbd5e1;
-  font-family: "Geist Mono";
-  font-size: 14px;
-  padding: 8px 12px;
-  border-right: 1px solid rgba(255,255,255,0.02);
-}
-
-@keyframes marqueeLinear {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-/* ==========================================================
-   RESPONSIVE
-   ========================================================== */
-
-@media (max-width: 768px) {
-  .mask-block { height: 100px; }
-  .subhead { font-size: 16px; }
-  .preview { max-width: 95%; }
-  .marquee-track { gap: 18px; }
+.hero-btns {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
 }
