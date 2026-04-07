@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/manga-api/:path*",
-      "destination": "https://api.mangadex.org/:path*"
+      "destination": "/api/manga-proxy/:path*"
     }
   ]
 }

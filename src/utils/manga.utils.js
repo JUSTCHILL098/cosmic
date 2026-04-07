@@ -1,6 +1,6 @@
 import axios from "axios";
 
-// MangaDex: use /manga-api proxy in both dev (Vite) and prod (Vercel rewrites)
+// MangaDex: use /manga-api proxy (Vite dev proxy + Vercel serverless in prod)
 const get = async (path) => {
   const { data } = await axios.get(`/manga-api${path}`);
   return data;
