@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/src/context/AuthContext";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Check, X } from "lucide-react";
+import { useAniList } from "@/src/context/AniListContext";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Check, X, Link2 } from "lucide-react";
 
 const pwChecks = (pw) => [
   { label: "8+ characters",    pass: pw.length >= 8 },
@@ -80,6 +81,7 @@ function Input({ icon: Icon, type = "text", placeholder, value, onChange, right,
 export default function Login() {
   const navigate = useNavigate();
   const { signIn, signUp } = useAuth();
+  const { login: alLogin } = useAniList();
   const [mode,      setMode]      = useState("login");
   const [email,     setEmail]     = useState("");
   const [password,  setPassword]  = useState("");
@@ -132,10 +134,10 @@ export default function Login() {
       </div>
 
       {/* ── RIGHT — form panel ── */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="flex-1 flex items-start justify-center px-6 py-12 overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}
-          style={{ width: "min(100%, 360px)" }}
+          style={{ width: "min(100%, 360px)", paddingTop: "2rem", paddingBottom: "2rem" }}
         >
           <AnimatePresence mode="wait">
             {checkMail ? (
@@ -157,7 +159,7 @@ export default function Login() {
               </motion.div>
             ) : (
               <motion.div key="form" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
-                className="flex flex-col gap-6">
+                className="flex flex-col gap-4">
 
                 {/* Header */}
                 <div className="flex flex-col gap-1">
@@ -240,6 +242,16 @@ export default function Login() {
                   <span className="text-xs text-white/30 font-mono">or</span>
                   <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.1)" }} />
                 </div>
+
+                {/* AniList login */}
+                <button type="button" onClick={alLogin}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg font-mono text-sm font-semibold transition-all"
+                  style={{ background:"rgba(2,169,132,0.12)", border:"1px solid rgba(2,169,132,0.3)", color:"#02a984" }}
+                  onMouseEnter={e => e.currentTarget.style.background = "rgba(2,169,132,0.2)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "rgba(2,169,132,0.12)"}
+                >
+                  <Link2 className="w-4 h-4" /> Continue with AniList
+                </button>
 
                 {/* Switch mode */}
                 <p className="text-center text-sm text-white/40">

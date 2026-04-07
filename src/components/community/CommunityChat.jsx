@@ -159,7 +159,10 @@ export default function CommunityChat() {
 
   const onKey = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } };
 
-  const displayName = (msg) => msg.profiles?.username || "Anonymous";
+  const displayName = (msg) => {
+    if (msg._optimistic) return profile?.username || user?.email?.split("@")[0] || "You";
+    return msg.profiles?.username || "Anonymous";
+  };
   const initials    = (msg) => displayName(msg)[0]?.toUpperCase() || "?";
 
   return (

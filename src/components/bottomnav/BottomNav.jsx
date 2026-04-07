@@ -201,7 +201,8 @@ const BottomNav = () => {
   return (
     <>
       {/* ── FLOATING NAV BAR ── */}
-      <div className="fixed bottom-4 z-[99999] left-1/2 -translate-x-1/2">
+      <div className="fixed bottom-4 z-[99999] left-1/2 -translate-x-1/2"
+        style={{ bottom: "max(16px, calc(16px + env(safe-area-inset-bottom)))" }}>
         <div className="flex h-[54px] w-max items-center gap-0.5 rounded-2xl border border-white/10 bg-black/70 backdrop-blur-xl px-2 shadow-2xl">
           <Button aria-label="Go Back" variant="ghost" size="icon" className="rounded-xl text-white/60 hover:text-white hover:bg-white/10" onClick={() => navigate(-1)}>
             <ArrowLeft className="size-4" />
