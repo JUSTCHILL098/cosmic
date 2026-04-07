@@ -15,7 +15,7 @@ export default function Spotlight({ spotlights = [] }) {
   if (!spotlights.length) return null;
 
   return (
-    <div className="relative h-[500px] max-md:h-[360px] -mt-8">
+    <div className="relative h-[500px] max-md:h-[360px] -mt-8 -mx-4 lg:-mx-10">
       <Swiper
         onSwiper={(swiper) => (swiperRef.current = swiper)}
         slidesPerView={1}
@@ -26,7 +26,7 @@ export default function Spotlight({ spotlights = [] }) {
         }}
         pagination={{ clickable: true }}
         modules={[Autoplay, Pagination]}
-        className="h-full rounded-2xl overflow-hidden"
+        className="h-full"
       >
         {/* LEFT ARROW (HIDDEN ON MOBILE) */}
         <button

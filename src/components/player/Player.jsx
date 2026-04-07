@@ -1,76 +1,192 @@
 /* eslint-disable react/prop-types */
-import Hls from "hls.js";
-import { useEffect, useRef } from "react";
-import Artplayer from "artplayer";
-import artplayerPluginChapter from "./artPlayerPluinChaper";
-import artplayerPluginHlsControl from "artplayer-plugin-hls-control";
-import artplayerPluginUploadSubtitle from "./artplayerPluginUploadSubtitle";
-import { 
-  playIcon, pauseIcon, settingsIcon, volumeIcon, pipIcon, 
-  loadingIcon, fullScreenOnIcon, fullScreenOffIcon 
-} from "./PlayerIcons";
-import { useMultiplayer } from "@/src/context/MultiplayerContext";
+import "@vidstack/react/player/styles/default/theme.css";
+import "@vidstack/react/player/styles/default/layouts/video.css";
+import "./Player.css";
+import { useRef, useEffect, useState, useCallback } from "react";
+import { MediaPlayer, MediaProvider, Track } from "@vidstack/react";
+import { DefaultVideoLayout, defaultLayoutIcons } from "@vidstack/react/player/layouts/default";
+import BouncingLoader from "@/src/components/ui/bouncingloader/Bouncingloader";
+import { SkipForward } from "lucide-react";
 
-export default function Player({ streamUrl, intro, outro, autoPlay, streamInfo }) {
-  const artRef = useRef(null);
-  const { isInRoom, isHost, syncVideoAction, setPlayerReference } = useMultiplayer();
-  const m3u8proxy = import.meta.env.VITE_M3U8_PROXY_URL?.split(",") || [];
+export default function Player({
+  streamUrl,
+  subtitles = [],
+  onMediaError,
+  onTimeUpdate,
+  intro,
+  outro,
+  autoSkipIntro = false,
+  onPlayerReady,
+}) {
+  const playerRef   = useRef(null);
+  const mediaElRef  = useRef(null);
+  const [showSkipIntro, setShowSkipIntro] = useState(false);
+  const [showSkipOutro, setShowSkipOutro] = useState(false);
+  const [currentTime, setCurrentTime]     = useState(0);
 
-  const playM3u8 = (video, url, art) => {
-    if (Hls.isSupported()) {
-      if (art.hls) art.hls.destroy();
-      const hls = new Hls();
-      hls.loadSource(url);
-      hls.attachMedia(video);
-      art.hls = hls;
-    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = url;
-    }
-  };
+  // Fetch VTT files and create blob URLs so subtitles load instantly (no network lag)
+  const [blobSubs, setBlobSubs] = useState([]);
 
   useEffect(() => {
-    if (!streamUrl || !artRef.current) return;
+    if (!subtitles?.length) { setBlobSubs([]); return; }
+    let cancelled = false;
+    const urls = [];
 
-    const headers = { referer: new URL(streamInfo?.streamingLink?.iframe || window.location.origin).origin + "/" };
-    const finalUrl = m3u8proxy[0] + encodeURIComponent(streamUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers));
-
-    const art = new Artplayer({
-      url: finalUrl,
-      container: artRef.current,
-      type: "m3u8",
-      autoplay: autoPlay,
-      // Only host gets controls in a room
-      setting: !isInRoom || isHost,
-      controls: [
-        {
-            position: 'right',
-            html: isInRoom ? (isHost ? 'HOST' : 'WATCHER') : '',
-            style: { color: '#ffad00', fontWeight: 'bold', marginRight: '10px' }
+    Promise.all(
+      subtitles.map(async (t) => {
+        try {
+          const res = await fetch(t.file, { mode: "cors" });
+          const text = await res.text();
+          const blob = new Blob([text], { type: "text/vtt" });
+          const url  = URL.createObjectURL(blob);
+          urls.push(url);
+          return { ...t, file: url };
+        } catch {
+          return t; // fallback to original URL on error
         }
-      ],
-      plugins: [
-        artplayerPluginHlsControl({ quality: { setting: true, getName: (l) => l.height + "P", title: "Quality" } }),
-        artplayerPluginUploadSubtitle(),
-        artplayerPluginChapter({ chapters: [
-          ...(intro?.end ? [{ start: intro.start, end: intro.end, title: "Intro" }] : []),
-          ...(outro?.end ? [{ start: outro.start, end: outro.end, title: "Outro" }] : [])
-        ]}),
-      ],
-      icons: { play: playIcon, pause: pauseIcon, setting: settingsIcon, volume: volumeIcon, pip: pipIcon, loading: loadingIcon, fullscreenOn: fullScreenOnIcon, fullscreenOff: fullScreenOffIcon },
-      customType: { m3u8: playM3u8 },
+      })
+    ).then(resolved => {
+      if (!cancelled) setBlobSubs(resolved);
     });
 
-    art.on("ready", () => {
-      setPlayerReference(art);
-      if (isInRoom && isHost) {
-        art.on("video:play", () => syncVideoAction("play", art.currentTime));
-        art.on("video:pause", () => syncVideoAction("pause", art.currentTime));
-        art.on("video:seeked", () => syncVideoAction("seek", art.currentTime));
-      }
-    });
+    return () => {
+      cancelled = true;
+      urls.forEach(u => URL.revokeObjectURL(u));
+    };
+  }, [subtitles]);
 
-    return () => { if (art && art.destroy) art.destroy(); };
-  }, [streamUrl, isInRoom, isHost]);
+  // Wire up timeupdate on the native video element
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player) return;
 
-  return <div ref={artRef} className="w-full h-full min-h-[500px]"></div>;
+    const onReady = () => {
+      const el = player.nativeEl || player.el?.querySelector("video");
+      if (!el) return;
+      mediaElRef.current = el;
+      if (onPlayerReady) onPlayerReady(el);
+
+      const onTime = () => {
+        const t = el.currentTime;
+        setCurrentTime(t);
+        if (onTimeUpdate && !el.paused && el.duration > 0) onTimeUpdate(t, el.duration);
+
+        // Skip intro automatically
+        if (autoSkipIntro && intro && t >= intro.start && t < intro.end) {
+          el.currentTime = intro.end;
+        }
+      };
+      el.addEventListener("timeupdate", onTime);
+      return () => el.removeEventListener("timeupdate", onTime);
+    };
+
+    player.addEventListener?.("can-play", onReady);
+    // Also try immediately in case already ready
+    const cleanup = onReady();
+    return () => {
+      player.removeEventListener?.("can-play", onReady);
+      cleanup?.();
+    };
+  }, [streamUrl, autoSkipIntro, intro, onTimeUpdate]);
+
+  // Show/hide skip buttons based on time
+  useEffect(() => {
+    setShowSkipIntro(!!(intro && currentTime >= intro.start && currentTime < intro.end));
+    setShowSkipOutro(!!(outro && currentTime >= outro.start && currentTime < outro.end));
+  }, [currentTime, intro, outro]);
+
+  const skipIntro = useCallback(() => {
+    if (mediaElRef.current && intro) mediaElRef.current.currentTime = intro.end;
+  }, [intro]);
+
+  const skipOutro = useCallback(() => {
+    if (mediaElRef.current && outro) mediaElRef.current.currentTime = outro.end;
+  }, [outro]);
+
+  if (!streamUrl) {
+    return (
+      <div className="w-full h-full bg-black flex items-center justify-center">
+        <BouncingLoader />
+      </div>
+    );
+  }
+
+  return (
+    <div key={streamUrl} className="w-full h-full bg-black overflow-hidden relative">
+      <MediaPlayer
+        ref={playerRef}
+        src={streamUrl}
+        className="w-full h-full"
+        crossOrigin="anonymous"
+        playsInline
+        onError={onMediaError}
+      >
+        <MediaProvider>
+          {(blobSubs.length ? blobSubs : subtitles).map((track, i) => (
+            <Track
+              key={track.file + i}
+              src={track.file}
+              label={track.label || "English"}
+              kind="subtitles"
+              lang={track.lang || "en-US"}
+              default={track.default === true || i === 0}
+            />
+          ))}
+        </MediaProvider>
+        <DefaultVideoLayout
+          icons={defaultLayoutIcons}
+          noScrubGesture={false}
+          slots={{ pipButton: null }}
+        />
+      </MediaPlayer>
+
+      {/* Skip Intro button — translucent glass */}
+      {showSkipIntro && (
+        <button
+          onClick={skipIntro}
+          className="absolute bottom-16 right-4 flex items-center gap-2 font-mono text-sm font-semibold transition-all"
+          style={{
+            background: "rgba(0,0,0,0.55)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            borderRadius: 8,
+            padding: "8px 16px",
+            color: "#fff",
+            zIndex: 50,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.15)"}
+          onMouseLeave={e => e.currentTarget.style.background = "rgba(0,0,0,0.55)"}
+        >
+          <SkipForward className="w-4 h-4" />
+          Skip Intro
+        </button>
+      )}
+
+      {/* Skip Outro / Ending button */}
+      {showSkipOutro && (
+        <button
+          onClick={skipOutro}
+          className="absolute bottom-16 right-4 flex items-center gap-2 font-mono text-sm font-semibold transition-all"
+          style={{
+            background: "rgba(0,0,0,0.55)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            borderRadius: 8,
+            padding: "8px 16px",
+            color: "#fff",
+            zIndex: 50,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.15)"}
+          onMouseLeave={e => e.currentTarget.style.background = "rgba(0,0,0,0.55)"}
+        >
+          <SkipForward className="w-4 h-4" />
+          Skip Ending
+        </button>
+      )}
+    </div>
+  );
 }

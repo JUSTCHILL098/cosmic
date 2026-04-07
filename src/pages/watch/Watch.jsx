@@ -1,19 +1,14 @@
-/* eslint-disable react/prop-types */
+﻿/* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useParams, Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/src/context/LanguageContext";
-import { useHomeInfo } from "@/src/context/HomeInfoContext";
 import { useWatch } from "@/src/hooks/useWatch";
 import BouncingLoader from "@/src/components/ui/bouncingloader/Bouncingloader";
-import IframePlayer from "@/src/components/player/IframePlayer";
 import Episodelist from "@/src/components/episodelist/Episodelist";
 import website_name from "@/src/config/website";
 import Sidecard from "@/src/components/sidecard/Sidecard";
 import SharePopup from "@/src/components/share/SharePopup";
-import {
-  faClosedCaptioning,
-  faMicrophone,
-} from "@fortawesome/free-solid-svg-icons";
+import { faClosedCaptioning, faMicrophone, faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Servers from "@/src/components/servers/Servers";
 import { Skeleton } from "@/src/components/ui/Skeleton/Skeleton";
@@ -21,574 +16,311 @@ import SidecardLoader from "@/src/components/Loader/Sidecard.loader";
 import Watchcontrols from "@/src/components/watchcontrols/Watchcontrols";
 import useWatchControl from "@/src/hooks/useWatchControl";
 import Player from "@/src/components/player/Player";
-import MultiplayerPanel from "@/src/components/multiplayer/MultiplayerPanel";
 import RoomStatus from "@/src/components/multiplayer/RoomStatus";
+import WatchTogether from "@/src/components/multiplayer/WatchTogether";
 import { useMultiplayer } from "@/src/context/MultiplayerContext";
+import { motion } from "framer-motion";
+import { saveProgress } from "@/src/utils/continueWatching.utils";
+
+const CARD = { background: "#111", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 12 };
+
+const GlassPill = ({ children }) => (
+  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono"
+    style={{ background:"rgba(255,255,255,0.07)", border:"1px solid rgba(255,255,255,0.12)", backdropFilter:"blur(8px)", WebkitBackdropFilter:"blur(8px)", color:"rgba(255,255,255,0.7)" }}>
+    {children}
+  </span>
+);
 
 export default function Watch() {
-  const [showSharePopup, setShowSharePopup] = useState(true);
+  const [showSharePopup, setShowSharePopup] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { id: animeId } = useParams();
   const queryParams = new URLSearchParams(location.search);
-  let initialEpisodeId = queryParams.get("ep");
+  const initialEpisodeId = queryParams.get("ep");
   const roomParam = queryParams.get("room");
-  
-  // Multiplayer context
-  const { 
-    isInRoom, 
-    isHost, 
-    roomCode: currentRoomCode,
-    syncVideoAction, 
-    syncEpisodeChange,
-    roomVideoState,
-    shouldSyncVideo,
-    setShouldSyncVideo,
-    setPlayerReference,
-    joinRoom,
-    nickname
-  } = useMultiplayer();
-
-  const [tags, setTags] = useState([]);
   const { language } = useLanguage();
-  const { homeInfo } = useHomeInfo();
   const isFirstSet = useRef(true);
-  const [showNextEpisodeSchedule, setShowNextEpisodeSchedule] = useState(true);
+  const [showNextEp, setShowNextEp] = useState(true);
+  const nativePlayerRef = useRef(null);
+
+  const { isInRoom, isHost, roomCode, syncVideo, syncEpisodeChange, joinRoom, setPlayerReference } = useMultiplayer();
 
   const {
-    // error,
-    buffering,
-    streamInfo,
-    streamUrl,
-    animeInfo,
-    episodes,
-    nextEpisodeSchedule,
-    anilistId,
-    animeInfoLoading,
-    totalEpisodes,
-    isFullOverview,
-    intro,
-    outro,
-    subtitles,
-    thumbnail,
-    setIsFullOverview,
-    activeEpisodeNum,
-    seasons,
-    episodeId,
-    setEpisodeId,
-    activeServerId,
-    setActiveServerId,
-    servers,
-    serverLoading,
-    activeServerType,
-    setActiveServerType,
-    activeServerName,
-    setActiveServerName,
-    activeServer
+    buffering, streamUrl, animeInfo, episodes, nextEpisodeSchedule,
+    totalEpisodes, seasons, episodeId, setEpisodeId,
+    activeServerId, setActiveServerId, servers, serverLoading,
+    activeServerType, setActiveServerType, activeServerName, setActiveServerName,
+    activeEpisodeNum, subtitles, isFullOverview, setIsFullOverview,
+    intro, outro,
   } = useWatch(animeId, initialEpisodeId);
 
-  const {
-    autoPlay,
-    setAutoPlay,
-    autoSkipIntro,
-    setAutoSkipIntro,
-    autoNext,
-    setAutoNext,
-  } = useWatchControl();
+  const { autoPlay, setAutoPlay, autoSkipIntro, setAutoSkipIntro, autoNext, setAutoNext } = useWatchControl();
 
-  const playerRef = useRef(null);
-  const videoContainerRef = useRef(null);
-  const controlsRef = useRef(null);
   const episodesRef = useRef(null);
+  const videoRef    = useRef(null);
+  const ctrlRef     = useRef(null);
 
-  // Auto-join room if room parameter exists in URL (only once)
+  // Auto-join room from URL param
   useEffect(() => {
-    if (roomParam && !isInRoom && nickname && !currentRoomCode) {
-      console.log('Auto-joining room from URL:', roomParam);
-      joinRoom(roomParam);
-    }
-  }, [roomParam, isInRoom, nickname, currentRoomCode, joinRoom]);
+    if (roomParam && !isInRoom) joinRoom(roomParam);
+  }, [roomParam]);
 
-  // Sync episode changes in multiplayer
+  // Listen for episode changes from room host
   useEffect(() => {
-    if (isInRoom && isHost && episodeId && animeId) {
-      syncEpisodeChange(episodeId, animeId);
-    }
-  }, [episodeId, animeId, isInRoom, isHost, syncEpisodeChange]);
+    const handler = (e) => setEpisodeId(e.detail);
+    window.addEventListener("w2g_episode", handler);
+    return () => window.removeEventListener("w2g_episode", handler);
+  }, [setEpisodeId]);
+
+  // Sync episode changes to room members (host only)
+  useEffect(() => {
+    if (isInRoom && isHost && episodeId) syncEpisodeChange(episodeId);
+  }, [episodeId]);
 
   useEffect(() => {
     if (!episodes || episodes.length === 0) return;
-    
-    const isValidEpisode = episodes.some(ep => {
-      const epNumber = ep.id.split('ep=')[1];
-      return epNumber === episodeId; 
-    });
-    
-    // If missing or invalid episodeId, fallback to first
-    if (!episodeId || !isValidEpisode) {
-      const fallbackId = episodes[0].id.match(/ep=(\d+)/)?.[1];
-      if (fallbackId && fallbackId !== episodeId) {
-        setEpisodeId(fallbackId);
-      }
+    const isValid = episodes.some(ep => ep.id.split("ep=")[1] === episodeId);
+    if (!episodeId || !isValid) {
+      const fb = episodes[0].id.match(/ep=(\d+)/)?.[1];
+      if (fb && fb !== episodeId) setEpisodeId(fb);
       return;
     }
-  
-    // Preserve room parameter when updating URL
-    const newUrl = `/watch/${animeId}?ep=${episodeId}${currentRoomCode ? `&room=${currentRoomCode}` : ''}`;
-    if (isFirstSet.current) {
-      navigate(newUrl, { replace: true });
-      isFirstSet.current = false;
-    } else {
-      navigate(newUrl);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [episodeId, animeId, navigate, episodes, currentRoomCode]);
+    const url = "/watch/" + animeId + "?ep=" + episodeId + (roomCode ? "&room=" + roomCode : "");
+    if (isFirstSet.current) { navigate(url, { replace: true }); isFirstSet.current = false; }
+    else navigate(url);
+  }, [episodeId, animeId, navigate, episodes, roomCode]);
 
-  // Update document title
   useEffect(() => {
-    if (animeInfo) {
-      document.title = `Watch ${animeInfo.title} English Sub/Dub online Free on ${website_name}`;
-    }
-    return () => {
-      document.title = `${website_name} | Free anime streaming platform`;
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (animeInfo) document.title = "Watch " + animeInfo.title + " on " + website_name;
+    return () => { document.title = website_name + " | Free anime streaming"; };
   }, [animeId, animeInfo]);
 
-  // Redirect if no episodes
   useEffect(() => {
-    if (totalEpisodes !== null && totalEpisodes === 0) {
-      navigate(`/${animeId}`);
-    }
-  }, [streamInfo, episodeId, animeId, totalEpisodes, navigate]);
+    if (totalEpisodes !== null && totalEpisodes === 0) navigate("/" + animeId);
+  }, [totalEpisodes, animeId, navigate]);
 
   useEffect(() => {
-    // Function to adjust the height of episodes list to match only video + controls
-    const adjustHeight = () => {
-      if (window.innerWidth > 1200) {
-        if (videoContainerRef.current && controlsRef.current && episodesRef.current) {
-          // Calculate combined height of video container and controls
-          const videoHeight = videoContainerRef.current.offsetHeight;
-          const controlsHeight = controlsRef.current.offsetHeight;
-          const totalHeight = videoHeight + controlsHeight;
-          
-          // Apply the combined height to episodes container
-          episodesRef.current.style.height = `${totalHeight}px`;
-        }
-      } else {
-        if (episodesRef.current) {
-          episodesRef.current.style.height = 'auto';
-        }
+    const adj = () => {
+      if (window.innerWidth > 1200 && videoRef.current && ctrlRef.current && episodesRef.current) {
+        episodesRef.current.style.height = (videoRef.current.offsetHeight + ctrlRef.current.offsetHeight) + "px";
+      } else if (episodesRef.current) {
+        episodesRef.current.style.height = "auto";
       }
     };
+    const t = setTimeout(adj, 500);
+    window.addEventListener("resize", adj);
+    const iv = setInterval(adj, 1000);
+    return () => { clearTimeout(t); clearInterval(iv); window.removeEventListener("resize", adj); };
+  }, [buffering, episodeId, streamUrl, episodes]);
 
-    // Initial adjustment with delay to ensure player is fully rendered
-    const initialTimer = setTimeout(() => {
-      adjustHeight();
-    }, 500);
-    
-    // Set up resize listener
-    window.addEventListener('resize', adjustHeight);
-    
-    // Create MutationObserver to monitor player changes
-    const observer = new MutationObserver(() => {
-      setTimeout(adjustHeight, 100);
-    });
-    
-    // Start observing both video container and controls
-    if (videoContainerRef.current) {
-      observer.observe(videoContainerRef.current, {
-        attributes: true,
-        childList: true,
-        subtree: true
-      });
-    }
-    
-    if (controlsRef.current) {
-      observer.observe(controlsRef.current, {
-        attributes: true,
-        childList: true,
-        subtree: true
-      });
-    }
-    
-    // Set up additional interval for continuous adjustments
-    const intervalId = setInterval(adjustHeight, 1000);
-    
-    // Clean up
-    return () => {
-      clearTimeout(initialTimer);
-      clearInterval(intervalId);
-      observer.disconnect();
-      window.removeEventListener('resize', adjustHeight);
-    };
-  }, [buffering, activeServerType, activeServerName, episodeId, streamUrl, episodes]);
+  // Wire native video element to multiplayer for sync
+  const handlePlayerReady = (el) => {
+    nativePlayerRef.current = el;
+    setPlayerReference(el);
+    if (!el || !isInRoom) return;
+    const onPlay  = () => { if (isHost) syncVideo("play",  el.currentTime); };
+    const onPause = () => { if (isHost) syncVideo("pause", el.currentTime); };
+    const onSeek  = () => { if (isHost) syncVideo("seek",  el.currentTime); };
+    el.addEventListener("play",     onPlay);
+    el.addEventListener("pause",    onPause);
+    el.addEventListener("seeked",   onSeek);
+    return () => { el.removeEventListener("play", onPlay); el.removeEventListener("pause", onPause); el.removeEventListener("seeked", onSeek); };
+  };
 
-  function Tag({ bgColor, index, icon, text }) {
-    return (
-      <div
-        className={`flex space-x-1 justify-center items-center px-[4px] py-[1px] text-black font-semibold text-[13px] ${
-          index === 0 ? "rounded-l-[4px]" : "rounded-none"
-        }`}
-        style={{ backgroundColor: bgColor }}
-      >
-        {icon && <FontAwesomeIcon icon={icon} className="text-[12px]" />}
-        <p className="text-[12px]">{text}</p>
-      </div>
-    );
-  }
-
-  useEffect(() => {
-    setTags([
-      {
-        condition: animeInfo?.animeInfo?.tvInfo?.rating,
-        bgColor: "#ffffff",
-        text: animeInfo?.animeInfo?.tvInfo?.rating,
-      },
-      {
-        condition: animeInfo?.animeInfo?.tvInfo?.quality,
-        bgColor: "#FFBADE",
-        text: animeInfo?.animeInfo?.tvInfo?.quality,
-      },
-      {
-        condition: animeInfo?.animeInfo?.tvInfo?.sub,
-        icon: faClosedCaptioning,
-        bgColor: "#B0E3AF",
-        text: animeInfo?.animeInfo?.tvInfo?.sub,
-      },
-      {
-        condition: animeInfo?.animeInfo?.tvInfo?.dub,
-        icon: faMicrophone,
-        bgColor: "#B9E7FF",
-        text: animeInfo?.animeInfo?.tvInfo?.dub,
-      },
-    ]);
-  }, [animeId, animeInfo]);
+  const info    = animeInfo?.animeInfo;
+  const tvInfo  = info?.tvInfo || {};
+  const overview = info?.Overview || "";
 
   return (
-    <div className="w-full min-h-screen bg-[#0a0a0a]">
-      <div className="w-full max-w-[1920px] mx-auto pt-16 pb-6 w-full max-[1200px]:pt-12">
-        <div className="grid grid-cols-[minmax(0,70%),minmax(0,30%)] gap-6 w-full h-full max-[1200px]:flex max-[1200px]:flex-col">
-          {/* Left Column - Player, Controls, Servers */}
-          <div className="flex flex-col w-full gap-6">
-            {/* Room Status */}
-            <RoomStatus />
-            
-            <div ref={playerRef} className="player w-full h-fit bg-black flex flex-col rounded-xl overflow-hidden">
-              {/* Video Container */}
-              <div ref={videoContainerRef} className="w-full relative aspect-video bg-black">
-                {(() => {
-                  // MODIFIED: Only use iframe if NOT in a room
-                  const isIframeServer = ["hd-1", "hd-4", "nest"].includes(activeServerName?.toLowerCase()) || 
-                                       activeServerType?.toLowerCase() === "slay" || 
-                                       activeServerName?.includes("VidAPI") || 
-                                       activeServerName?.toLowerCase() === "pahe";
-                  
-                  const shouldUseIframe = !isInRoom && isIframeServer;
-                  
-                  console.log("=== WATCH COMPONENT DEBUG ===");
-                  console.log("Buffering:", buffering);
-                  console.log("ActiveServerName:", activeServerName);
-                  console.log("ActiveServerType:", activeServerType);
-                  console.log("Should use iframe:", shouldUseIframe);
-                  console.log("============================");
+    <div className="w-full min-h-screen" style={{ background: "#000" }}>
+      <div className="w-full max-w-[1920px] mx-auto pt-16 pb-10 max-[1200px]:pt-12 px-4">
+        <div className="grid grid-cols-[minmax(0,75%),minmax(0,25%)] gap-4 w-full max-[1200px]:flex max-[1200px]:flex-col">
 
-                  return !buffering ? (shouldUseIframe ?
-                  <IframePlayer
-                    episodeId={episodeId}
-                    servertype={activeServerType}
-                    serverName={activeServerName}
-                    animeInfo={animeInfo}
-                    episodeNum={activeEpisodeNum}
-                    episodes={episodes}
-                    playNext={(id) => setEpisodeId(id)}
-                    autoNext={autoNext}
-                    aniid={animeInfo?.anilistId}
-                    activeServer={activeServer}
-                  /> : <Player
+          {/* LEFT */}
+          <div className="flex flex-col w-full gap-3">
+            <RoomStatus />
+
+            {/* 1. Player */}
+            <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.3 }}
+              className="rounded-xl overflow-hidden" style={{ background:"#000", border:"1px solid rgba(255,255,255,0.09)" }}>
+              <div ref={videoRef} className="w-full relative aspect-video bg-black">
+                {!buffering ? (
+                  <Player
+                    key={episodeId + "-" + activeServerId}
                     streamUrl={streamUrl}
                     subtitles={subtitles}
+                    onMediaError={() => {}}
+                    onTimeUpdate={(currentTime, duration) => {
+                      if (!animeInfo || !episodeId) return;
+                      saveProgress({
+                        id: animeId,
+                        episodeId,
+                        episodeNum: activeEpisodeNum,
+                        title: animeInfo.title,
+                        japanese_title: animeInfo.japanese_title,
+                        poster: animeInfo.poster,
+                        adultContent: animeInfo.adultContent,
+                        currentTime,
+                        duration,
+                      });
+                    }}
+                    crossOrigin="anonymous"
                     intro={intro}
                     outro={outro}
-                    serverName={activeServerName?.toLowerCase()}
-                    thumbnail={thumbnail}
                     autoSkipIntro={autoSkipIntro}
-                    autoPlay={autoPlay}
-                    autoNext={autoNext}
-                    episodeId={episodeId}
-                    episodes={episodes}
-                    playNext={(id) => setEpisodeId(id)}
-                    animeInfo={animeInfo}
-                    episodeNum={activeEpisodeNum}
-                    streamInfo={streamInfo}
+                    onPlayerReady={handlePlayerReady}
                   />
                 ) : (
                   <div className="absolute inset-0 flex justify-center items-center bg-black">
                     <BouncingLoader />
                   </div>
-                );
-                })()}
-                <p className="text-center underline font-medium text-[15px] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none text-gray-300">
-                  {!buffering && !activeServerType ? (
-                    servers ? (
-                      <>
-                        Probably this server is down, try other servers
-                        <br /><br />
-                        Either reload or try again after sometime
-                      </>
-                    ) : (
-                      <>
-                        Probably streaming server is down
-                        <br /><br />
-                        Either reload or try again after sometime
-                      </>
-                    )
-                  ) : null}
-                </p>
-              </div>
-
-              {/* Controls Section */}
-              <div className="bg-[#121212]">
-                {!buffering && (
-                  <div ref={controlsRef}>
-                    <Watchcontrols
-                      autoPlay={autoPlay}
-                      setAutoPlay={setAutoPlay}
-                      autoSkipIntro={autoSkipIntro}
-                      setAutoSkipIntro={setAutoSkipIntro}
-                      autoNext={autoNext}
-                      setAutoNext={setAutoNext}
-                      episodes={episodes}
-                      totalEpisodes={totalEpisodes}
-                      episodeId={episodeId}
-                      onButtonClick={(id) => setEpisodeId(id)}
-                      isInRoom={isInRoom}
-                      isHost={isHost}
-                    />
-                  </div>
-                )}
-
-                {/* Title and Server Selection */}
-                <div className="px-3 py-2">
-                  <div>
-                    <Servers
-                      servers={servers}
-                      activeEpisodeNum={activeEpisodeNum}
-                      activeServerId={activeServerId}
-                      setActiveServerId={setActiveServerId}
-                      serverLoading={serverLoading}
-                      setActiveServerType={setActiveServerType}
-                      activeServerType={activeServerType}
-                      setActiveServerName={setActiveServerName}
-                    />
-                  </div>
-                </div>
-
-                {/* Next Episode Schedule */}
-                {nextEpisodeSchedule?.nextEpisodeSchedule && showNextEpisodeSchedule && (
-                  <div className="px-3 pb-3">
-                    <div className="w-full p-3 rounded-lg bg-[#272727] flex items-center justify-between">
-                      <div className="flex items-center gap-x-3">
-                        <span className="text-[18px]">🚀</span>
-                        <div>
-                          <span className="text-gray-400 text-sm">Next episode estimated at</span>
-                          <span className="ml-2 text-white text-sm font-medium">
-                            {new Date(
-                              new Date(nextEpisodeSchedule.nextEpisodeSchedule).getTime() -
-                              new Date().getTimezoneOffset() * 60000
-                            ).toLocaleDateString("en-GB", {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                              second: "2-digit",
-                              hour12: true,
-                            })}
-                          </span>
-                        </div>
-                      </div>
-                      <button
-                        className="text-2xl text-gray-500 hover:text-white transition-colors"
-                        onClick={() => setShowNextEpisodeSchedule(false)}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </div>
                 )}
               </div>
-            </div>
+            </motion.div>
 
-            {/* Mobile-only Seasons Section */}
-            {seasons?.length > 0 && (
-              <div className="hidden max-[1200px]:block bg-[#141414] rounded-lg p-4">
-                <h2 className="text-xl font-semibold mb-4 text-white">More Seasons</h2>
-                <div className="grid grid-cols-2 gap-2">
-                  {seasons.map((season, index) => (
-                    <Link
-                      to={`/${season.id}`}
-                      key={index}
-                      className={`relative w-full aspect-[3/1] rounded-lg overflow-hidden cursor-pointer group ${
-                        animeId === String(season.id)
-                          ? "ring-2 ring-white/40 shadow-lg shadow-white/10"
-                          : ""
-                      }`}
-                    >
-                      <img
-                        src={season.season_poster}
-                        alt={season.season}
-                        className={`w-full h-full object-cover scale-150 ${
-                          animeId === String(season.id)
-                            ? "opacity-50"
-                            : "opacity-40 group-hover:opacity-50 transition-opacity"
-                        }`}
-                      />
-                      <div className="absolute inset-0 z-30 flex items-center justify-center">
-                        <p className={`text-[14px] font-bold text-center px-2 transition-colors duration-300 ${
-                          animeId === String(season.id) ? "text-white" : "text-white/90 group-hover:text-white"
-                        }`}>
-                          {season.season}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Mobile-only Episodes Section */}
-            <div className="hidden max-[1200px]:block">
-              <div ref={episodesRef} className="episodes flex-shrink-0 bg-[#141414] rounded-lg overflow-hidden">
-                {!episodes ? (
-                  <div className="h-full flex items-center justify-center">
-                    <BouncingLoader />
-                  </div>
-                ) : (
-                  <Episodelist
-                    episodes={episodes}
-                    currentEpisode={episodeId}
-                    onEpisodeClick={(id) => setEpisodeId(id)}
-                    totalEpisodes={totalEpisodes}
-                    isInRoom={isInRoom}
-                    isHost={isHost}
-                  />
-                )}
-              </div>
-            </div>
-
-            {/* Anime Info Section */}
-            <div className="bg-[#141414] rounded-lg p-4">
-              <div className="flex gap-x-6 max-[600px]:flex-row max-[600px]:gap-4">
-                {animeInfo && animeInfo?.poster ? (
-                  <img
-                    src={`${animeInfo?.poster}`}
-                    alt=""
-                    className="w-[120px] h-[180px] object-cover rounded-md max-[600px]:w-[100px] max-[600px]:h-[150px]"
-                  />
-                ) : (
-                  <Skeleton className="w-[120px] h-[180px] rounded-md" />
-                )}
-                <div className="flex flex-col gap-y-4 flex-1">
-                  {animeInfo && animeInfo?.title ? (
-                    <Link to={`/${animeId}`} className="group">
-                      <h1 className="text-[28px] font-medium text-white leading-tight max-[600px]:text-[20px]">
-                        {language ? animeInfo?.title : animeInfo?.japanese_title}
-                      </h1>
-                    </Link>
-                  ) : (
-                    <Skeleton className="w-[170px] h-[20px] rounded-xl" />
-                  )}
-                  <div className="flex flex-wrap gap-2">
-                    {animeInfo ? (
-                      tags.map(
-                        ({ condition, icon, text }, index) =>
-                          condition && (
-                            <span key={index} className="px-3 py-1 bg-[#1a1a1a] rounded-full text-sm flex items-center gap-x-1 text-gray-300">
-                              {icon && <FontAwesomeIcon icon={icon} className="text-[12px]" />}
-                              {text}
-                            </span>
-                          )
-                      )
-                    ) : (
-                      <Skeleton className="w-[70px] h-[20px] rounded-xl" />
-                    )}
-                  </div>
-                  {animeInfo?.animeInfo?.Overview && (
-                    <p className="text-[15px] text-gray-400 leading-relaxed max-[600px]:text-[13px]">
-                      {isFullOverview ? animeInfo?.animeInfo?.Overview : `${animeInfo?.animeInfo?.Overview.slice(0, 270)}...`}
-                      <button className="ml-2 text-gray-300 hover:text-white" onClick={() => setIsFullOverview(!isFullOverview)}>
-                        {isFullOverview ? "Show Less" : "Read More"}
-                      </button>
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Desktop-only Seasons Section */}
-            {seasons?.length > 0 && (
-              <div className="bg-[#141414] rounded-lg p-4 max-[1200px]:hidden">
-                <h2 className="text-xl font-semibold mb-4 text-white">More Seasons</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {seasons.map((season, index) => (
-                    <Link
-                      to={`/${season.id}`}
-                      key={index}
-                      className={`relative w-full aspect-[3/1] rounded-lg overflow-hidden cursor-pointer group ${
-                        animeId === String(season.id) ? "ring-2 ring-white/40 shadow-lg" : ""
-                      }`}
-                    >
-                      <img src={season.season_poster} alt="" className="w-full h-full object-cover scale-150 opacity-40 group-hover:opacity-50 transition-opacity" />
-                      <div className="absolute inset-0 z-30 flex items-center justify-center">
-                        <p className="text-[14px] sm:text-[16px] font-bold text-center px-2 text-white">{season.season}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right Column - Episodes and Related (Desktop Only) */}
-          <div className="flex flex-col gap-6 h-full max-[1200px]:hidden">
-            <div ref={episodesRef} className="episodes flex-shrink-0 bg-[#141414] rounded-lg overflow-hidden">
-              {!episodes ? (
-                <div className="h-full flex items-center justify-center"><BouncingLoader /></div>
-              ) : (
-                <Episodelist
-                  episodes={episodes}
-                  currentEpisode={episodeId}
-                  onEpisodeClick={(id) => setEpisodeId(id)}
-                  totalEpisodes={totalEpisodes}
-                  isInRoom={isInRoom}
-                  isHost={isHost}
+            {/* 2. Controls */}
+            <div ref={ctrlRef} className="rounded-xl overflow-hidden" style={CARD}>
+              <Watchcontrols
+                autoPlay={autoPlay} setAutoPlay={setAutoPlay}
+                autoSkipIntro={autoSkipIntro} setAutoSkipIntro={setAutoSkipIntro}
+                autoNext={autoNext} setAutoNext={setAutoNext}
+                episodes={episodes} totalEpisodes={totalEpisodes}
+                episodeId={episodeId} onButtonClick={(id) => setEpisodeId(id)}
+                isInRoom={isInRoom} isHost={isHost}
+              />
+              <div className="px-3 py-2.5">
+                <Servers
+                  servers={servers} activeEpisodeNum={activeEpisodeNum}
+                  episodeId={episodeId}
+                  activeServerId={activeServerId} setActiveServerId={setActiveServerId}
+                  serverLoading={serverLoading} setActiveServerType={setActiveServerType}
+                  activeServerType={activeServerType} setActiveServerName={setActiveServerName}
                 />
+              </div>
+              {nextEpisodeSchedule?.nextEpisodeSchedule && showNextEp && (
+                <div className="px-3 pb-3">
+                  <div className="flex items-center justify-between p-3 rounded-lg" style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)" }}>
+                    <div className="flex items-center gap-2">
+                      <span>🚀</span>
+                      <span className="text-white/40 text-xs font-mono">Next ep: </span>
+                      <span className="text-white text-xs font-mono font-semibold">
+                        {new Date(new Date(nextEpisodeSchedule.nextEpisodeSchedule).getTime() - new Date().getTimezoneOffset() * 60000)
+                          .toLocaleDateString("en-GB", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit", hour12:true })}
+                      </span>
+                    </div>
+                    <button className="text-white/25 hover:text-white transition-colors" onClick={() => setShowNextEp(false)}>x</button>
+                  </div>
+                </div>
               )}
             </div>
 
-            {animeInfo && animeInfo.related_data ? (
-              <div className="bg-[#141414] rounded-lg p-4">
-                <h2 className="text-xl font-semibold mb-4 text-white">Related Anime</h2>
-                <Sidecard data={animeInfo.related_data} className="!mt-0" />
+            {/* Mobile episodes */}
+            <div className="hidden max-[1200px]:block">
+              <div ref={episodesRef} className="rounded-xl overflow-hidden" style={CARD}>
+                {!episodes
+                  ? <div className="flex items-center justify-center p-8"><BouncingLoader /></div>
+                  : <Episodelist episodes={episodes} currentEpisode={episodeId} onEpisodeClick={(id) => setEpisodeId(id)} totalEpisodes={totalEpisodes} isInRoom={isInRoom} isHost={isHost} />}
               </div>
-            ) : (
-              <div className="mt-6"><SidecardLoader /></div>
+            </div>
+
+            {/* 3. Anime info */}
+            <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.3, delay:0.1 }}
+              className="rounded-xl overflow-hidden" style={CARD}>
+              {animeInfo?.poster && (
+                <div className="relative h-28 overflow-hidden">
+                  <img src={animeInfo.poster} alt="" className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-20" />
+                  <div className="absolute inset-0" style={{ background:"linear-gradient(to bottom, transparent 0%, #111 100%)" }} />
+                </div>
+              )}
+              <div className="px-5 pb-5" style={{ marginTop: animeInfo?.poster ? "-40px" : 0 }}>
+                <div className="flex gap-5">
+                  <div className="flex-shrink-0">
+                    {animeInfo?.poster
+                      ? <img src={animeInfo.poster} alt="" className="w-[110px] h-[160px] object-cover rounded-xl shadow-2xl" style={{ border:"1px solid rgba(255,255,255,0.1)" }} />
+                      : <Skeleton className="w-[110px] h-[160px] rounded-xl" />}
+                  </div>
+                  <div className="flex flex-col gap-3 flex-1 min-w-0 pt-2">
+                    {animeInfo?.title
+                      ? <Link to={"/" + animeId}><h1 className="text-xl font-black text-white leading-tight font-mono hover:text-white/70 transition-colors">{language ? animeInfo.title : animeInfo.japanese_title}</h1></Link>
+                      : <Skeleton className="w-56 h-6 rounded" />}
+                    <div className="flex flex-wrap gap-2">
+                      {tvInfo.rating  && <GlassPill><FontAwesomeIcon icon={faStar} className="text-[10px]" />{tvInfo.rating}</GlassPill>}
+                      {tvInfo.quality && <GlassPill>{tvInfo.quality}</GlassPill>}
+                      {tvInfo.sub     && <GlassPill><FontAwesomeIcon icon={faClosedCaptioning} />SUB {tvInfo.sub}</GlassPill>}
+                      {tvInfo.dub     && <GlassPill><FontAwesomeIcon icon={faMicrophone} />DUB {tvInfo.dub}</GlassPill>}
+                      {tvInfo.eps     && <GlassPill>{tvInfo.eps} eps</GlassPill>}
+                    </div>
+                    {info && (
+                      <div className="flex flex-wrap gap-x-5 gap-y-1">
+                        {[{l:"Type",v:info.Type},{l:"Status",v:info.Status},{l:"Aired",v:info.Aired},{l:"Studio",v:info.Studios}].filter(m=>m.v).map(m=>(
+                          <div key={m.l} className="flex items-center gap-1.5">
+                            <span className="text-[10px] text-white/25 font-mono uppercase tracking-wider">{m.l}</span>
+                            <span className="text-[10px] text-white/55 font-mono">{m.v}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {overview && (
+                      <p className="text-sm text-white/40 font-mono leading-relaxed">
+                        {isFullOverview ? overview : overview.slice(0, 240) + (overview.length > 240 ? "..." : "")}
+                        {overview.length > 240 && (
+                          <button className="ml-1.5 text-white/60 hover:text-white transition-colors text-xs" onClick={() => setIsFullOverview(!isFullOverview)}>
+                            {isFullOverview ? "less" : "more"}
+                          </button>
+                        )}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 4. Seasons */}
+            {seasons?.length > 0 && (
+              <div className="rounded-xl p-4 max-[1200px]:hidden" style={CARD}>
+                <h2 className="text-[10px] font-mono text-white/25 uppercase tracking-widest mb-3">More Seasons</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                  {seasons.map((s, i) => (
+                    <Link to={"/" + s.id} key={i}
+                      className="relative aspect-[3/1] rounded-lg overflow-hidden group"
+                      style={{ background:"#000", border: animeId === String(s.id) ? "1px solid rgba(255,255,255,0.25)" : "1px solid rgba(255,255,255,0.08)" }}>
+                      <img src={s.season_poster} alt="" className="w-full h-full object-cover scale-150 opacity-20 group-hover:opacity-40 transition-opacity" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <p className="text-[11px] font-bold text-white text-center px-2 font-mono">{s.season}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Mobile-only Related Section */}
-          {animeInfo && animeInfo.related_data && (
-            <div className="hidden max-[1200px]:block bg-[#141414] rounded-lg p-4">
-              <h2 className="text-xl font-semibold mb-4 text-white">Related Anime</h2>
+          {/* RIGHT */}
+          <div className="flex flex-col gap-3 max-[1200px]:hidden">
+            <div ref={episodesRef} className="rounded-xl overflow-hidden" style={CARD}>
+              {!episodes
+                ? <div className="flex items-center justify-center p-8"><BouncingLoader /></div>
+                : <Episodelist episodes={episodes} currentEpisode={episodeId} onEpisodeClick={(id) => setEpisodeId(id)} totalEpisodes={totalEpisodes} isInRoom={isInRoom} isHost={isHost} />}
+            </div>
+            {animeInfo?.related_data
+              ? <div className="rounded-xl p-4" style={CARD}><h2 className="text-[10px] font-mono text-white/25 uppercase tracking-widest mb-3">Related</h2><Sidecard data={animeInfo.related_data} className="!mt-0" /></div>
+              : <SidecardLoader />}
+          </div>
+
+          {/* Mobile related */}
+          {animeInfo?.related_data && (
+            <div className="hidden max-[1200px]:block rounded-xl p-4" style={CARD}>
+              <h2 className="text-[10px] font-mono text-white/25 uppercase tracking-widest mb-3">Related</h2>
               <Sidecard data={animeInfo.related_data} className="!mt-0" />
             </div>
           )}
         </div>
       </div>
-
       <SharePopup open={showSharePopup} onClose={() => setShowSharePopup(false)} />
-      <MultiplayerPanel />
+      <WatchTogether />
     </div>
   );
 }
+
+

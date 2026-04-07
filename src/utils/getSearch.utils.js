@@ -5,7 +5,7 @@ const getSearch = async (keyword, page) => {
   if (!page) page = 1;
   try {
     const response = await axios.get(
-      `${api_url}/search?keyword=${keyword}&page=${page}`
+      `${api_url}search?keyword=${keyword}&page=${page}`
     );
     return response.data.results;
   } catch (err) {

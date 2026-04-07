@@ -10,6 +10,7 @@ import Schedule from "@/src/components/schedule/Schedule";
 import ContinueWatching from "@/src/components/continue/ContinueWatching";
 import TabbedAnimeSection from "@/src/components/tabbed-anime/TabbedAnimeSection";
 import JoinRoomPanel from "@/src/components/multiplayer/JoinRoomPanel";
+import CommunityChat from "@/src/components/community/CommunityChat";
 
 function Home() {
   const { homeInfo, homeInfoLoading, error } = useHomeInfo();
@@ -52,11 +53,11 @@ function Home() {
 
           <div className="w-full mt-[60px]">
             <Trending trending={homeInfo.trending} />
-
-            {/* ✅ THIS NOW WORKS */}
             <Topten data={homeInfo.topten} className="mt-12" />
           </div>
         </div>
+
+        <CommunityChat />
       </div>
     </>
   );

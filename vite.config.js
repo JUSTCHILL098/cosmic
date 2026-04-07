@@ -9,4 +9,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./"),
     },
   },
+  server: {
+    proxy: {
+      "/manga-api": {
+        target: "https://api.mangadex.org",
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/manga-api/, ""),
+      },
+    },
+  },
 })

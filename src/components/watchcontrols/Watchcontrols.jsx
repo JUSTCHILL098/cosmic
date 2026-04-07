@@ -1,106 +1,88 @@
-import { faBackward, faForward } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
+import { SkipBack, SkipForward, Play, SkipForward as SkipIntroIcon, ChevronRight } from "lucide-react";
 
-const ToggleButton = ({ label, isActive, onClick }) => (
-  <button 
-    className="flex items-center text-xs px-2 py-0.5 rounded transition-colors hover:bg-[#2a2a2a]" 
-    onClick={onClick}
-  >
-    <span className="text-gray-300">{label}</span>
-    <span
-      className={`ml-1.5 ${
-        isActive ? "text-white" : "text-gray-500"
-      }`}
+function Toggle({ label, active, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all font-mono text-xs"
+      style={{
+        background: active ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.05)",
+        border: active ? "1px solid rgba(255,255,255,0.25)" : "1px solid rgba(255,255,255,0.1)",
+        color: active ? "#fff" : "rgba(255,255,255,0.4)",
+      }}
     >
-      {isActive ? "ON" : "OFF"}
-    </span>
-  </button>
-);
-
-export default function WatchControls({
-  autoPlay,
-  setAutoPlay,
-  autoSkipIntro,
-  setAutoSkipIntro,
-  autoNext,
-  setAutoNext,
-  episodeId,
-  episodes = [],
-  onButtonClick,
-  isInRoom = false,
-  isHost = false,
-}) {
-  const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(
-    episodes?.findIndex(
-      (episode) => episode.id.match(/ep=(\d+)/)?.[1] === episodeId
-    )
+      <span
+        className="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors"
+        style={{ background: active ? "#fff" : "rgba(255,255,255,0.2)" }}
+      />
+      {label}
+    </button>
   );
+}
+
+export default function Watchcontrols({
+  autoPlay, setAutoPlay,
+  autoSkipIntro, setAutoSkipIntro,
+  autoNext, setAutoNext,
+  episodeId, episodes = [],
+  onButtonClick,
+  isInRoom = false, isHost = false,
+}) {
+  const [idx, setIdx] = useState(-1);
 
   useEffect(() => {
     if (episodes?.length > 0) {
-      const newIndex = episodes.findIndex(
-        (episode) => episode.id.match(/ep=(\d+)/)?.[1] === episodeId
-      );
-      setCurrentEpisodeIndex(newIndex);
+      setIdx(episodes.findIndex(ep => ep.id.match(/ep=(\d+)/)?.[1] === episodeId));
     }
   }, [episodeId, episodes]);
 
+  const canPrev = idx > 0 && (!isInRoom || isHost);
+  const canNext = idx < (episodes?.length ?? 0) - 1 && (!isInRoom || isHost);
+
+  const prev = () => canPrev && onButtonClick(episodes[idx - 1].id.match(/ep=(\d+)/)?.[1]);
+  const next = () => canNext && onButtonClick(episodes[idx + 1].id.match(/ep=(\d+)/)?.[1]);
+
   return (
-    <div className="w-full flex justify-between items-center px-3 py-2 border-b border-gray-800">
-      <div className="flex gap-x-2">
-        <ToggleButton
-          label="Auto Play"
-          isActive={autoPlay}
-          onClick={() => setAutoPlay((prev) => !prev)}
-        />
-        <ToggleButton
-          label="Skip Intro"
-          isActive={autoSkipIntro}
-          onClick={() => setAutoSkipIntro((prev) => !prev)}
-        />
-        <ToggleButton
-          label="Auto Next"
-          isActive={autoNext}
-          onClick={() => setAutoNext((prev) => !prev)}
-        />
+    <div
+      className="w-full flex items-center justify-between gap-3 px-3 py-2.5 flex-wrap"
+      style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+    >
+      {/* Toggles */}
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <Toggle label="Auto Play"   active={autoPlay}      onClick={() => setAutoPlay(v => !v)} />
+        <Toggle label="Skip Intro"  active={autoSkipIntro} onClick={() => setAutoSkipIntro(v => !v)} />
+        <Toggle label="Auto Next"   active={autoNext}      onClick={() => setAutoNext(v => !v)} />
       </div>
-      <div className="flex items-center gap-x-2">
+
+      {/* Prev / Next */}
+      <div className="flex items-center gap-1">
         <button
-          onClick={() => {
-            if (currentEpisodeIndex > 0 && (!isInRoom || isHost)) {
-              onButtonClick(
-                episodes[currentEpisodeIndex - 1].id.match(/ep=(\d+)/)?.[1]
-              );
-            }
+          onClick={prev} disabled={!canPrev}
+          className="w-8 h-8 flex items-center justify-center rounded-lg transition-all"
+          style={{
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            color: canPrev ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.2)",
+            cursor: canPrev ? "pointer" : "not-allowed",
           }}
-          disabled={currentEpisodeIndex <= 0 || (isInRoom && !isHost)}
-          className={`w-7 h-7 flex items-center justify-center rounded transition-colors ${
-            currentEpisodeIndex <= 0 || (isInRoom && !isHost)
-              ? "text-gray-600 cursor-not-allowed" 
-              : "text-gray-300 hover:text-white"
-          }`}
-          title={isInRoom && !isHost ? "Only the host can change episodes" : "Previous episode"}
+          title="Previous episode"
         >
-          <FontAwesomeIcon icon={faBackward} className="text-[14px]" />
+          <SkipBack className="w-3.5 h-3.5" />
         </button>
         <button
-          onClick={() => {
-            if (currentEpisodeIndex < episodes?.length - 1 && (!isInRoom || isHost)) {
-              onButtonClick(
-                episodes[currentEpisodeIndex + 1].id.match(/ep=(\d+)/)?.[1]
-              );
-            }
+          onClick={next} disabled={!canNext}
+          className="w-8 h-8 flex items-center justify-center rounded-lg transition-all"
+          style={{
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            color: canNext ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.2)",
+            cursor: canNext ? "pointer" : "not-allowed",
           }}
-          disabled={currentEpisodeIndex >= episodes?.length - 1 || (isInRoom && !isHost)}
-          className={`w-7 h-7 flex items-center justify-center rounded transition-colors ${
-            currentEpisodeIndex >= episodes?.length - 1 || (isInRoom && !isHost)
-              ? "text-gray-600 cursor-not-allowed" 
-              : "text-gray-300 hover:text-white"
-          }`}
-          title={isInRoom && !isHost ? "Only the host can change episodes" : "Next episode"}
+          title="Next episode"
         >
-          <FontAwesomeIcon icon={faForward} className="text-[14px]" />
+          <SkipForward className="w-3.5 h-3.5" />
         </button>
       </div>
     </div>

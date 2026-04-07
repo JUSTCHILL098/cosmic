@@ -1,199 +1,144 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useRef, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
+import { useEffect, useState } from "react";
+import { Check, Tv, Mic } from "lucide-react";
 import { useMultiplayer } from "@/src/context/MultiplayerContext";
 
-function Servers({
+export default function Servers({
   servers,
+  episodeId,
   activeEpisodeNum,
   activeServerId,
   setActiveServerId,
-  setActiveServerType,
-  setActiveServerName,
+  setActiveServerType = () => {},
+  setActiveServerName = () => {},
   serverLoading,
 }) {
   const { isInRoom } = useMultiplayer();
+  const [audio, setAudio] = useState("sub");
 
-  const [open, setOpen] = useState(false);
-  const [audio, setAudio] = useState("dub"); // "dub" | "sub"
-  const wrapperRef = useRef(null);
+  const activeServer = servers?.find(s => s.data_id === activeServerId);
 
-  // servers available for current audio
-  const audioServers =
-    servers?.filter((s) => s.type === audio) || [];
+  // Keep audio tab in sync with the active server
+  useEffect(() => {
+    if (activeServer && activeServer.type !== audio) {
+      setAudio(activeServer.type);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeServerId]);
 
-  // active server ONLY if it exists in current audio
-  const activeServer = audioServers.find(
-    (s) => s.data_id === activeServerId
-  );
-
-  const handleSelect = (server) => {
+  const select = (server) => {
     setActiveServerId(server.data_id);
     setActiveServerType(server.type);
     setActiveServerName(server.serverName);
-
     localStorage.setItem("server_name", server.serverName);
     localStorage.setItem("server_type", server.type);
-    localStorage.setItem("server_data_id", server.data_id);
-
-    setOpen(false);
   };
 
-  const toggleAudio = () => {
-    setAudio((prev) => (prev === "dub" ? "sub" : "dub"));
-    setOpen(false);
-    // ⚠️ DO NOT auto-select server
+  const switchAudio = (type) => {
+    setAudio(type);
+    // Auto-select best server of that type: prefer HD-2, then HD-1, then first
+    const pool = servers?.filter(s => s.type === type) || [];
+    const pick =
+      pool.find(s => s.serverName === "HD-2") ||
+      pool.find(s => s.serverName === "HD-1") ||
+      pool[0];
+    if (pick) select(pick);
   };
 
-  // close dropdown on outside click
-  useEffect(() => {
-    const close = (e) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
-  }, []);
+  if (serverLoading) return (
+    <div className="flex items-center gap-2 px-1 py-2">
+      {[80, 64, 72].map(w => (
+        <div key={w} className="h-7 rounded-md animate-pulse bg-white/[0.05]" style={{ width: w }} />
+      ))}
+    </div>
+  );
 
-  if (serverLoading) return null;
+  if (!servers || servers.length === 0) return (
+    <div className="px-1 py-2">
+      <span className="text-[11px] text-white/25 font-mono">No servers available</span>
+    </div>
+  );
+
+  const hasSub = servers.some(s => s.type === "sub");
+  const hasDub = servers.some(s => s.type === "dub");
+  const audioServers = servers.filter(s => s.type === audio);
 
   return (
-    <div className="w-full bg-[#0b0b0b] p-4 rounded-lg relative overflow-visible">
-      {/* INFO */}
-      <p className="text-sm text-gray-300 mb-3">
-        You are watching{" "}
-        <span className="font-semibold">
-          Episode {activeEpisodeNum}
-        </span>
+    <div className="flex flex-col gap-2 w-full">
+      {/* Episode label */}
+      <p className="text-[10px] text-white/25 font-mono px-0.5">
+        {activeEpisodeNum
+          ? <>Episode <span className="text-white/50">{activeEpisodeNum}</span></>
+          : episodeId
+            ? <>Ep <span className="text-white/50">{episodeId}</span></>
+            : null}
       </p>
 
-      {/* CONTROLS */}
-      <div className="flex items-center gap-4 flex-wrap overflow-visible">
-        <div
-          ref={wrapperRef}
-          className="relative flex items-center gap-4 overflow-visible"
-        >
-          {/* PROVIDER */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground">
-              Provider:
-            </span>
-
-            <button
-              type="button"
-              aria-haspopup="menu"
-              aria-expanded={open}
-              onClick={() => setOpen((v) => !v)}
-              className="
-                h-7 px-2.5 text-xs rounded-md
-                flex items-center gap-2
-                border border-indigo-400/20
-                bg-indigo-950/40 backdrop-blur-md
-                text-indigo-200
-                hover:bg-indigo-900/50
-              "
-            >
-              <span>
-                {activeServer?.serverName || "Select"}
-              </span>
-              <FontAwesomeIcon icon={faEye} className="h-3 w-3" />
-            </button>
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* SUB / DUB toggle */}
+        {(hasSub || hasDub) && (
+          <div className="flex items-center gap-0.5 p-0.5 rounded-lg border border-white/[0.07]" style={{ background: "rgba(255,255,255,0.03)" }}>
+            {hasSub && (
+              <button
+                onClick={() => switchAudio("sub")}
+                className="flex items-center gap-1.5 px-3 py-1 text-[11px] font-mono rounded-md transition-all"
+                style={{
+                  background: audio === "sub" ? "#fff" : "transparent",
+                  color: audio === "sub" ? "#000" : "rgba(255,255,255,0.4)",
+                  fontWeight: audio === "sub" ? 700 : 400,
+                }}
+              >
+                <Tv className="w-3 h-3" /> SUB
+              </button>
+            )}
+            {hasDub && (
+              <button
+                onClick={() => switchAudio("dub")}
+                className="flex items-center gap-1.5 px-3 py-1 text-[11px] font-mono rounded-md transition-all"
+                style={{
+                  background: audio === "dub" ? "#fff" : "transparent",
+                  color: audio === "dub" ? "#000" : "rgba(255,255,255,0.4)",
+                  fontWeight: audio === "dub" ? 700 : 400,
+                }}
+              >
+                <Mic className="w-3 h-3" /> DUB
+              </button>
+            )}
           </div>
+        )}
 
-          {/* SEPARATOR */}
-          <div className="h-6 w-px bg-border" />
-
-          {/* AUDIO */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground">
-              Audio:
-            </span>
-
-            <button
-              type="button"
-              onClick={toggleAudio}
-              className="
-                h-7 px-2.5 text-xs rounded-md
-                flex items-center gap-2
-                border border-indigo-400/20
-                bg-indigo-950/40 backdrop-blur-md
-                text-indigo-200
-                hover:bg-indigo-900/50
-              "
-            >
-              <span>{audio.toUpperCase()}</span>
-              <FontAwesomeIcon icon={faEye} className="h-3 w-3" />
-            </button>
-          </div>
-
-          {/* PROVIDER DROPDOWN */}
-          {open && (
-            <div
-              className="
-                absolute bottom-full left-0 mb-2
-                z-[9999] w-44
-                rounded-md
-                border border-white/10
-                bg-black/70 backdrop-blur-xl
-                shadow-2xl
-              "
-            >
-              <div className="px-2 py-1.5 text-sm font-semibold text-gray-300">
-                Select Provider
-              </div>
-
-              <div className="-mx-1 my-1 h-px bg-white/10" />
-
-              {audioServers.length === 0 && (
-                <div className="px-2 py-2 text-xs text-gray-400">
-                  No providers for this audio
-                </div>
-              )}
-
-              {audioServers.map((server) => {
-                const active =
-                  server.data_id === activeServerId;
-
-                return (
-                  <div
-                    key={server.data_id}
-                    onClick={() => handleSelect(server)}
-                    className={`
-                      px-2 py-1.5 text-sm cursor-pointer rounded-sm
-                      transition-colors
-                      ${
-                        active
-                          ? "bg-indigo-900/40 text-indigo-300"
-                          : "hover:bg-white/10 text-gray-200"
-                      }
-                    `}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span>{server.serverName}</span>
-                      {active && (
-                        <FontAwesomeIcon
-                          icon={faEye}
-                          className="h-3 w-3"
-                        />
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+        {/* Server buttons */}
+        <div className="flex items-center gap-1 flex-wrap">
+          {audioServers.length === 0 ? (
+            <span className="text-[10px] text-white/20 font-mono">No {audio.toUpperCase()} servers</span>
+          ) : (
+            audioServers.map(server => {
+              const isActive = server.data_id === activeServerId;
+              return (
+                <button
+                  key={server.data_id}
+                  onClick={() => select(server)}
+                  className="flex items-center gap-1.5 h-7 px-3 text-[11px] font-mono rounded-md border transition-all"
+                  style={{
+                    background: isActive ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.03)",
+                    border: isActive ? "1px solid rgba(255,255,255,0.3)" : "1px solid rgba(255,255,255,0.07)",
+                    color: isActive ? "#fff" : "rgba(255,255,255,0.45)",
+                  }}
+                  onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = "rgba(255,255,255,0.07)"; e.currentTarget.style.color = "#fff"; }}}
+                  onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.color = "rgba(255,255,255,0.45)"; }}}
+                >
+                  {isActive && <Check className="w-2.5 h-2.5" />}
+                  {server.serverName}
+                </button>
+              );
+            })
           )}
         </div>
 
         {isInRoom && (
-          <span className="text-xs text-blue-400">
-            👥 Multiplayer mode
-          </span>
+          <span className="text-[10px] text-indigo-400 font-mono ml-auto">👥 Room</span>
         )}
       </div>
     </div>
   );
 }
-
-export default Servers;

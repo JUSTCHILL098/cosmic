@@ -24,36 +24,21 @@ const CategoryCard = React.memo(
     const limitedData = limit ? safeData.slice(0, limit) : safeData;
 
     const [hoveredId, setHoveredId] = useState(null);
-
-    const [itemsToRender, setItemsToRender] = useState({
-      firstRow: [],
-      remainingItems: [],
-    });
+    const [itemsToRender, setItemsToRender] = useState({ firstRow: [], remainingItems: [] });
 
     const getItemsToRender = useCallback(() => {
       if (categoryPage) {
-        const firstRow =
-          window.innerWidth > 758 && limitedData.length > 4
-            ? limitedData.slice(0, 4)
-            : [];
-
-        const remainingItems =
-          window.innerWidth > 758 && limitedData.length > 4
-            ? limitedData.slice(4)
-            : limitedData.slice(0);
-
+        const firstRow = window.innerWidth > 758 && limitedData.length > 4 ? limitedData.slice(0, 4) : [];
+        const remainingItems = window.innerWidth > 758 && limitedData.length > 4 ? limitedData.slice(4) : limitedData.slice(0);
         return { firstRow, remainingItems };
       }
-
       return { firstRow: [], remainingItems: limitedData.slice(0) };
-    }, [categoryPage, limitedData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [categoryPage, data, limit]);
 
     useEffect(() => {
-      const handleResize = () => {
-        setItemsToRender(getItemsToRender());
-      };
-
       setItemsToRender(getItemsToRender());
+      const handleResize = () => setItemsToRender(getItemsToRender());
       window.addEventListener("resize", handleResize);
       return () => window.removeEventListener("resize", handleResize);
     }, [getItemsToRender]);

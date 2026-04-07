@@ -1,59 +1,55 @@
-.art-subtitle {
-  padding-inline: 0px !important;
-  gap: 2px !important;
+/* 1. LARGE ICONS & BUTTONS */
+.vds-icon {
+  width: 34px !important;  /* Bigger, clearer icons */
+  height: 34px !important;
+  color: #ffffff !important;
 }
-.art-volume-panel {
-  padding-bottom: 20px !important;
+
+.vds-button {
+  width: 48px !important;
+  height: 48px !important;
 }
-.art-settings {
-  margin-bottom: 20px !important;
+
+/* 2. SETTINGS MENU - LIGHT TINTED GLASS */
+.vds-menu-items {
+  background-color: rgba(255, 255, 255, 0.08) !important; /* Light translucent tint */
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
+  padding: 8px !important;
 }
-.art-subtitle {
-  margin-bottom: 1rem !important;
+
+/* 3. FORCE WHITE TEXT IN SETTINGS */
+.vds-menu-item-label, 
+.vds-menu-item-value, 
+.vds-menu-button,
+.vds-label,
+.vds-menu-item[data-checked] .vds-menu-item-label {
+  color: #ffffff !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 15px !important;
+  opacity: 1 !important;
+  -webkit-font-smoothing: antialiased;
 }
-.art-subtitle-line {
-  min-width: fit-content;
-  background-color: rgba(0, 0, 0, 0.479) !important;
-  padding-inline: 3px !important;
+
+/* Highlight for hovered/selected menu items */
+.vds-menu-item[data-focus], 
+.vds-menu-item[data-checked] {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border-radius: 8px;
 }
-.art-subtitle-line,
-.art-subtitle-line * {
-  font-size: inherit !important;
-  color: inherit !important;
-  line-height: inherit !important;
-  font-weight: inherit !important;
-  white-space: inherit !important;
+
+/* 4. CAPTIONS STYLE */
+.vds-captions {
+  font-size: 1.3rem !important;
+  font-weight: 500 !important;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0, 0, 0, 0.5) !important;
+  bottom: 15% !important;
 }
-@media screen and (max-width: 370px) {
-  .art-progress {
-    padding-bottom: 5px !important;
-  }
-  .art-controls-left .art-control {
-    justify-content: flex-start !important;
-  }
-  .art-controls-right .art-control {
-    justify-content: flex-end !important;
-  }
-  .art-controls-right .art-control svg {
-    width: 22px;
-    height: 22px;
-  }
-  .art-controls-left .art-control svg {
-    width: 22px;
-    height: 22px;
-  }
-  .art-state .art-icon svg {
-    width: 50px;
-    height: 50px;
-  }
-}
-@media screen and (max-width: 350px) {
-  .art-controls-right .art-control svg {
-    width: 20px;
-    height: 20px;
-  }
-  .art-controls-left .art-control svg {
-    width: 20px;
-    height: 20px;
-  }
+
+/* 5. SMOOTH TRANSITIONS */
+@keyframes slide-in-from-right-8 {
+  from { transform: translateX(30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }

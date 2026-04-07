@@ -13,12 +13,12 @@
 
 /* ---------------- Global font ---------------- */
 :root {
-  font-family: 'GeistMono', monospace; /* GeistMono globally */
-  font-weight: 400; /* Black */
+  font-family: 'GeistMono', monospace;
+  font-weight: 400;
   line-height: 1.5;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #201f31;
+  background-color: #000000;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

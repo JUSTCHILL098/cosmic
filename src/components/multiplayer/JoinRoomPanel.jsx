@@ -1,96 +1,86 @@
-import { useState } from 'react';
-import { useMultiplayer } from '@/src/context/MultiplayerContext';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUsers, faArrowRight, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { useState } from "react";
+import { useMultiplayer } from "@/src/context/MultiplayerContext";
+import { Users, X, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function JoinRoomPanel() {
-  const [showPanel, setShowPanel] = useState(false);
-  const [roomCode, setRoomCode] = useState('');
-  const [username, setUsername] = useState('');
-  const { joinRoom, roomError, isInRoom } = useMultiplayer();
+  const [open,     setOpen]     = useState(false);
+  const [code,     setCode]     = useState("");
+  const { joinRoom, isInRoom } = useMultiplayer();
 
-  const handleJoinRoom = () => {
-    if (roomCode.trim() && username.trim()) {
-      joinRoom(roomCode.trim(), username.trim());
-      setShowPanel(false);
-    }
+  const handle = () => {
+    if (code.trim()) { joinRoom(code.trim()); setOpen(false); setCode(""); }
   };
 
   if (isInRoom) return null;
 
   return (
     <>
-      {/* Join Room Button */}
-      <div className="fixed bottom-4 left-4 z-40">
+      <div className="fixed bottom-20 left-4 z-40">
         <button
-          onClick={() => setShowPanel(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg transition-colors"
-          data-testid="button-join-room-home"
+          onClick={() => setOpen(v => !v)}
+          className="flex items-center gap-2 px-3 py-2 rounded-xl font-mono text-xs font-semibold transition-all"
+          style={{
+            background: "rgba(255,255,255,0.07)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            backdropFilter: "blur(12px)",
+            color: "rgba(255,255,255,0.6)",
+          }}
         >
-          <FontAwesomeIcon icon={faUsers} className="w-4 h-4" />
-          <span className="text-sm font-medium">Join Room</span>
+          <Users className="w-3.5 h-3.5" /> Join Room
         </button>
       </div>
 
-      {/* Join Room Modal */}
-      {showPanel && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-[#1a1a1a] border border-gray-700 rounded-lg p-6 w-80 max-w-[90vw]">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white text-lg font-semibold">Join Room</h3>
-              <button
-                onClick={() => setShowPanel(false)}
-                className="text-gray-400 hover:text-white"
-                data-testid="button-close-join-panel"
-              >
-                <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-gray-300 text-sm mb-2">Your Username</label>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-                  placeholder="Enter your username"
-                  data-testid="input-username-join"
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-300 text-sm mb-2">Room Code</label>
-                <input
-                  type="text"
-                  value={roomCode}
-                  onChange={(e) => setRoomCode(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-                  placeholder="Enter room code"
-                  data-testid="input-room-code-join"
-                />
-              </div>
-
-              <button
-                onClick={handleJoinRoom}
-                disabled={!roomCode.trim() || !username.trim()}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white py-2 px-4 rounded font-medium transition-colors flex items-center justify-center gap-2"
-                data-testid="button-submit-join-room"
-              >
-                <span>Join Room</span>
-                <FontAwesomeIcon icon={faArrowRight} className="w-4 h-4" />
-              </button>
-
-              {roomError && (
-                <div className="text-red-400 text-sm text-center" data-testid="text-join-error">
-                  {roomError}
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+              className="fixed inset-0 z-50" style={{ background:"rgba(0,0,0,0.6)", backdropFilter:"blur(4px)" }}
+              onClick={() => setOpen(false)} />
+            <motion.div
+              initial={{ opacity:0, scale:0.96, y:8 }} animate={{ opacity:1, scale:1, y:0 }} exit={{ opacity:0, scale:0.96, y:8 }}
+              transition={{ duration:0.18 }}
+              className="fixed bottom-36 left-4 z-50"
+              style={{ width: "min(92vw, 300px)" }}
+            >
+              <div style={{ background:"#0a0a0a", border:"1px solid rgba(255,255,255,0.1)", borderRadius:16, padding:"24px 20px" }}>
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-white/40" />
+                    <h3 className="text-white font-mono font-bold text-sm">Join a Room</h3>
+                  </div>
+                  <button onClick={() => setOpen(false)} className="text-white/25 hover:text-white transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+
+                <div className="flex flex-col gap-3">
+                  <input
+                    type="text"
+                    value={code}
+                    onChange={e => setCode(e.target.value.toUpperCase())}
+                    onKeyDown={e => e.key === "Enter" && handle()}
+                    placeholder="Room code (e.g. ABC123)"
+                    className="w-full px-4 py-3 rounded-xl text-sm text-white font-mono outline-none placeholder:text-white/20 tracking-widest"
+                    style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)" }}
+                    onFocus={e => e.target.style.borderColor = "rgba(255,255,255,0.3)"}
+                    onBlur={e  => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
+                    autoFocus
+                  />
+                  <button
+                    onClick={handle}
+                    disabled={!code.trim()}
+                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-mono text-sm font-semibold transition-all disabled:opacity-30"
+                    style={{ background:"#fff", color:"#000", border:"none", cursor: code.trim() ? "pointer" : "not-allowed" }}
+                  >
+                    Join Room <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }

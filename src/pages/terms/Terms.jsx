@@ -1,90 +1,56 @@
-import React from 'react';
-import website_name from '@/src/config/website.js';
+import website_name from "@/src/config/website.js";
 
-function Terms() {
+const SECTIONS = [
+  {
+    title: "1. Terms",
+    body: `By accessing this website you agree to be bound by these Terms and Conditions and are responsible for compliance with applicable local laws. If you disagree with any of these terms, you are prohibited from accessing this site. All materials on this site are protected by copyright and trademark law.`,
+  },
+  {
+    title: "2. Use License",
+    body: `Permission is granted to temporarily download one copy of the materials on ${website_name}'s website for personal, non-commercial transitory viewing only. Under this license you may not: modify or copy the materials; use them for any commercial purpose; attempt to reverse-engineer any software; remove any copyright notations; or transfer the materials to another person or mirror them on any other server. This license terminates automatically upon any violation.`,
+  },
+  {
+    title: "3. Disclaimer",
+    body: `All materials on ${website_name}'s website are provided "as is". ${website_name} makes no warranties, expressed or implied, and hereby disclaims all other warranties. ${website_name} does not make any representations concerning the accuracy or reliability of the materials on its website.`,
+  },
+  {
+    title: "4. Limitations",
+    body: `${website_name} or its suppliers will not be held accountable for any damages arising from the use or inability to use the materials on this website, even if ${website_name} or an authorized representative has been notified of the possibility of such damage.`,
+  },
+  {
+    title: "5. Revisions and Errata",
+    body: `The materials on ${website_name}'s website may include technical, typographical, or photographic errors. ${website_name} may change the materials at any time without notice and does not commit to keeping them current.`,
+  },
+  {
+    title: "6. Links",
+    body: `${website_name} has not reviewed all linked sites and is not responsible for the contents of any such linked site. The presence of any link does not imply endorsement. Use of any linked website is at the user's own risk.`,
+  },
+  {
+    title: "7. Governing Law",
+    body: `Any claim related to ${website_name}'s website shall be governed by applicable laws without regard to conflict of law provisions.`,
+  },
+];
+
+export default function Terms() {
   return (
-    <div className="max-w-5xl mx-auto pt-16 pb-5">
-      {/* Content */}
-      <div className="space-y-12 text-white/60">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-semibold text-white">Terms and Conditions of Use</h1>
+    <div className="min-h-screen pb-24" style={{ background: "#000", color: "#fff" }}>
+      <div className="max-w-3xl mx-auto px-4 pt-24">
+        <div className="mb-10">
+          <p className="text-[10px] font-mono text-white/25 uppercase tracking-widest mb-2">Legal</p>
+          <h1 className="text-3xl font-black font-mono tracking-tighter text-white">Terms of Service</h1>
+          <p className="text-white/30 text-sm mt-2 font-mono">Last updated: 2025</p>
         </div>
 
-        <div>
-          <h2 className="text-xl font-semibold text-white mb-4">1. Terms</h2>
-          <p className="leading-relaxed text-base">
-            By accessing this Website, accessible from Z-ANIME's, you are agreeing to be bound by these Website Terms and Conditions of Use and agree that you are responsible for the agreement with any applicable local laws. If you disagree with any of these terms, you are prohibited from accessing this site. The materials contained in this Website are protected by copyright and trade mark law.
-          </p>
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-white mb-4">2. Use License</h2>
-          <p className="leading-relaxed text-base mb-4">
-            Permission is granted to temporarily download one copy of the materials on {website_name}'s Website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:
-          </p>
-          <ul className="list-disc pl-6 space-y-2 text-base">
-            <li>modify or copy the materials;</li>
-            <li>use the materials for any commercial purpose or for any public display;</li>
-            <li>attempt to reverse engineer any software contained on {website_name}'s Website;</li>
-            <li>remove any copyright or other proprietary notations from the materials; or</li>
-            <li>transferring the materials to another person or "mirror" the materials on any other server.</li>
-          </ul>
-          <p className="leading-relaxed text-base mt-4">
-            This will let {website_name} to terminate upon violations of any of these restrictions. Upon termination, your viewing right will also be terminated and you should destroy any downloaded materials in your possession whether it is printed or electronic format.
-          </p>
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-white mb-4">3. Disclaimer</h2>
-          <p className="leading-relaxed text-base">
-            All the materials on {website_name}'s Website are provided "as is". {website_name} makes no warranties, may it be expressed or implied, therefore negates all other warranties. Furthermore, {website_name} does not make any representations concerning the accuracy or reliability of the use of the materials on its Website or otherwise relating to such materials or any sites linked to this Website.
-          </p>
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-white mb-4">4. Limitations</h2>
-          <p className="leading-relaxed text-base">
-            {website_name} or its suppliers will not be hold accountable for any damages that will arise with the use or inability to use the materials on {website_name}'s Website, even if {website_name} or an authorize representative of this Website has been notified, orally or written, of the possibility of such damage. Some jurisdiction does not allow limitations on implied warranties or limitations of liability for incidental damages, these limitations may not apply to you.
-          </p>
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-white mb-4">5. Revisions and Errata</h2>
-          <p className="leading-relaxed text-base">
-            The materials appearing on {website_name}'s Website may include technical, typographical, or photographic errors. {website_name} will not promise that any of the materials in this Website are accurate, complete, or current. {website_name} may change the materials contained on its Website at any time without notice. {website_name} does not make any commitment to update the materials.
-          </p>
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-white mb-4">6. Links</h2>
-          <p className="leading-relaxed text-base">
-            {website_name} has not reviewed all of the sites linked to its Website and is not responsible for the contents of any such linked site. The presence of any link does not imply endorsement by {website_name} of the site. The use of any linked website is at the user's own risk.
-          </p>
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-white mb-4">7. Site Terms of Use Modifications</h2>
-          <p className="leading-relaxed text-base">
-            {website_name} may revise these Terms of Use for its Website at any time without prior notice. By using this Website, you are agreeing to be bound by the current version of these Terms and Conditions of Use.
-          </p>
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-white mb-4">8. Your Privacy</h2>
-          <p className="leading-relaxed text-base">
-            Please read our Privacy Policy.
-          </p>
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-white mb-4">9. Governing Law</h2>
-          <p className="leading-relaxed text-base">
-            Any claim related to {website_name}'s Website shall be governed by the laws of bq without regards to its conflict of law provisions.
-          </p>
+        <div className="flex flex-col gap-4">
+          {SECTIONS.map((s, i) => (
+            <div key={i} className="p-5 rounded-xl"
+              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+              <h2 className="text-sm font-bold text-white font-mono mb-3">{s.title}</h2>
+              <p className="text-sm text-white/45 leading-relaxed font-mono">{s.body}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
 }
-
-export default Terms; 
