@@ -1,8 +1,15 @@
 import axios from "axios";
 
-// MangaDex: use /manga-api proxy (Vite dev proxy + Vercel serverless in prod)
+// MangaDex: route through Vercel serverless proxy to bypass CORS
+const MDEX = "https://api.mangadex.org";
+
 const get = async (path) => {
-  const { data } = await axios.get(`/manga-api${path}`);
+  const fullUrl = `${MDEX}${path}`;
+  // In dev use Vite proxy, in prod use Vercel serverless function
+  const proxyUrl = import.meta.env.DEV
+    ? `/manga-api${path}`
+    : `/api/manga-proxy?url=${encodeURIComponent(fullUrl)}`;
+  const { data } = await axios.get(proxyUrl);
   return data;
 };
 

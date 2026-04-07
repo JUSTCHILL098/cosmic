@@ -1,8 +1,1 @@
-{
-  "rewrites": [
-    {
-      "source": "/manga-api/:path*",
-      "destination": "/api/manga-proxy/:path*"
-    }
-  ]
-}
+{}
