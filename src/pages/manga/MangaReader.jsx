@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, ChevronLeft, Settings, List } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronLeft, Settings, List, BookOpen } from "lucide-react";
 import { fetchChapter } from "@/src/utils/manga.utils";
 
 export default function MangaReader() {
@@ -19,7 +19,6 @@ export default function MangaReader() {
     setPage(0);
     fetchChapter(decodeURIComponent(id), decodeURIComponent(chapterID))
       .then(d => {
-        // MangaDex returns a plain array of image URLs
         const imgs = Array.isArray(d) ? d : (d?.images || d?.pages || d?.data || []);
         setImages(imgs.filter(Boolean));
       })
@@ -36,9 +35,39 @@ export default function MangaReader() {
   );
 
   if (error || images.length === 0) return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: "#000" }}>
-      <p className="text-white/30 font-mono text-sm">{error || "No images found for this chapter"}</p>
-      <button onClick={back} className="text-white/50 hover:text-white font-mono text-xs underline">← Back</button>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6" style={{ background:"#000" }}>
+      <div className="text-center px-6 max-w-md">
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+          style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)" }}>
+          <BookOpen className="w-7 h-7 text-white/40" />
+        </div>
+        <h2 className="text-white font-mono font-bold text-lg mb-2">Chapter images not available</h2>
+        <p className="text-white/35 font-mono text-sm leading-relaxed mb-6">
+          Direct chapter reading isn't available through our current source. Read this chapter on an external site.
+        </p>
+        <div className="flex flex-col gap-2">
+          <a
+            href={`https://mangakakalot.com/manga/${decodeURIComponent(id)}`}
+            target="_blank" rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 py-2.5 rounded-xl font-mono text-sm font-semibold transition-all"
+            style={{ background:"#fff", color:"#000" }}
+          >
+            Read on Mangakakalot →
+          </a>
+          <a
+            href={`https://myanimelist.net/manga/${decodeURIComponent(id)}`}
+            target="_blank" rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 py-2.5 rounded-xl font-mono text-sm transition-all"
+            style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", color:"rgba(255,255,255,0.6)" }}
+          >
+            View on MyAnimeList →
+          </a>
+          <button onClick={() => navigate(`/manga/${encodeURIComponent(id)}`)}
+            className="text-white/30 hover:text-white font-mono text-xs transition-colors mt-1">
+            ← Back to manga
+          </button>
+        </div>
+      </div>
     </div>
   );
 

@@ -4,7 +4,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import { BookOpen, Search, X, ArrowLeft, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/src/context/LanguageContext";
-import { searchManga, getLatestManga, getLatestRelease } from "@/src/utils/manga.utils";
+import { searchManga, getLatestManga, getLatestRelease, getTrending } from "@/src/utils/manga.utils";
 import "swiper/css";
 import "swiper/css/pagination";
 
@@ -135,21 +135,18 @@ export default function Manga() {
   // Initial load
   useEffect(() => {
     setLoading(true);
-    // Fetch latest + releases in parallel, don't let one block the other
-    getLatestManga(1)
-      .then(lm => {
-        const arr = toArr(lm);
-        setSpotlight(arr.slice(0, 8));
-        setLatest(arr);
-        setTrending(arr.slice(0, 12));
-      })
-      .catch(console.error)
+    Promise.all([
+      getLatestManga(1),
+      getLatestRelease(),
+      getTrending(),
+    ]).then(([lm, lr, tr]) => {
+      const arr = toArr(lm);
+      setSpotlight(arr.slice(0, 8));
+      setLatest(arr);
+      setReleases(toArr(lr));
+      setTrending(toArr(tr).slice(0, 12));
+    }).catch(console.error)
       .finally(() => setLoading(false));
-
-    // Releases fetched separately so its loading state is independent
-    getLatestRelease()
-      .then(lr => setReleases(toArr(lr)))
-      .catch(() => setReleases([])); // silently fail — don't block page
   }, []);
 
   // Load more latest
