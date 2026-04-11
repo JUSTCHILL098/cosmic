@@ -55,34 +55,11 @@ export default function SplashScreen() {
       ═══════════════════════════════════════════════ */}
 
       {/* ── HERO ── */}
-      {/* NO background here — let the cosmic bg show through */}
-      <section
-        className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 py-20"
-        style={{ zIndex: 10 }}
-      >
+      {/* Section is transparent — cosmic bg shows through. Isolation context on inner wrapper. */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden text-center" style={{ zIndex: 10 }}>
 
-        {/* Badge */}
-        <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.15 }} className="mb-5" style={{ position: "relative", zIndex: 20 }}>
-          <span className="inline-flex items-center gap-1.5 rounded-md border border-indigo-500 bg-indigo-500/20 px-3 py-1 text-xs font-semibold font-mono text-indigo-300 backdrop-blur-md cursor-default">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500" />
-            </span>
-            {onlineCount} {onlineCount === 1 ? "user" : "users"} watching now
-          </span>
-        </motion.div>
-
-        {/* ── VIDEO KNOCKOUT TITLE ──
-            Section bg is #000 + isolation:isolate → multiply composites against black
-            Wrapper has NO background (transparent) — no black box
-            Layer 0: video fills wrapper absolutely
-            Layer 1: bg-black + white text + mix-blend-mode:multiply
-                     black = blocks video | white text = transparent = video shows through */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.7 }}
-          className="w-full max-w-5xl mb-6"
-          style={{ position: "relative", zIndex: 10, isolation: "isolate", background: "#000" }}
-        >
+        {/* Isolated black context for the video knockout — only this div is black */}
+        <div className="absolute inset-0" style={{ isolation: "isolate" }}>
           {/* Layer 0: Video */}
           <div className="absolute inset-0" style={{ zIndex: 0 }}>
             <video
@@ -91,75 +68,96 @@ export default function SplashScreen() {
               className="w-full h-full object-cover"
             />
           </div>
-          {/* Layer 1: Multiply mask */}
-          <div
-            className="absolute inset-0 bg-black flex items-center justify-center pointer-events-none select-none"
-            style={{ zIndex: 1, mixBlendMode: "multiply" }}
+          {/* Layer 1: Mask — bg-black + white text + multiply = video through letters, black elsewhere */}
+          <div className="absolute inset-0 bg-black flex flex-col items-center justify-center pointer-events-none select-none"
+            style={{ zIndex: 1, mixBlendMode: "multiply" }}>
+            <div className="flex flex-col items-center w-full max-w-5xl mx-auto px-4">
+              <div className="h-9 opacity-0" />
+              <h1 className="font-black text-white leading-none tracking-tighter font-mono py-2"
+                style={{ fontSize: "clamp(5rem, 14vw, 11rem)" }}>
+                {TITLE}
+              </h1>
+              <div className="h-48 opacity-0" />
+            </div>
+          </div>
+        </div>
+
+        {/* Layer 3: Content — badge, invisible spacer text, taglines, buttons */}
+        <div className="relative z-30 flex flex-col items-center w-full max-w-5xl mx-auto px-6 py-20">
+
+          {/* Badge */}
+          <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.15 }} className="mb-2">
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-indigo-500 bg-indigo-500/20 px-3 py-1 text-xs font-semibold font-mono text-indigo-300 backdrop-blur-md cursor-default">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500" />
+              </span>
+              {onlineCount} {onlineCount === 1 ? "user" : "users"} watching now
+            </span>
+          </motion.div>
+
+          {/* Invisible spacer — same size as mask text, holds layout */}
+          <motion.div
+            initial={{ opacity:0, scale:0.9 }} animate={{ opacity:1, scale:1 }}
+            transition={{ delay:0.4, type:"spring", duration:1.5 }}
+            className="w-full select-none pointer-events-none"
           >
-            <h1 className="font-black leading-none tracking-tighter font-mono text-white" style={{ fontSize: "clamp(5rem, 14vw, 11rem)" }}>
+            <h1 className="font-black text-transparent leading-none tracking-tighter font-mono py-2"
+              style={{ fontSize: "clamp(5rem, 14vw, 11rem)" }}>
               {TITLE}
             </h1>
+          </motion.div>
+
+          {/* Taglines + search + buttons */}
+          <div className="flex flex-col items-center gap-4 -mt-4 w-full max-w-2xl">
+            <motion.p initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.55 }}
+              className="text-zinc-300 text-lg sm:text-xl font-mono">
+              Your Complete Anime Entertainment Platform
+            </motion.p>
+            <motion.p initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.65 }}
+              className="text-zinc-500 text-xs sm:text-sm font-mono -mt-2">
+              Thousands of series in English Sub &amp; Dub — completely free
+            </motion.p>
+
+            <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.72 }}
+              className="relative w-full max-w-[480px]">
+              <Input type="text" placeholder="Search anime..." value={search}
+                onChange={e => setSearch(e.target.value)} onKeyDown={onKey}
+                className="pr-12 h-11 text-sm bg-white/[0.08] border-white/15 text-white placeholder:text-white/40 backdrop-blur-md focus-visible:ring-white/20 rounded-md font-mono" />
+              <Button variant="ghost" size="icon" onClick={submit} aria-label="Search"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-white/50 hover:text-white hover:bg-transparent rounded-md">
+                <Search className="w-4 h-4" />
+              </Button>
+            </motion.div>
+
+            <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.8 }}
+              className="flex flex-row gap-3 justify-center">
+              <Button onClick={() => navigate('/home')}
+                className="h-11 px-8 rounded-md bg-white hover:bg-gray-100 text-black font-mono text-sm font-semibold shadow-none">
+                <Play className="mr-2 h-4 w-4 fill-current" /> Start Watching
+              </Button>
+              <Button asChild variant="outline"
+                className="h-11 px-8 rounded-md border-white/20 hover:border-[#5865f2]/60 bg-transparent hover:bg-[#5865f2]/10 text-white hover:text-[#7289da] font-mono text-sm">
+                <a href="https://discord.com/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                  <DiscordSVG size={16} /> Discord
+                </a>
+              </Button>
+            </motion.div>
+
+            <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.9 }}
+              className="flex flex-wrap gap-4 justify-center">
+              <button onClick={() => navigate('/home')} className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white transition-colors font-mono">
+                <Tv className="w-3.5 h-3.5" />Anime<ChevronRight className="w-3 h-3 opacity-50" />
+              </button>
+              <button className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white transition-colors font-mono">
+                <BookOpen className="w-3.5 h-3.5" />Manga<ChevronRight className="w-3 h-3 opacity-50" />
+              </button>
+            </motion.div>
           </div>
-          {/* Spacer — transparent, gives the container height */}
-          <h1
-            className="font-black leading-none tracking-tighter font-mono text-center py-4"
-            style={{ fontSize: "clamp(5rem, 14vw, 11rem)", color: "transparent", userSelect: "none", pointerEvents: "none" }}
-            aria-hidden="true"
-          >
-            {TITLE}
-          </h1>
-        </motion.div>
-
-        {/* Taglines */}
-        <motion.p initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.4 }}
-          className="text-zinc-200 text-lg sm:text-xl font-mono mb-2">
-          Your Complete Anime Entertainment Platform
-        </motion.p>
-        <motion.p initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.5 }}
-          className="text-zinc-500 text-xs sm:text-sm font-mono mb-8">
-          Thousands of series in English Sub &amp; Dub — completely free
-        </motion.p>
-
-        {/* Search */}
-        <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.6 }}
-          className="relative w-full max-w-[480px] mb-6">
-          <Input type="text" placeholder="Search anime..." value={search}
-            onChange={e => setSearch(e.target.value)} onKeyDown={onKey}
-            className="pr-12 h-11 text-sm bg-white/[0.08] border-white/15 text-white placeholder:text-white/40 backdrop-blur-md focus-visible:ring-white/20 rounded-md font-mono" />
-          <Button variant="ghost" size="icon" onClick={submit} aria-label="Search"
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-white/50 hover:text-white hover:bg-transparent rounded-md">
-            <Search className="w-4 h-4" />
-          </Button>
-        </motion.div>
-
-        {/* CTA buttons */}
-        <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.7 }}
-          className="flex flex-row gap-3 justify-center mb-6">
-          <Button onClick={() => navigate('/home')}
-            className="h-11 px-8 rounded-md bg-white hover:bg-gray-100 text-black font-mono text-sm font-semibold shadow-none">
-            <Play className="mr-2 h-4 w-4 fill-current" /> Start Watching
-          </Button>
-          <Button asChild variant="outline"
-            className="h-11 px-8 rounded-md border-white/20 hover:border-[#5865f2]/60 bg-transparent hover:bg-[#5865f2]/10 text-white hover:text-[#7289da] font-mono text-sm">
-            <a href="https://discord.com/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-              <DiscordSVG size={16} /> Discord
-            </a>
-          </Button>
-        </motion.div>
-
-        {/* Quick nav links */}
-        <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.9 }}
-          className="flex flex-wrap gap-4 justify-center">
-          <button onClick={() => navigate('/home')} className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white transition-colors font-mono">
-            <Tv className="w-3.5 h-3.5" />Anime<ChevronRight className="w-3 h-3 opacity-50" />
-          </button>
-          <button className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white transition-colors font-mono">
-            <BookOpen className="w-3.5 h-3.5" />Manga<ChevronRight className="w-3 h-3 opacity-50" />
-          </button>
-        </motion.div>
+        </div>
 
         {/* Scroll indicator */}
-        <motion.div className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        <motion.div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30"
           initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:1.2 }}>
           <div className="w-5 h-8 rounded-full border border-white/20 flex items-start justify-center p-1">
             <div className="w-1 h-2 bg-white/60 rounded-full animate-bounce" />
