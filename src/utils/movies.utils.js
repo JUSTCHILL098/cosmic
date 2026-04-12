@@ -1,32 +1,39 @@
 import axios from "axios";
 
 // FlixHQ API for streaming + movie data
-const FHQBASE = "https://jitsu-ten.vercel.app/api/flixhq";
-// TMDB for posters/backdrops (FlixHQ doesn't always have them)
-const TMDB    = "https://api.themoviedb.org/3";
-const TMDBKEY = import.meta.env.VITE_TMDB_KEY;
-const IMG     = "https://image.tmdb.org/t/p";
+const FHQBASE  = "https://jitsu-ten.vercel.app/api/flixhq";
+const M3U8PROXY = import.meta.env.VITE_M3U8_PROXY_URL; // https://pro-xi-mocha.vercel.app/m3u8-proxy?url=
 
-export const poster   = (path, size = "w500")  => path ? `${IMG}/${size}${path}` : null;
-export const backdrop = (path, size = "w1280") => path ? `${IMG}/${size}${path}` : null;
+const fhq = (path) => axios.get(`${FHQBASE}${path}`).then(r => r.data);
 
-const fhq  = (path) => axios.get(`${FHQBASE}${path}`).then(r => r.data);
-const tmdb = (path, params = {}) =>
-  axios.get(`${TMDB}${path}`, { params: { api_key: TMDBKEY, language: "en-US", ...params } }).then(r => r.data);
+// Proxy an HLS URL through the m3u8 proxy to bypass CORS
+const proxyM3u8 = (url) => {
+  if (!url) return url;
+  if (!M3U8PROXY) return url;
+  // Don't double-proxy
+  if (url.startsWith(M3U8PROXY)) return url;
+  return `${M3U8PROXY}${encodeURIComponent(url)}`;
+};
 
 // Normalize FlixHQ movie to our shape
+// Detail response wraps data in { data: {...}, providerEpisodes: [...] }
+// List responses have items directly
 const normFHQ = (m) => ({
   id:        m.id,
   title:     m.name || m.title || "Unknown",
   poster:    m.posterImage || m.image || "https://placehold.co/200x300/111/333?text=No+Poster",
   backdrop:  m.cover || null,
-  overview:  m.description || "",
+  overview:  m.synopsis || m.description || "",
   rating:    m.rating ? String(m.rating) : "N/A",
   year:      String(m.releaseDate || m.year || ""),
-  genres:    m.genres || [],
+  genres:    m.genre || m.genres || [],
   quality:   m.quality || "",
   duration:  m.duration || "",
   type:      m.type || "Movie",
+  cast:      m.casts || m.cast || [],
+  tags:      m.tags || [],
+  production: m.production || "",
+  country:   m.country || "",
 });
 
 // ── List endpoints ────────────────────────────────────────────────────────────
@@ -42,26 +49,30 @@ export const searchMovies = (query, page = 1) =>
     .then(d => ({ results: (d.data || []).filter(m => m.type === "Movie").map(normFHQ), totalPages: d.lastPage || 1 }));
 
 // ── Movie detail ──────────────────────────────────────────────────────────────
+// API returns: { data: { id, name, synopsis, casts, genre, ... }, providerEpisodes: [...] }
 export const getMovieDetail = async (id) => {
-  const d = await fhq(`/media/${id}`);
+  const res = await fhq(`/media/${id}`);
+  // Detail wraps in res.data; list items are direct
+  const m = res.data || res;
   return {
-    ...normFHQ(d),
-    // Extra fields from FlixHQ detail
-    cast:        d.cast || [],
-    tags:        d.tags || [],
-    production:  d.production || "",
-    country:     d.country || "",
-    // providerEpisodes contains the episode/movie IDs for streaming
-    providerEpisodes: d.providerEpisodes || [],
-    episodeId:   d.providerEpisodes?.[0]?.id || id, // for movies, use first episode or the id itself
+    ...normFHQ(m),
+    providerEpisodes: res.providerEpisodes || [],
+    // Use episodeId from providerEpisodes for streaming (not .id — use .episodeId)
+    episodeId: res.providerEpisodes?.[0]?.episodeId || res.providerEpisodes?.[0]?.id || id,
   };
 };
 
 // ── Streaming ─────────────────────────────────────────────────────────────────
 export const getMovieSources = async (episodeId, server = "vidcloud") => {
   const d = await fhq(`/sources/${encodeURIComponent(episodeId)}?server=${server}`);
+  const rawSources = d.data?.sources || d.sources || [];
+  // Proxy every HLS source URL to bypass CORS
+  const sources = rawSources.map(s => ({
+    ...s,
+    url: proxyM3u8(s.url),
+  }));
   return {
-    sources:   d.data?.sources || d.sources || [],
+    sources,
     subtitles: d.data?.subtitles || d.subtitles || [],
     headers:   d.headers || {},
   };

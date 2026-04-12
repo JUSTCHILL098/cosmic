@@ -38,7 +38,7 @@ export default function SplashScreen() {
   const onKey   = useCallback((e) => { if (e.key === "Enter") submit(); }, [submit]);
 
   return (
-    <div className="relative text-white overflow-x-hidden" style={{ background: "#000" }}>
+    <div className="relative text-white overflow-x-hidden" style={{ background: "transparent" }}>
 
       {/* PERMANENT FULL-PAGE COSMIC BACKGROUND */}
       <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", width: "100vw", height: "100vh" }}>
@@ -55,34 +55,9 @@ export default function SplashScreen() {
       ═══════════════════════════════════════════════ */}
 
       {/* ── HERO ── */}
-      {/* Section is transparent — cosmic bg shows through. Isolation context on inner wrapper. */}
       <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden text-center" style={{ zIndex: 10 }}>
 
-        {/* Isolated black context for the video knockout — only this div is black */}
-        <div className="absolute inset-0" style={{ isolation: "isolate" }}>
-          {/* Layer 0: Video */}
-          <div className="absolute inset-0" style={{ zIndex: 0 }}>
-            <video
-              src="https://api.lunaranime.ru/static/intro.mp4"
-              autoPlay loop muted playsInline
-              className="w-full h-full object-cover"
-            />
-          </div>
-          {/* Layer 1: Mask — bg-black + white text + multiply = video through letters, black elsewhere */}
-          <div className="absolute inset-0 bg-black flex flex-col items-center justify-center pointer-events-none select-none"
-            style={{ zIndex: 1, mixBlendMode: "multiply" }}>
-            <div className="flex flex-col items-center w-full max-w-5xl mx-auto px-4">
-              <div className="h-9 opacity-0" />
-              <h1 className="font-black text-white leading-none tracking-tighter font-mono py-2"
-                style={{ fontSize: "clamp(5rem, 14vw, 11rem)" }}>
-                {TITLE}
-              </h1>
-              <div className="h-48 opacity-0" />
-            </div>
-          </div>
-        </div>
-
-        {/* Layer 3: Content — badge, invisible spacer text, taglines, buttons */}
+        {/* Layer: Content — badge, title, taglines, buttons */}
         <div className="relative z-30 flex flex-col items-center w-full max-w-5xl mx-auto px-6 py-20">
 
           {/* Badge */}
@@ -96,13 +71,13 @@ export default function SplashScreen() {
             </span>
           </motion.div>
 
-          {/* Invisible spacer — same size as mask text, holds layout */}
+          {/* Title */}
           <motion.div
             initial={{ opacity:0, scale:0.9 }} animate={{ opacity:1, scale:1 }}
             transition={{ delay:0.4, type:"spring", duration:1.5 }}
             className="w-full select-none pointer-events-none"
           >
-            <h1 className="font-black text-transparent leading-none tracking-tighter font-mono py-2"
+            <h1 className="font-black text-white leading-none tracking-tighter font-mono py-2"
               style={{ fontSize: "clamp(5rem, 14vw, 11rem)" }}>
               {TITLE}
             </h1>
