@@ -179,8 +179,8 @@ export default function Watch() {
               </div>
             </motion.div>
 
-            {/* 2. Controls */}
-            <div ref={ctrlRef} className="rounded-xl overflow-hidden" style={CARD}>
+            {/* 2. Controls — black card */}
+            <div ref={ctrlRef} className="rounded-xl overflow-hidden" style={{ background:"#000", border:"1px solid rgba(255,255,255,0.09)", borderRadius:12 }}>
               <Watchcontrols
                 autoPlay={autoPlay} setAutoPlay={setAutoPlay}
                 autoSkipIntro={autoSkipIntro} setAutoSkipIntro={setAutoSkipIntro}
@@ -189,6 +189,10 @@ export default function Watch() {
                 episodeId={episodeId} onButtonClick={(id) => setEpisodeId(id)}
                 isInRoom={isInRoom} isHost={isHost}
               />
+            </div>
+
+            {/* 2b. Servers — separate black card */}
+            <div className="rounded-xl" style={{ background:"#000", border:"1px solid rgba(255,255,255,0.09)", borderRadius:12, overflow:"visible" }}>
               <div className="px-3 py-2.5">
                 <Servers
                   servers={servers} activeEpisodeNum={activeEpisodeNum}
@@ -226,50 +230,96 @@ export default function Watch() {
 
             {/* 3. Anime info */}
             <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.3, delay:0.1 }}
-              className="rounded-xl overflow-hidden" style={CARD}>
-              {animeInfo?.poster && (
-                <div className="relative h-28 overflow-hidden">
-                  <img src={animeInfo.poster} alt="" className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-20" />
-                  <div className="absolute inset-0" style={{ background:"linear-gradient(to bottom, transparent 0%, #111 100%)" }} />
-                </div>
-              )}
-              <div className="px-5 pb-5" style={{ marginTop: animeInfo?.poster ? "-40px" : 0 }}>
+              className="rounded-xl overflow-hidden" style={{ background:"#000", border:"1px solid rgba(255,255,255,0.09)", borderRadius:12 }}>
+              <div className="px-5 py-5">
                 <div className="flex gap-5">
+                  {/* Big poster */}
                   <div className="flex-shrink-0">
                     {animeInfo?.poster
-                      ? <img src={animeInfo.poster} alt="" className="w-[110px] h-[160px] object-cover rounded-xl shadow-2xl" style={{ border:"1px solid rgba(255,255,255,0.1)" }} />
-                      : <Skeleton className="w-[110px] h-[160px] rounded-xl" />}
+                      ? <img src={animeInfo.poster} alt="" className="w-[140px] h-[200px] object-cover rounded-xl shadow-2xl" style={{ border:"1px solid rgba(255,255,255,0.12)" }} />
+                      : <Skeleton className="w-[140px] h-[200px] rounded-xl" />}
                   </div>
-                  <div className="flex flex-col gap-3 flex-1 min-w-0 pt-2">
+
+                  <div className="flex flex-col gap-3 flex-1 min-w-0">
+                    {/* Title */}
                     {animeInfo?.title
-                      ? <Link to={"/" + animeId}><h1 className="text-xl font-black text-white leading-tight font-mono hover:text-white/70 transition-colors">{language ? animeInfo.title : animeInfo.japanese_title}</h1></Link>
-                      : <Skeleton className="w-56 h-6 rounded" />}
+                      ? <Link to={"/" + animeId}>
+                          <h1 className="text-2xl font-black text-white leading-tight tracking-tight hover:text-white/70 transition-colors">
+                            {language ? animeInfo.title : animeInfo.japanese_title}
+                          </h1>
+                        </Link>
+                      : <Skeleton className="w-56 h-7 rounded" />}
+
+                    {/* Colored badge pills */}
                     <div className="flex flex-wrap gap-2">
-                      {tvInfo.rating  && <GlassPill><FontAwesomeIcon icon={faStar} className="text-[10px]" />{tvInfo.rating}</GlassPill>}
-                      {tvInfo.quality && <GlassPill>{tvInfo.quality}</GlassPill>}
-                      {tvInfo.sub     && <GlassPill><FontAwesomeIcon icon={faClosedCaptioning} />SUB {tvInfo.sub}</GlassPill>}
-                      {tvInfo.dub     && <GlassPill><FontAwesomeIcon icon={faMicrophone} />DUB {tvInfo.dub}</GlassPill>}
-                      {tvInfo.eps     && <GlassPill>{tvInfo.eps} eps</GlassPill>}
+                      {tvInfo.rating && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold" style={{ background:"rgba(251,191,36,0.15)", border:"1px solid rgba(251,191,36,0.35)", color:"#fbbf24" }}>
+                          <FontAwesomeIcon icon={faStar} className="text-[9px]" />{tvInfo.rating}
+                        </span>
+                      )}
+                      {tvInfo.quality && (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold" style={{ background:"rgba(99,102,241,0.15)", border:"1px solid rgba(99,102,241,0.35)", color:"#818cf8" }}>
+                          {tvInfo.quality}
+                        </span>
+                      )}
+                      {tvInfo.sub && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold" style={{ background:"rgba(34,197,94,0.15)", border:"1px solid rgba(34,197,94,0.35)", color:"#4ade80" }}>
+                          <FontAwesomeIcon icon={faClosedCaptioning} className="text-[9px]" />SUB {tvInfo.sub}
+                        </span>
+                      )}
+                      {tvInfo.dub && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold" style={{ background:"rgba(59,130,246,0.15)", border:"1px solid rgba(59,130,246,0.35)", color:"#60a5fa" }}>
+                          <FontAwesomeIcon icon={faMicrophone} className="text-[9px]" />DUB {tvInfo.dub}
+                        </span>
+                      )}
+                      {tvInfo.eps && (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold" style={{ background:"rgba(255,255,255,0.07)", border:"1px solid rgba(255,255,255,0.12)", color:"rgba(255,255,255,0.7)" }}>
+                          {tvInfo.eps} eps
+                        </span>
+                      )}
                     </div>
+
+                    {/* Meta row */}
                     {info && (
                       <div className="flex flex-wrap gap-x-5 gap-y-1">
                         {[{l:"Type",v:info.Type},{l:"Status",v:info.Status},{l:"Aired",v:info.Aired},{l:"Studio",v:info.Studios}].filter(m=>m.v).map(m=>(
                           <div key={m.l} className="flex items-center gap-1.5">
-                            <span className="text-[10px] text-white/25 font-mono uppercase tracking-wider">{m.l}</span>
-                            <span className="text-[10px] text-white/55 font-mono">{m.v}</span>
+                            <span className="text-[10px] text-white/25 uppercase tracking-wider">{m.l}</span>
+                            <span className="text-[10px] text-white/60">{m.v}</span>
                           </div>
                         ))}
                       </div>
                     )}
+
+                    {/* Genre tags — colored */}
+                    {info?.Genres?.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {info.Genres.map((g, i) => {
+                          const colors = [
+                            { bg:"rgba(239,68,68,0.12)",   border:"rgba(239,68,68,0.3)",   text:"#f87171" },
+                            { bg:"rgba(249,115,22,0.12)",  border:"rgba(249,115,22,0.3)",  text:"#fb923c" },
+                            { bg:"rgba(234,179,8,0.12)",   border:"rgba(234,179,8,0.3)",   text:"#facc15" },
+                            { bg:"rgba(34,197,94,0.12)",   border:"rgba(34,197,94,0.3)",   text:"#4ade80" },
+                            { bg:"rgba(6,182,212,0.12)",   border:"rgba(6,182,212,0.3)",   text:"#22d3ee" },
+                            { bg:"rgba(99,102,241,0.12)",  border:"rgba(99,102,241,0.3)",  text:"#818cf8" },
+                            { bg:"rgba(168,85,247,0.12)",  border:"rgba(168,85,247,0.3)",  text:"#c084fc" },
+                            { bg:"rgba(236,72,153,0.12)",  border:"rgba(236,72,153,0.3)",  text:"#f472b6" },
+                          ];
+                          const c = colors[i % colors.length];
+                          return (
+                            <Link key={i} to={`/genre/${g.split(" ").join("-")}`}
+                              className="px-2.5 py-1 rounded-md text-[11px] font-medium transition-all"
+                              style={{ background: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
+                              {g}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Overview — no truncation */}
                     {overview && (
-                      <p className="text-sm text-white/40 font-mono leading-relaxed">
-                        {isFullOverview ? overview : overview.slice(0, 240) + (overview.length > 240 ? "..." : "")}
-                        {overview.length > 240 && (
-                          <button className="ml-1.5 text-white/60 hover:text-white transition-colors text-xs" onClick={() => setIsFullOverview(!isFullOverview)}>
-                            {isFullOverview ? "less" : "more"}
-                          </button>
-                        )}
-                      </p>
+                      <p className="text-sm text-white/40 leading-relaxed">{overview}</p>
                     )}
                   </div>
                 </div>

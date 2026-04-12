@@ -5,6 +5,7 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Search, ChevronRight, Play, Zap, Globe, Wifi, Clock, Smartphone, Heart, Tv, BookOpen } from "lucide-react";
 import CosmicWaves from "@/src/components/ui/CosmicWaves";
+import { VideoText } from "@/src/components/ui/VideoText";
 import { useOnlineCount } from "@/src/hooks/useOnlineCount";
 
 const MARQUEE = ["One Piece","Naruto","Attack on Titan","Demon Slayer","Jujutsu Kaisen","Bleach","Dragon Ball Z","Hunter x Hunter","Fullmetal Alchemist","Tokyo Ghoul","Sword Art Online","My Hero Academia","Death Note","Vinland Saga","Chainsaw Man","Re:Zero","Steins;Gate","Code Geass","Cowboy Bebop","Evangelion"];
@@ -17,12 +18,11 @@ const FEATURES = [
   { icon: Heart,      title: "Watchlist",     desc: "Track what you're watching, completed, and plan to watch." },
 ];
 const STATS = [
-  { value: "10K+",   label: "Anime Titles" },
-  { value: "500K+",  label: "Active Users" },
-  { value: "99.9%",  label: "Uptime" },
-  { value: "0",      label: "Ads" },
+  { value: "10K+",  label: "Anime Titles" },
+  { value: "500K+", label: "Active Users" },
+  { value: "99.9%", label: "Uptime" },
+  { value: "0",     label: "Ads" },
 ];
-const TITLE = "COSMIC";
 
 const DiscordSVG = ({ size = 18 }) => (
   <svg width={size} height={size} viewBox="0 0 71 55" fill="currentColor">
@@ -34,30 +34,22 @@ export default function SplashScreen() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const onlineCount = useOnlineCount();
-  const submit  = useCallback(() => { const q = search.trim(); if (q) navigate(`/search?keyword=${encodeURIComponent(q)}`); }, [search, navigate]);
-  const onKey   = useCallback((e) => { if (e.key === "Enter") submit(); }, [submit]);
+  const submit = useCallback(() => { const q = search.trim(); if (q) navigate(`/search?keyword=${encodeURIComponent(q)}`); }, [search, navigate]);
+  const onKey  = useCallback((e) => { if (e.key === "Enter") submit(); }, [submit]);
 
   return (
     <div className="relative text-white overflow-x-hidden" style={{ background: "transparent" }}>
 
       {/* PERMANENT FULL-PAGE COSMIC BACKGROUND */}
       <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", width: "100vw", height: "100vh" }}>
-        {/* shader canvas — slightly blurred so it looks soft */}
         <div style={{ position: "absolute", inset: 0, filter: "blur(40px)", transform: "scale(1.05)" }}>
           <CosmicWaves speed={0.5} amplitude={0.9} frequency={1.1} starDensity={1.2} colorShift={0.8} />
         </div>
-        {/* dark overlay for readability */}
         <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.72)" }} />
       </div>
 
-      {/* ═══════════════════════════════════════════════
-          ALL CONTENT sits above the fixed bg (z-10+)
-      ═══════════════════════════════════════════════ */}
-
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden text-center" style={{ zIndex: 10 }}>
-
-        {/* Layer: Content — badge, title, taglines, buttons */}
         <div className="relative z-30 flex flex-col items-center w-full max-w-5xl mx-auto px-6 py-20">
 
           {/* Badge */}
@@ -71,36 +63,26 @@ export default function SplashScreen() {
             </span>
           </motion.div>
 
-          {/* Title — video knockout effect (video shows through text letters) */}
+          {/* VideoText title */}
           <motion.div
             initial={{ opacity:0, scale:0.9 }} animate={{ opacity:1, scale:1 }}
             transition={{ delay:0.4, type:"spring", duration:1.5 }}
             className="w-full select-none pointer-events-none"
+            style={{ height: "clamp(80px, 14vw, 160px)" }}
           >
-            {/* Isolated container so mix-blend-mode only affects this element */}
-            <div style={{ isolation: "isolate", position: "relative" }}>
-              {/* Video layer — sits behind the text */}
-              <video
-                autoPlay muted loop playsInline preload="auto"
-                className="absolute inset-0 w-full h-full object-cover rounded-xl"
-                style={{ zIndex: 0 }}
-              >
-                <source src="/bg-video.mp4" type="video/mp4" />
-              </video>
-              {/* Text with multiply blend — black bg punches through, video shows in letters */}
-              <div style={{ position: "relative", zIndex: 1, background: "#000", mixBlendMode: "multiply" }}>
-                <h1
-                  className="font-black text-white leading-none tracking-tighter font-mono py-2"
-                  style={{ fontSize: "clamp(5rem, 14vw, 11rem)" }}
-                >
-                  {TITLE}
-                </h1>
-              </div>
-            </div>
+            <VideoText
+              src="https://api.lunaranime.ru/static/intro.mp4"
+              fontSize={14}
+              fontWeight="900"
+              fontFamily="monospace"
+              className="w-full h-full"
+            >
+              COSMIC
+            </VideoText>
           </motion.div>
 
           {/* Taglines + search + buttons */}
-          <div className="flex flex-col items-center gap-4 -mt-4 w-full max-w-2xl">
+          <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
             <motion.p initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.55 }}
               className="text-zinc-300 text-lg sm:text-xl font-mono">
               Your Complete Anime Entertainment Platform
@@ -140,7 +122,7 @@ export default function SplashScreen() {
               <button onClick={() => navigate('/home')} className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white transition-colors font-mono">
                 <Tv className="w-3.5 h-3.5" />Anime<ChevronRight className="w-3 h-3 opacity-50" />
               </button>
-              <button className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white transition-colors font-mono">
+              <button onClick={() => navigate('/manga')} className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white transition-colors font-mono">
                 <BookOpen className="w-3.5 h-3.5" />Manga<ChevronRight className="w-3 h-3 opacity-50" />
               </button>
             </motion.div>

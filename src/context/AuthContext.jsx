@@ -74,10 +74,26 @@ export const AuthProvider = ({ children }) => {
 
   const updateProfile = async (updates) => {
     if (!user) return;
-    const { data, error } = await supabase.from("profiles").update(updates).eq("id", user.id).select().single();
-    if (error) throw error;
-    setProfile(data);
-    return data;
+    // Try update first; if no row exists, upsert to create it
+    const { error } = await supabase
+      .from("profiles")
+      .update(updates)
+      .eq("id", user.id);
+    if (error) {
+      // Fallback: upsert (creates row if missing)
+      const { error: upsertErr } = await supabase
+        .from("profiles")
+        .upsert({ id: user.id, ...updates });
+      if (upsertErr) throw upsertErr;
+    }
+    // Re-fetch the updated row
+    const { data: fresh } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+    setProfile(fresh ?? null);
+    return fresh;
   };
 
   // Track an episode watch — increments episodes_watched and adds XP
