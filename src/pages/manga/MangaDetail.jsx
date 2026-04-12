@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, BookOpen, Star, Clock, User } from "lucide-react";
+import { ArrowLeft, BookOpen, Star, Clock, User, ExternalLink } from "lucide-react";
 import { getChapterInfo } from "@/src/utils/manga.utils";
 import { useLanguage } from "@/src/context/LanguageContext";
 
@@ -113,7 +113,18 @@ export default function MangaDetail() {
           </div>
           <div className="max-h-[60vh] overflow-y-auto">
             {chapters.length === 0 ? (
-              <p className="text-white/20 font-mono text-xs text-center py-8">No chapters available</p>
+              <div className="flex flex-col items-center text-center gap-3 py-8 px-4">
+                <p className="text-white/20 font-mono text-xs">Chapter list not available via our source</p>
+                {manga.malUrl && (
+                  <a href={manga.malUrl} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-xs font-mono transition-colors"
+                    style={{ color:"rgba(255,255,255,0.4)" }}
+                    onMouseEnter={e => e.currentTarget.style.color = "#fff"}
+                    onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.4)"}>
+                    <ExternalLink className="w-3 h-3" /> View on MyAnimeList →
+                  </a>
+                )}
+              </div>
             ) : (
               chapters.map((ch, i) => (
                 <motion.button

@@ -39,13 +39,21 @@ export const getLatestRelease = async () => {
   return (d?.data || []).map(normManga);
 };
 
-// Manga detail + chapters (Jikan doesn't have chapter images, only metadata)
+// Manga detail + chapters
 export const getChapterInfo = async (id) => {
+  // Jikan uses numeric MAL IDs — if we get a UUID (from old MangaDex data), reject gracefully
+  const numericId = parseInt(id, 10);
+  if (!numericId || isNaN(numericId)) {
+    return { manga: { id, title: "Unknown", japanese_title: "Unknown", image: "", author: "", status: "", rating: "", genres: [], summary: "" }, chapters: [] };
+  }
+
   const [mangaRes, chaptersRes] = await Promise.all([
-    get(`/manga/${id}/full`),
-    get(`/manga/${id}/chapters?page=1`),
+    get(`/manga/${numericId}/full`),
+    get(`/manga/${numericId}/chapters?page=1`).catch(() => ({ data: [] })),
   ]);
   const m = mangaRes?.data;
+  if (!m) return { manga: { id, title: "Not found", japanese_title: "", image: "", author: "", status: "", rating: "", genres: [], summary: "" }, chapters: [] };
+
   const chapters = (chaptersRes?.data || []).map(ch => ({
     id:        String(ch.mal_id),
     chapterID: String(ch.mal_id),
@@ -65,6 +73,7 @@ export const getChapterInfo = async (id) => {
       genres:         m.genres?.map(g => g.name) || [],
       summary:        m.synopsis || "",
       score:          m.score,
+      malUrl:         m.url || `https://myanimelist.net/manga/${m.mal_id}`,
     },
     chapters,
   };
