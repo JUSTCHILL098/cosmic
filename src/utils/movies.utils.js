@@ -1,8 +1,6 @@
 import axios from "axios";
 
 const FHQBASE   = "https://jitsu-ten.vercel.app/api/flixhq";
-// Use our own serverless m3u8 proxy — the anime proxy blocks raffaellocdn
-const M3U8PROXY = "/api/m3u8-proxy?url=";
 
 const fhq = (path) => axios.get(`${FHQBASE}${path}`).then(r => r.data);
 
@@ -48,25 +46,15 @@ export const getMovieSources = async (episodeId, server = "vidcloud") => {
   const sources   = res.data?.sources   || res.sources   || [];
   const subtitles = res.data?.subtitles || res.subtitles || [];
 
-  // Proxy the HLS URL through the existing M3U8 proxy to bypass CORS
-  const proxied = sources.map(s => {
-    if ((s.isM3u8 || s.type === "hls") && s.url && M3U8PROXY) {
-      return { ...s, url: `${M3U8PROXY}${encodeURIComponent(s.url)}` };
-    }
-    return s;
-  });
-
-  // Map to Player's expected format: { file, label, kind, default }
-  const mappedSubs = subtitles.map(s => ({
-    file:    s.url  || s.file || "",
-    label:   s.lang || s.label || "English",
-    kind:    "subtitles",
-    default: !!s.default,
-  })).filter(s => s.file);
-
+  // Return sources as-is — MoviePlayer injects Referer header client-side via hls.js xhrSetup
   return {
-    sources:   proxied,
-    subtitles: mappedSubs,
-    headers:   res.headers || {},
+    sources,
+    subtitles: subtitles.map(s => ({
+      file:    s.url  || s.file || "",
+      label:   s.lang || s.label || "English",
+      kind:    "subtitles",
+      default: !!s.default,
+    })).filter(s => s.file),
+    headers: res.headers || {},
   };
 };

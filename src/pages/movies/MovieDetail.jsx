@@ -1,13 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { useLocation } from "react-router-dom";
-import { getMovieDetail, getMovieSources } from "@/src/utils/movies.utils";
-import Player from "@/src/components/player/Player";
+import { getMovieDetail, getMovieSources } from "@/src/utils/movies.utils";import MoviePlayer from "@/src/components/player/MoviePlayer";
 import BouncingLoader from "@/src/components/ui/bouncingloader/Bouncingloader";
 import { Skeleton } from "@/src/components/ui/Skeleton/Skeleton";
 import { motion } from "framer-motion";
-import { Star, Clock, Calendar, Play, Film } from "lucide-react";
-import { saveProgress } from "@/src/utils/continueWatching.utils";
+import { Star, Clock, Calendar, Film } from "lucide-react";
 
 const CARD = { background: "#111", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 12 };
 const SERVERS = ["vidcloud", "akcloud", "upcloud"];
@@ -30,6 +27,7 @@ export default function MovieDetail() {
   const [isFull,     setIsFull]     = useState(false);
   const [streamUrl,  setStreamUrl]  = useState(null);
   const [subtitles,  setSubtitles]  = useState([]);
+  const [streamHeaders, setStreamHeaders] = useState({});
   const [streamErr,  setStreamErr]  = useState(null);
   const [streamLoad, setStreamLoad] = useState(false);
   const [server,     setServer]     = useState("vidcloud");
@@ -63,6 +61,7 @@ export default function MovieDetail() {
       if (!m3u8) throw new Error("No stream found");
       setStreamUrl(m3u8);
       setSubtitles(src.subtitles || []);
+      setStreamHeaders(src.headers || {});
     } catch (e) {
       setStreamErr(e.message);
     } finally {
@@ -107,25 +106,12 @@ export default function MovieDetail() {
                     <BouncingLoader />
                   </div>
                 ) : streamUrl ? (
-                  <Player
+                  <MoviePlayer
                     key={streamUrl + "-" + server}
                     streamUrl={streamUrl}
                     subtitles={subtitles}
+                    headers={streamHeaders}
                     onMediaError={() => setStreamErr("Playback error — try another server")}
-                    onTimeUpdate={(currentTime, duration) => {
-                      if (!data) return;
-                      saveProgress({
-                        id: id,
-                        episodeId: data.episodeId || id,
-                        episodeNum: 1,
-                        title: data.title,
-                        japanese_title: data.title,
-                        poster: data.poster,
-                        adultContent: false,
-                        currentTime,
-                        duration,
-                      });
-                    }}
                   />
                 ) : streamErr ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black">
