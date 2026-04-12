@@ -55,7 +55,7 @@ export default function MovieDetail() {
     setStreamUrl(null);
     setServer(srv);
     try {
-      const src  = await getMovieSources(movieData.id, movieData.title, movieData.year);
+      const src  = await getMovieSources(movieData.id, movieData.title, movieData.year, movieData.imdbId || "");
       const m3u8 = src.sources?.[0]?.url;
       if (!m3u8) throw new Error("No stream found");
       setStreamUrl(m3u8);

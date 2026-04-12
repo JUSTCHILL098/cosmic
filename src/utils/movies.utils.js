@@ -29,10 +29,11 @@ export const getTrending   = ()      => tmdb("/trending/movie/week").then(d => (
 export const searchMovies  = (q, p = 1) => tmdb("/search/movie", { query: q, page: p }).then(d => ({ results: d.results.map(normTMDB), totalPages: d.total_pages }));
 
 export const getMovieDetail = async (id) => {
-  const [detail, credits, recs] = await Promise.all([
+  const [detail, credits, recs, extIds] = await Promise.all([
     tmdb(`/movie/${id}`),
     tmdb(`/movie/${id}/credits`),
     tmdb(`/movie/${id}/recommendations`),
+    tmdb(`/movie/${id}/external_ids`),
   ]);
   return {
     ...normTMDB(detail),
@@ -41,17 +42,21 @@ export const getMovieDetail = async (id) => {
     status:      detail.status || "",
     cast:        (credits.cast || []).slice(0, 8).map(c => c.name),
     recommended: (recs.results || []).slice(0, 14).map(normTMDB),
+    imdbId:      extIds?.imdb_id || "",
   };
 };
 
 // Videasy — decrypted HLS sources via our serverless proxy
 // Returns { sources: [{url, quality}], subtitles: [] }
-export const getMovieSources = async (tmdbId, title, year) => {
+export const getMovieSources = async (tmdbId, title, year, imdbId = "") => {
   const params = new URLSearchParams({
     tmdbId,
     mediaType: "movie",
     title:     title || "",
     year:      year  || "",
+    seasonId:  "1",
+    episodeId: "1",
+    imdbId:    imdbId || "",
   });
   const res = await axios.get(`/api/videasy?${params}`).then(r => r.data);
 

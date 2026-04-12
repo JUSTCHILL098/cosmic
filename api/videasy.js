@@ -1,6 +1,5 @@
-// Vercel serverless — fetches decrypted HLS sources from Videasy decryptor
-// The decryptor handles WASM decryption server-side and returns clean m3u8 URLs
-// Public instance: https://videasy-decryptor.vercel.app (walterwhite-69/Videasy.net-Decryptor)
+// Vercel serverless — proxies videasy.vercel.app/sources to bypass CORS
+// videasy.vercel.app runs WASM decryption and returns direct HLS m3u8 URLs
 
 import https from "https";
 import { URL } from "url";
@@ -18,6 +17,8 @@ function nodeGet(urlStr) {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36",
         "Accept":     "application/json, */*",
+        "Origin":     "https://videasy.vercel.app",
+        "Referer":    "https://videasy.vercel.app/",
       },
       timeout: 25000,
     };
@@ -28,46 +29,59 @@ function nodeGet(urlStr) {
   });
 }
 
-async function tryInstance(baseUrl, params) {
-  const url = `${baseUrl}/sources?${params}`;
-  const upstream = await nodeGet(url);
-  if (upstream.statusCode >= 400) throw new Error(`${upstream.statusCode}`);
-  const chunks = [];
-  for await (const chunk of upstream) chunks.push(chunk);
-  return JSON.parse(Buffer.concat(chunks).toString("utf8"));
-}
-
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin",  "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "*");
   if (req.method === "OPTIONS") return res.status(200).end();
 
-  const { tmdbId, mediaType = "movie", title = "", year = "", seasonId = "1", episodeId = "1" } = req.query;
+  const {
+    tmdbId, mediaType = "movie", title = "",
+    year = "", seasonId = "1", episodeId = "1", imdbId = "",
+  } = req.query;
+
   if (!tmdbId) return res.status(400).json({ error: "Missing tmdbId" });
 
-  const params = new URLSearchParams({ tmdbId, mediaType, seasonId, episodeId });
-  if (title) params.set("title", title);
-  if (year)  params.set("year",  year);
+  // Exact params as documented on videasy.vercel.app
+  const params = new URLSearchParams({
+    title,
+    mediaType,
+    tmdbId,
+    year,
+    seasonId,
+    episodeId,
+    imdbId,
+  });
 
-  // Try multiple known public instances of the decryptor
-  const instances = [
-    "https://videasy-decryptor.vercel.app",
-    "https://videasy-api.vercel.app",
-    "https://videasy.vercel.app",
-  ];
+  const targetUrl = `https://videasy.vercel.app/sources?${params}`;
 
-  let lastErr = null;
-  for (const base of instances) {
-    try {
-      const data = await tryInstance(base, params.toString());
-      res.setHeader("Content-Type",  "application/json");
-      res.setHeader("Cache-Control", "no-cache");
-      return res.status(200).json(data);
-    } catch (e) {
-      lastErr = e;
+  try {
+    const upstream = await nodeGet(targetUrl);
+
+    if (upstream.statusCode >= 400) {
+      // Read error body for debugging
+      const chunks = [];
+      for await (const chunk of upstream) chunks.push(chunk);
+      const body = Buffer.concat(chunks).toString("utf8");
+      return res.status(upstream.statusCode).json({
+        error: `Videasy returned ${upstream.statusCode}`,
+        detail: body.slice(0, 300),
+      });
     }
-  }
 
-  return res.status(502).json({ error: `All instances failed: ${lastErr?.message}` });
+    const chunks = [];
+    for await (const chunk of upstream) chunks.push(chunk);
+    const body = Buffer.concat(chunks).toString("utf8");
+
+    let data;
+    try { data = JSON.parse(body); }
+    catch { return res.status(502).json({ error: "Invalid JSON", raw: body.slice(0, 300) }); }
+
+    res.setHeader("Content-Type",  "application/json");
+    res.setHeader("Cache-Control", "no-cache");
+    return res.status(200).json(data);
+
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 }
