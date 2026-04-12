@@ -1,70 +1,78 @@
 import axios from "axios";
 
-const FHQBASE   = "https://jitsu-ten.vercel.app/api/flixhq";
-// Our own proxy — uses Node https.request which correctly sends Referer/Origin
-const M3U8PROXY = "/api/m3u8-proxy?url=";
-const REFERER   = encodeURIComponent("https://streameeeeee.site/");
+// TMDB — metadata, search, trending
+const TMDB_KEY = import.meta.env.VITE_TMDB_KEY;
+const TMDB     = "https://api.themoviedb.org/3";
+const IMG      = "https://image.tmdb.org/t/p/w500";
+const IMG_ORIG = "https://image.tmdb.org/t/p/original";
 
-const fhq = (path) => axios.get(`${FHQBASE}${path}`).then(r => r.data);
+const tmdb = (path, params = {}) =>
+  axios.get(`${TMDB}${path}`, { params: { api_key: TMDB_KEY, ...params } }).then(r => r.data);
 
-const normFHQ = (m) => ({
-  id:       m.id,
-  title:    m.name || m.title || "Unknown",
-  poster:   m.posterImage || m.image || "https://placehold.co/200x300/111/333?text=No+Poster",
-  backdrop: m.cover || null,
-  overview: m.synopsis || m.description || "",
-  rating:   m.score ? String(m.score) : (m.rating || "N/A"),
-  year:     String(m.releaseDate || m.year || "").slice(0, 4),
-  genres:   m.genre || m.genres || [],
-  quality:  m.quality || "",
-  duration: m.duration || "",
-  type:     m.type || "Movie",
-  cast:     m.casts || m.cast || [],
-  country:  Array.isArray(m.country) ? m.country.join(", ") : (m.country || ""),
-  production: Array.isArray(m.production) ? m.production.filter(p => p !== "N/A").join(", ") : (m.production || ""),
+const normTMDB = (m) => ({
+  id:       String(m.id),
+  title:    m.title || m.name || "Unknown",
+  poster:   m.poster_path   ? `${IMG}${m.poster_path}`        : "https://placehold.co/200x300/111/333?text=No+Poster",
+  backdrop: m.backdrop_path ? `${IMG_ORIG}${m.backdrop_path}` : null,
+  overview: m.overview || "",
+  rating:   m.vote_average  ? m.vote_average.toFixed(1)       : "N/A",
+  year:     (m.release_date || m.first_air_date || "").slice(0, 4),
+  genres:   (m.genres || []).map(g => g.name),
+  type:     "Movie",
 });
 
-export const getPopular    = (p = 1) => fhq(`/movies/category/popular?page=${p}`).then(d => ({ results: (d.data||[]).map(normFHQ), totalPages: d.lastPage||1 }));
-export const getTopRated   = (p = 1) => fhq(`/movies/category/top-rated?page=${p}`).then(d => ({ results: (d.data||[]).map(normFHQ), totalPages: d.lastPage||1 }));
-export const getUpcoming   = (p = 1) => fhq(`/media/upcoming?page=${p}`).then(d => ({ results: (d.data||[]).filter(m=>m.type==="Movie").map(normFHQ), totalPages: d.lastPage||1 }));
-export const getNowPlaying = (p = 1) => fhq(`/movies/category/popular?page=${p}`).then(d => ({ results: (d.data||[]).map(normFHQ), totalPages: d.lastPage||1 }));
-export const getTrending   = ()      => fhq(`/home`).then(d => ({ results: [...(d.trendingMovies||[]),...(d.recentMovies||[])].slice(0,24).map(normFHQ), totalPages:1 }));
-export const searchMovies  = (q,p=1) => fhq(`/media/search?q=${encodeURIComponent(q)}&page=${p}`).then(d => ({ results: (d.data||[]).filter(m=>m.type==="Movie").map(normFHQ), totalPages: d.lastPage||1 }));
+export const getPopular    = (p = 1) => tmdb("/movie/popular",     { page: p }).then(d => ({ results: d.results.map(normTMDB), totalPages: d.total_pages }));
+export const getTopRated   = (p = 1) => tmdb("/movie/top_rated",   { page: p }).then(d => ({ results: d.results.map(normTMDB), totalPages: d.total_pages }));
+export const getUpcoming   = (p = 1) => tmdb("/movie/upcoming",    { page: p }).then(d => ({ results: d.results.map(normTMDB), totalPages: d.total_pages }));
+export const getNowPlaying = (p = 1) => tmdb("/movie/now_playing", { page: p }).then(d => ({ results: d.results.map(normTMDB), totalPages: d.total_pages }));
+export const getTrending   = ()      => tmdb("/trending/movie/week").then(d => ({ results: d.results.map(normTMDB), totalPages: 1 }));
+export const searchMovies  = (q, p = 1) => tmdb("/search/movie", { query: q, page: p }).then(d => ({ results: d.results.map(normTMDB), totalPages: d.total_pages }));
 
 export const getMovieDetail = async (id) => {
-  const res = await fhq(`/media/${id}`);
-  // FlixHQ wraps detail in res.data
-  const m = res.data || res;
-  const norm = normFHQ(m);
+  const [detail, credits, recs] = await Promise.all([
+    tmdb(`/movie/${id}`),
+    tmdb(`/movie/${id}/credits`),
+    tmdb(`/movie/${id}/recommendations`),
+  ]);
   return {
-    ...norm,
-    providerEpisodes: res.providerEpisodes || [],
-    episodeId: res.providerEpisodes?.[0]?.episodeId || id,
-    recommended: (res.recommended || []).map(normFHQ),
+    ...normTMDB(detail),
+    genres:      (detail.genres || []).map(g => g.name),
+    runtime:     detail.runtime ? `${detail.runtime} min` : "",
+    status:      detail.status || "",
+    cast:        (credits.cast || []).slice(0, 8).map(c => c.name),
+    recommended: (recs.results || []).slice(0, 14).map(normTMDB),
   };
 };
 
-export const getMovieSources = async (episodeId, server = "vidcloud") => {
-  const res = await fhq(`/sources/${encodeURIComponent(episodeId)}?server=${server}`);
-  const sources   = res.data?.sources   || res.sources   || [];
-  const subtitles = res.data?.subtitles || res.subtitles || [];
-
-  // Proxy through our serverless fn — Node https.request sends Referer correctly
-  const proxied = sources.map(s => {
-    if ((s.isM3u8 || s.type === "hls") && s.url) {
-      return { ...s, url: `${M3U8PROXY}${encodeURIComponent(s.url)}&referer=${REFERER}` };
-    }
-    return s;
+// Videasy — decrypted HLS sources via our serverless proxy
+// Returns { sources: [{url, quality}], subtitles: [] }
+export const getMovieSources = async (tmdbId, title, year) => {
+  const params = new URLSearchParams({
+    tmdbId,
+    mediaType: "movie",
+    title:     title || "",
+    year:      year  || "",
   });
+  const res = await axios.get(`/api/videasy?${params}`).then(r => r.data);
+
+  // Videasy response shape: { url, subtitles, headers } or { sources: [...] }
+  // Normalise to { sources: [{url, isM3u8}], subtitles: [{file, label, default}] }
+  const rawSources   = res.sources   || (res.url ? [{ url: res.url, isM3u8: true }] : []);
+  const rawSubtitles = res.subtitles || res.tracks || [];
 
   return {
-    sources:   proxied,
-    subtitles: subtitles.map(s => ({
-      file:    s.url  || s.file || "",
-      label:   s.lang || s.label || "English",
-      kind:    "subtitles",
-      default: !!s.default,
-    })).filter(s => s.file),
-    headers: res.headers || {},
+    sources: rawSources.map(s => ({
+      url:    s.url || s.file || "",
+      isM3u8: true,
+      quality: s.quality || s.label || "Auto",
+    })).filter(s => s.url),
+    subtitles: rawSubtitles
+      .filter(s => s.kind !== "thumbnails")
+      .map(s => ({
+        file:    s.file || s.url || "",
+        label:   s.label || s.lang || "English",
+        kind:    "subtitles",
+        default: !!s.default,
+      })).filter(s => s.file),
   };
 };

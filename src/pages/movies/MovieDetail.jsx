@@ -8,8 +8,7 @@ import { motion } from "framer-motion";
 import { Star, Clock, Calendar, Film } from "lucide-react";
 
 const CARD = { background: "#111", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 12 };
-// Try servers in order — upcloud/akcloud may use a different CDN than raffaellocdn
-const SERVERS = ["vidcloud", "upcloud", "akcloud"];
+const SERVERS = ["default"];
 
 const GlassPill = ({ children }) => (
   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono"
@@ -54,24 +53,14 @@ export default function MovieDetail() {
     setStreamUrl(null);
     setServer(srv);
     try {
-      const epId = movieData.episodeId || movieData.id;
-      const src  = await getMovieSources(epId, srv);
-      const m3u8 = src.sources?.find(s => s.isM3u8 || s.type === "hls")?.url || src.sources?.[0]?.url;
+      const src  = await getMovieSources(movieData.id, movieData.title, movieData.year);
+      const m3u8 = src.sources?.[0]?.url;
       if (!m3u8) throw new Error("No stream found");
       setStreamUrl(m3u8);
       setSubtitles(src.subtitles || []);
       setTriedServers([...tried, srv]);
     } catch (e) {
-      const nowTried = [...tried, srv];
-      setTriedServers(nowTried);
-      // Auto-try next server
-      const next = SERVERS.find(s => !nowTried.includes(s));
-      if (next) {
-        loadStream(next, movieData, nowTried);
-      } else {
-        setStreamErr("All servers failed — stream unavailable");
-        setStreamLoad(false);
-      }
+      setStreamErr(e.message || "Stream unavailable");
     } finally {
       setStreamLoad(false);
     }
@@ -135,21 +124,19 @@ export default function MovieDetail() {
               </div>
             </motion.div>
 
-            {/* 2. Server switcher */}
+            {/* 2. Source info */}
             <div className="rounded-xl overflow-hidden" style={CARD}>
               <div className="px-3 py-2.5 flex items-center gap-2 flex-wrap">
-                <span className="text-[10px] font-mono text-white/30 uppercase tracking-wider mr-1">Server</span>
-                {SERVERS.map(s => (
-                  <button key={s} onClick={() => loadStream(s, data, [])}
-                    className="px-3 py-1.5 rounded-md text-[11px] font-mono transition-all"
-                    style={{
-                      background: server === s ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.04)",
-                      border: server === s ? "1px solid rgba(255,255,255,0.25)" : "1px solid rgba(255,255,255,0.08)",
-                      color: server === s ? "#fff" : "rgba(255,255,255,0.4)",
-                    }}>
-                    {s}
-                  </button>
-                ))}
+                <span className="text-[10px] font-mono text-white/30 uppercase tracking-wider mr-1">Source</span>
+                <span className="px-3 py-1.5 rounded-md text-[11px] font-mono"
+                  style={{ background:"rgba(255,255,255,0.12)", border:"1px solid rgba(255,255,255,0.25)", color:"#fff" }}>
+                  Videasy
+                </span>
+                <button onClick={() => { setTriedServers([]); loadStream("default", data, []); }}
+                  className="px-3 py-1.5 rounded-md text-[11px] font-mono transition-all ml-1"
+                  style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.4)" }}>
+                  Retry
+                </button>
                 {streamErr && (
                   <span className="text-red-400/70 font-mono text-[10px] ml-2">{streamErr}</span>
                 )}
