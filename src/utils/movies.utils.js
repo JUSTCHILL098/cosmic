@@ -1,7 +1,9 @@
 import axios from "axios";
 
 const FHQBASE   = "https://jitsu-ten.vercel.app/api/flixhq";
-const M3U8PROXY = import.meta.env.VITE_M3U8_PROXY_URL; // anime proxy — works for non-raffaellocdn CDNs
+// Our own proxy — uses Node https.request which correctly sends Referer/Origin
+const M3U8PROXY = "/api/m3u8-proxy?url=";
+const REFERER   = encodeURIComponent("https://streameeeeee.site/");
 
 const fhq = (path) => axios.get(`${FHQBASE}${path}`).then(r => r.data);
 
@@ -47,11 +49,10 @@ export const getMovieSources = async (episodeId, server = "vidcloud") => {
   const sources   = res.data?.sources   || res.sources   || [];
   const subtitles = res.data?.subtitles || res.subtitles || [];
 
-  // Try to proxy — if the CDN is raffaellocdn (blocks Vercel), the proxy will 403
-  // and MovieDetail will auto-try the next server
+  // Proxy through our serverless fn — Node https.request sends Referer correctly
   const proxied = sources.map(s => {
-    if ((s.isM3u8 || s.type === "hls") && s.url && M3U8PROXY) {
-      return { ...s, url: `${M3U8PROXY}${encodeURIComponent(s.url)}` };
+    if ((s.isM3u8 || s.type === "hls") && s.url) {
+      return { ...s, url: `${M3U8PROXY}${encodeURIComponent(s.url)}&referer=${REFERER}` };
     }
     return s;
   });
