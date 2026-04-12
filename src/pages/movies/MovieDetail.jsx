@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { getMovieDetail, getMovieSources } from "@/src/utils/movies.utils";import MoviePlayer from "@/src/components/player/MoviePlayer";
+import { getMovieDetail, getMovieSources } from "@/src/utils/movies.utils";
+import Player from "@/src/components/player/Player";
 import BouncingLoader from "@/src/components/ui/bouncingloader/Bouncingloader";
 import { Skeleton } from "@/src/components/ui/Skeleton/Skeleton";
 import { motion } from "framer-motion";
 import { Star, Clock, Calendar, Film } from "lucide-react";
 
 const CARD = { background: "#111", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 12 };
-const SERVERS = ["vidcloud", "akcloud", "upcloud"];
+// Try servers in order — upcloud/akcloud may use a different CDN than raffaellocdn
+const SERVERS = ["vidcloud", "upcloud", "akcloud"];
 
 const GlassPill = ({ children }) => (
   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono"
@@ -21,39 +23,36 @@ export default function MovieDetail() {
   const navigate = useNavigate();
   const videoRef = useRef(null);
 
-  const [data,       setData]       = useState(null);
-  const [loading,    setLoading]    = useState(true);
-  const [error,      setError]      = useState(null);
-  const [isFull,     setIsFull]     = useState(false);
-  const [streamUrl,  setStreamUrl]  = useState(null);
-  const [subtitles,  setSubtitles]  = useState([]);
-  const [streamHeaders, setStreamHeaders] = useState({});
-  const [streamErr,  setStreamErr]  = useState(null);
-  const [streamLoad, setStreamLoad] = useState(false);
-  const [server,     setServer]     = useState("vidcloud");
-  const [autoLoaded, setAutoLoaded] = useState(false);
+  const [data,          setData]          = useState(null);
+  const [loading,       setLoading]       = useState(true);
+  const [error,         setError]         = useState(null);
+  const [isFull,        setIsFull]        = useState(false);
+  const [streamUrl,     setStreamUrl]     = useState(null);
+  const [subtitles,     setSubtitles]     = useState([]);
+  const [streamErr,     setStreamErr]     = useState(null);
+  const [streamLoad,    setStreamLoad]    = useState(false);
+  const [server,        setServer]        = useState(SERVERS[0]);
+  const [triedServers,  setTriedServers]  = useState([]);
 
   useEffect(() => {
     setLoading(true);
     getMovieDetail(decodeURIComponent(id))
-      .then(d => { setData(d); })
+      .then(d => setData(d))
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, [id]);
 
   // Auto-load stream once data is ready
   useEffect(() => {
-    if (data && !autoLoaded) {
-      setAutoLoaded(true);
-      loadStream("vidcloud", data);
-    }
+    if (data) loadStream(SERVERS[0], data, []);
   }, [data]);
 
-  const loadStream = async (srv = server, movieData = data) => {
+  const loadStream = async (srv, movieData = data, tried = triedServers) => {
     if (!movieData) return;
     setStreamLoad(true);
     setStreamErr(null);
     setStreamUrl(null);
+    setServer(srv);
     try {
       const epId = movieData.episodeId || movieData.id;
       const src  = await getMovieSources(epId, srv);
@@ -61,17 +60,21 @@ export default function MovieDetail() {
       if (!m3u8) throw new Error("No stream found");
       setStreamUrl(m3u8);
       setSubtitles(src.subtitles || []);
-      setStreamHeaders(src.headers || {});
+      setTriedServers([...tried, srv]);
     } catch (e) {
-      setStreamErr(e.message);
+      const nowTried = [...tried, srv];
+      setTriedServers(nowTried);
+      // Auto-try next server
+      const next = SERVERS.find(s => !nowTried.includes(s));
+      if (next) {
+        loadStream(next, movieData, nowTried);
+      } else {
+        setStreamErr("All servers failed — stream unavailable");
+        setStreamLoad(false);
+      }
     } finally {
       setStreamLoad(false);
     }
-  };
-
-  const switchServer = (srv) => {
-    setServer(srv);
-    loadStream(srv);
   };
 
   if (loading) return (
@@ -106,23 +109,27 @@ export default function MovieDetail() {
                     <BouncingLoader />
                   </div>
                 ) : streamUrl ? (
-                  <MoviePlayer
-                    key={streamUrl + "-" + server}
+                  <Player
+                    key={streamUrl}
                     streamUrl={streamUrl}
                     subtitles={subtitles}
-                    headers={streamHeaders}
-                    onMediaError={() => setStreamErr("Playback error — try another server")}
+                    onMediaError={() => {
+                      // On playback error, try next server
+                      const next = SERVERS.find(s => !triedServers.includes(s));
+                      if (next) loadStream(next);
+                      else setStreamErr("All servers failed");
+                    }}
                   />
                 ) : streamErr ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black">
                     <Film className="w-10 h-10 text-white/10" />
-                    <p className="text-white/40 font-mono text-sm">{streamErr}</p>
-                    <button onClick={() => loadStream(server)} className="text-white/60 hover:text-white font-mono text-xs underline">Retry</button>
+                    <p className="text-white/40 font-mono text-sm text-center px-4">{streamErr}</p>
+                    <button onClick={() => { setTriedServers([]); loadStream(SERVERS[0], data, []); }}
+                      className="text-white/60 hover:text-white font-mono text-xs underline">Retry</button>
                   </div>
                 ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black">
-                    <Film className="w-10 h-10 text-white/10" />
-                    <p className="text-white/30 font-mono text-xs">Loading stream...</p>
+                  <div className="absolute inset-0 flex items-center justify-center bg-black">
+                    <BouncingLoader />
                   </div>
                 )}
               </div>
@@ -133,7 +140,7 @@ export default function MovieDetail() {
               <div className="px-3 py-2.5 flex items-center gap-2 flex-wrap">
                 <span className="text-[10px] font-mono text-white/30 uppercase tracking-wider mr-1">Server</span>
                 {SERVERS.map(s => (
-                  <button key={s} onClick={() => switchServer(s)}
+                  <button key={s} onClick={() => loadStream(s, data, [])}
                     className="px-3 py-1.5 rounded-md text-[11px] font-mono transition-all"
                     style={{
                       background: server === s ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.04)",
@@ -144,7 +151,7 @@ export default function MovieDetail() {
                   </button>
                 ))}
                 {streamErr && (
-                  <span className="text-red-400 font-mono text-[10px] ml-2">{streamErr}</span>
+                  <span className="text-red-400/70 font-mono text-[10px] ml-2">{streamErr}</span>
                 )}
               </div>
             </div>
@@ -175,8 +182,8 @@ export default function MovieDetail() {
                         <GlassPill><Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />{data.rating}</GlassPill>
                       )}
                       {data.duration && <GlassPill><Clock className="w-3 h-3" />{data.duration}</GlassPill>}
-                      {data.year && <GlassPill><Calendar className="w-3 h-3" />{data.year}</GlassPill>}
-                      {data.quality && <GlassPill>{data.quality}</GlassPill>}
+                      {data.year     && <GlassPill><Calendar className="w-3 h-3" />{data.year}</GlassPill>}
+                      {data.quality  && <GlassPill>{data.quality}</GlassPill>}
                     </div>
                     <div className="flex flex-wrap gap-x-5 gap-y-1">
                       {[
@@ -202,7 +209,6 @@ export default function MovieDetail() {
                     )}
                   </div>
                 </div>
-                {/* Genres */}
                 {data.genres?.length > 0 && (
                   <div className="mt-4 pt-4 flex flex-wrap gap-2" style={{ borderTop:"1px solid rgba(255,255,255,0.06)" }}>
                     {data.genres.map((g, i) => (
@@ -222,11 +228,10 @@ export default function MovieDetail() {
             {data.recommended?.length > 0 && (
               <div className="rounded-xl p-4" style={CARD}>
                 <h2 className="text-[10px] font-mono text-white/25 uppercase tracking-widest mb-3">More Movies</h2>
-                <div className="flex flex-col gap-2">
-                  {data.recommended.slice(0, 12).map((m, i) => (
+                <div className="flex flex-col gap-1">
+                  {data.recommended.slice(0, 14).map((m, i) => (
                     <Link key={m.id || i} to={`/movies/${m.id}`}
                       className="flex items-center gap-3 p-2 rounded-lg transition-colors group"
-                      style={{ borderRadius: 8 }}
                       onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.05)"}
                       onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                       <img src={m.poster} alt={m.title}
