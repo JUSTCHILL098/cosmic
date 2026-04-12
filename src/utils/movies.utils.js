@@ -46,19 +46,20 @@ export const getMovieDetail = async (id) => {
   };
 };
 
-// Videasy — decrypted HLS sources via our serverless proxy
-// Returns { sources: [{url, quality}], subtitles: [] }
+// Videasy — call directly from browser (FastAPI has CORS open by default)
+// videasy.vercel.app runs WASM decryption, returns direct HLS m3u8 URLs
 export const getMovieSources = async (tmdbId, title, year, imdbId = "") => {
   const params = new URLSearchParams({
-    tmdbId,
-    mediaType: "movie",
     title:     title || "",
+    mediaType: "movie",
+    tmdbId:    String(tmdbId),
     year:      year  || "",
     seasonId:  "1",
     episodeId: "1",
     imdbId:    imdbId || "",
   });
-  const res = await axios.get(`/api/videasy?${params}`).then(r => r.data);
+
+  const res = await axios.get(`https://videasy.vercel.app/sources?${params}`).then(r => r.data);
 
   // Videasy response shape: { url, subtitles, headers } or { sources: [...] }
   // Normalise to { sources: [{url, isM3u8}], subtitles: [{file, label, default}] }
