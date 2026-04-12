@@ -71,16 +71,32 @@ export default function SplashScreen() {
             </span>
           </motion.div>
 
-          {/* Title */}
+          {/* Title — video knockout effect (video shows through text letters) */}
           <motion.div
             initial={{ opacity:0, scale:0.9 }} animate={{ opacity:1, scale:1 }}
             transition={{ delay:0.4, type:"spring", duration:1.5 }}
             className="w-full select-none pointer-events-none"
           >
-            <h1 className="font-black text-white leading-none tracking-tighter font-mono py-2"
-              style={{ fontSize: "clamp(5rem, 14vw, 11rem)" }}>
-              {TITLE}
-            </h1>
+            {/* Isolated container so mix-blend-mode only affects this element */}
+            <div style={{ isolation: "isolate", position: "relative" }}>
+              {/* Video layer — sits behind the text */}
+              <video
+                autoPlay muted loop playsInline preload="auto"
+                className="absolute inset-0 w-full h-full object-cover rounded-xl"
+                style={{ zIndex: 0 }}
+              >
+                <source src="/bg-video.mp4" type="video/mp4" />
+              </video>
+              {/* Text with multiply blend — black bg punches through, video shows in letters */}
+              <div style={{ position: "relative", zIndex: 1, background: "#000", mixBlendMode: "multiply" }}>
+                <h1
+                  className="font-black text-white leading-none tracking-tighter font-mono py-2"
+                  style={{ fontSize: "clamp(5rem, 14vw, 11rem)" }}
+                >
+                  {TITLE}
+                </h1>
+              </div>
+            </div>
           </motion.div>
 
           {/* Taglines + search + buttons */}
