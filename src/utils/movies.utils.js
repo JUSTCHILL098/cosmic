@@ -1,7 +1,8 @@
 import axios from "axios";
 
-const FHQBASE  = "https://jitsu-ten.vercel.app/api/flixhq";
-const M3U8PROXY = import.meta.env.VITE_M3U8_PROXY_URL; // existing proxy
+const FHQBASE   = "https://jitsu-ten.vercel.app/api/flixhq";
+// Use our own serverless m3u8 proxy — the anime proxy blocks raffaellocdn
+const M3U8PROXY = "/api/m3u8-proxy?url=";
 
 const fhq = (path) => axios.get(`${FHQBASE}${path}`).then(r => r.data);
 
