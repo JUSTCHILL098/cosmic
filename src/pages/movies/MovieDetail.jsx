@@ -34,8 +34,10 @@ export default function MovieDetail() {
   const [triedServers,  setTriedServers]  = useState([]);
 
   useEffect(() => {
+    // Strip any non-numeric prefix (e.g. old FlixHQ slugs) — TMDB IDs are numeric
+    const numericId = decodeURIComponent(id).replace(/\D/g, "") || decodeURIComponent(id);
     setLoading(true);
-    getMovieDetail(decodeURIComponent(id))
+    getMovieDetail(numericId)
       .then(d => setData(d))
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
